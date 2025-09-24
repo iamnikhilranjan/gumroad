@@ -1,9 +1,11 @@
 import * as React from "react";
 import { createCast } from "ts-safe-cast";
 
+import { fetchPaginatedWishlistItems } from "$app/data/wishlists";
 import { CardProduct } from "$app/parsers/product";
 import { classNames } from "$app/utils/classNames";
 import { RecurrenceId, recurrenceNames } from "$app/utils/recurringPricing";
+import { assertResponseError } from "$app/utils/request";
 import { register } from "$app/utils/serverComponentUtil";
 
 import { Button, NavigationButton } from "$app/components/Button";
@@ -12,6 +14,7 @@ import { Icon } from "$app/components/Icons";
 import { Card } from "$app/components/Product/Card";
 import { Option } from "$app/components/Product/ConfigurationSelector";
 import { trackCtaClick } from "$app/components/Product/CtaButton";
+import { showAlert } from "$app/components/server-components/Alert";
 import { PageHeader } from "$app/components/ui/PageHeader";
 import { FollowButton } from "$app/components/Wishlist/FollowButton";
 import { WishlistEditor } from "$app/components/Wishlist/WishlistEditor";
@@ -46,6 +49,16 @@ export type WishlistProps = {
   checkout_enabled: boolean;
   items: WishlistItem[];
   isDiscover?: boolean;
+  topLevel?: boolean;
+  pagination: {
+    count: number;
+    items: number;
+    page: number;
+    pages: number;
+    prev: number | null;
+    next: number | null;
+    last: number;
+  };
 };
 
 const formatName = ({ product, option, recurrence }: WishlistItem) => {
@@ -82,11 +95,32 @@ export const Wishlist = ({
   checkout_enabled,
   items: initialItems,
   isDiscover,
+  pagination: initialPagination,
 }: WishlistProps) => {
   const [name, setName] = React.useState(initialName);
   const [description, setDescription] = React.useState(initialDescription);
   const [items, setItems] = React.useState(initialItems);
+  const [pagination, setPagination] = React.useState(initialPagination);
   const [isEditing, setIsEditing] = React.useState(false);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+
+  const loadMoreWishlistItems = async () => {
+    if (loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const loaded = await fetchPaginatedWishlistItems({
+        wishlist_id: id,
+        page: pagination.next,
+      });
+      setItems((prev) => [...prev, ...loaded.items]);
+      setPagination(loaded.pagination);
+    } catch (e) {
+      assertResponseError(e);
+      showAlert("An error occurred while loading more items", "error");
+    }
+    setLoadingMore(false);
+  };
 
   return (
     <>
@@ -176,6 +210,13 @@ export const Wishlist = ({
             />
           ))}
         </div>
+        {pagination.next !== null ? (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "var(--spacer-6)" }}>
+            <Button disabled={loadingMore} onClick={() => void loadMoreWishlistItems()}>
+              {loadingMore ? "Loading more items..." : "Load more items"}
+            </Button>
+          </div>
+        ) : null}
         {isEditing ? (
           <WishlistEditor
             id={id}

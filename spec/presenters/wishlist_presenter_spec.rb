@@ -224,7 +224,16 @@ describe WishlistPresenter do
             rent: false,
             created_at: wishlist.wishlist_products.second.created_at
           }
-        ]
+        ],
+        pagination: {
+          count: 2,
+          items: 10,
+          page: 1,
+          pages: 1,
+          prev: nil,
+          next: nil,
+          last: 1
+        },
       )
     end
 

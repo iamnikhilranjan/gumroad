@@ -2,11 +2,16 @@
 
 class WishlistPresenter
   include Rails.application.routes.url_helpers
+  include Pagy::Backend
 
-  attr_reader :wishlist
+  attr_reader :wishlist, :page
 
-  def initialize(wishlist:)
+  PER_PAGE = 10
+  private_constant :PER_PAGE
+
+  def initialize(wishlist:, page: nil)
     @wishlist = wishlist
+    @page = (page || 1).to_i
   end
 
   def self.library_props(wishlists:, is_wishlist_creator: true)
@@ -21,6 +26,10 @@ class WishlistPresenter
     wishlists.includes(ASSOCIATIONS_FOR_CARD).map do |wishlist|
       new(wishlist:).card_props(pundit_user:, following: following_wishlists.include?(wishlist.id), layout:, recommended_by:)
     end
+  end
+
+  def public_items(request:, pundit_user:, recommended_by: nil)
+    paginated_public_items(request:, pundit_user:, recommended_by:)
   end
 
   def library_props(product_count:, is_wishlist_creator: true)
@@ -46,6 +55,8 @@ class WishlistPresenter
   end
 
   def public_props(request:, pundit_user:, recommended_by: nil)
+    items_with_pagination = paginated_public_items(request:, pundit_user:, recommended_by:)
+
     {
       id: wishlist.external_id,
       name: wishlist.name,
@@ -61,7 +72,8 @@ class WishlistPresenter
       can_edit: pundit_user&.user ? Pundit.policy!(pundit_user, wishlist).update? : false,
       discover_opted_out: pundit_user&.user && Pundit.policy!(pundit_user, wishlist).update? ? wishlist.discover_opted_out? : nil,
       checkout_enabled: wishlist.alive_wishlist_products.available_to_buy.any?,
-      items: wishlist.alive_wishlist_products.includes(product: ProductPresenter::ASSOCIATIONS_FOR_CARD).map { |wishlist_product| public_item_props(wishlist_product:, request:, current_seller: pundit_user&.seller, recommended_by:) },
+      items: items_with_pagination[:items],
+      pagination: items_with_pagination[:pagination],
     }
   end
 
@@ -92,6 +104,26 @@ class WishlistPresenter
   end
 
   private
+    def paginated_public_items(request:, pundit_user:, recommended_by:)
+      pagination, wishlist_products = pagy(wishlist.alive_wishlist_products, page:, limit: PER_PAGE)
+
+      paginated_products = wishlist_products
+      .includes(product: ProductPresenter::ASSOCIATIONS_FOR_CARD)
+      .map do |wishlist_product|
+        public_item_props(
+          wishlist_product:,
+          request:,
+          current_seller: pundit_user&.seller,
+          recommended_by:
+        )
+      end
+
+      {
+        items: paginated_products,
+        pagination: PagyPresenter.new(pagination).metadata,
+      }
+    end
+
     def product_thumbnail(product)
       { url: product.thumbnail_or_cover_url, native_type: product.native_type }
     end
