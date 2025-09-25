@@ -114,8 +114,8 @@ const WishlistItemCard = ({
       product={{ ...item.product, name: formatName(item) }}
       footerAction={
         <>
-          <WithTooltip position="top" tip="Gift this product">
-            <button className="link" disabled={isDeleting} onClick={() => void destroy()}>
+          <WithTooltip position="top" tip="Remove this product">
+            <button disabled={isDeleting} onClick={() => void destroy()}>
               <Icon name="trash2" />
             </button>
           </WithTooltip>
