@@ -2,10 +2,13 @@
 
 class Admin::UnblockEmailDomainsController < Admin::BaseController
   include MassUnblocker
+
   layout "admin_inertia", only: :show
 
+  head_title "Mass-unblock email domains", only: :show
+
   def show
-    render inertia: "Admin/UnblockEmailDomains/Show", props: inertia_props(title: "Mass-unblock email domains")
+    render inertia: "Admin/UnblockEmailDomains/Show", props: inertia_props
   end
 
   def update

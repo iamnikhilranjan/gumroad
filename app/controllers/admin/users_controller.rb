@@ -6,7 +6,9 @@ class Admin::UsersController < Admin::BaseController
 
   skip_before_action :require_admin!, if: :request_from_iffy?, only: %i[suspend_for_fraud_from_iffy mark_compliant_from_iffy flag_for_explicit_nsfw_tos_violation_from_iffy]
 
-  before_action :fetch_user, except: %i[refund_queue block_ip_address]
+  before_action :fetch_user, except: %i[block_ip_address]
+
+  before_action(only: :show) { @title = "#{@user.display_name} on Gumroad" }
 
   PRODUCTS_ORDER = "ISNULL(COALESCE(purchase_disabled_at, banned_at, links.deleted_at)) DESC, created_at DESC"
   PRODUCTS_PER_PAGE = 10
@@ -19,7 +21,6 @@ class Admin::UsersController < Admin::BaseController
     else
       render inertia: "Admin/Users/Show",
              props: inertia_props(
-               title: "#{@user.display_name} on Gumroad",
                user: @user.as_json_for_admin(impersonatable: policy([:admin, :impersonators, @user]).create?),
              )
     end
@@ -40,11 +41,6 @@ class Admin::UsersController < Admin::BaseController
     render json: { success: true }
   rescue => e
     render json: { success: false, message: e.message }
-  end
-
-  def refund_queue
-    @title = "Refund queue"
-    @users = User.refund_queue
   end
 
   def enable

@@ -6,18 +6,28 @@ class Admin::BaseController < ApplicationController
   # layout "admin"
   layout 'admin_inertia', only: :index
 
-  inertia_share card_types: -> { card_types_for_react }
+  def self.head_title(title, options = {})
+    if title.is_a?(Proc)
+      before_action(options) { @title = title.call }
+    else
+      before_action(options) { @title = title }
+    end
+  end
+
+  head_title "Admin"
+
+  inertia_share card_types: -> { card_types_for_react },
+                title: -> { head_title }
 
   before_action :require_admin!
   before_action :hide_layouts
 
   before_action do
     @body_id = "admin"
-    @title = "Admin"
   end
 
   def index
-    render inertia: "Admin/Base/Index", props: inertia_props(title: @title)
+    render inertia: "Admin/Base/Index", props: inertia_props
   end
 
   def impersonate
@@ -58,7 +68,7 @@ class Admin::BaseController < ApplicationController
     end
   end
 
-  private
+  protected
     def find_user(identifier)
       return nil if identifier.blank?
 
@@ -96,5 +106,9 @@ class Admin::BaseController < ApplicationController
 
     def xhr_or_json_request?
       request.xhr? || request.format.json?
+    end
+
+    def head_title
+      @title
     end
 end

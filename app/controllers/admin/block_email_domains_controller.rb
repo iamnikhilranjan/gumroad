@@ -2,10 +2,13 @@
 
 class Admin::BlockEmailDomainsController < Admin::BaseController
   include MassBlocker
+
   layout "admin_inertia", only: :show
 
+  head_title "Mass-block email domains", only: :show
+
   def show
-    render inertia: "Admin/BlockEmailDomains/Show", props: inertia_props(title: "Mass-block email domains")
+    render inertia: "Admin/BlockEmailDomains/Show", props: inertia_props
   end
 
   def update

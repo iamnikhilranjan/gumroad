@@ -226,12 +226,11 @@ module User::Risk
       User.where(id: user_ids, user_risk_state: "suspended_for_fraud")
         .joins(:balances)
         .merge(Balance.unpaid)
+        .distinct
         .group(:user_id)
         .having("SUM(amount_cents) > 0")
         .order(updated_at: :desc)
         .limit(MAX_REFUND_QUEUE_SIZE)
-
-      User.all.order(updated_at: :desc).limit(MAX_REFUND_QUEUE_SIZE)
     end
   end
 end

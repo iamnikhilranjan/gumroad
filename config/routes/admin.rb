@@ -164,7 +164,6 @@ namespace :admin do
     mount FlipperCSP.new(Flipper::UI.app(Flipper)) => :features, as: :flipper_ui
   end
 
-  get :refund_queue_old, to: 'users#refund_queue'
   scope module: "users" do
     post :block_ip_address
   end

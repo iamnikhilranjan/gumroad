@@ -5,7 +5,8 @@ const useRouteLoading = () => {
 
   React.useEffect(() => {
     const startHandler = (event: any) => {
-      setIsRouteLoading(!event.detail?.visit?.prefetch);
+      const { prefetch, preserveScroll } = event.detail?.visit || {}
+      setIsRouteLoading(!prefetch && !preserveScroll);
     };
 
     const finishHandler = () => setIsRouteLoading(false);
