@@ -1,7 +1,7 @@
 import React from "react";
-import { type Purchase } from "$app/components/Admin/Purchases/Purchase";
+import { type Purchase } from "$app/components/Admin/Search/Purchases/Purchase";
 import { capitalize } from "lodash";
-import AdminPurchasesErrorCode from "$app/components/Admin/Purchases/ErrorCode";
+import AdminPurchasesErrorCode from "$app/components/Admin/Search/Purchases/ErrorCode";
 
 const AdminPurchasesState = ({ purchase }: { purchase: Purchase }) => {
   return (

@@ -1,7 +1,5 @@
 import React from "react";
-import { formatDate } from "$app/utils/date";
-import { WithTooltip } from "$app/components/WithTooltip";
-import { formatDistanceToNow } from 'date-fns';
+import DateTimeWithRelativeTooltip from "$app/components/Admin/DateTimeWithRelativeTooltip";
 
 import Loading from "$app/components/Admin/Loading";
 
@@ -52,9 +50,7 @@ const EmailChanges = ({ fields, emailChanges, isLoading }: EmailChangesComponent
                   <td data-label="Old">{oldValue}</td>
                   <td data-label="New">{newValue}</td>
                   <td data-label="Changed">
-                    <WithTooltip tip={formatDistanceToNow(new Date(created_at), { addSuffix: true })}>
-                      {formatDate(new Date(created_at))}
-                    </WithTooltip>
+                    <DateTimeWithRelativeTooltip date={created_at} />
                   </td>
                 </tr>
               );

@@ -1,8 +1,6 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import { formatDistanceToNow } from 'date-fns';
-import { formatDate } from "$app/utils/date";
-import { WithTooltip } from "$app/components/WithTooltip";
+import DateTimeWithRelativeTooltip from "$app/components/Admin/DateTimeWithRelativeTooltip";
 
 type AuthorProps = {
   id: number;
@@ -33,9 +31,7 @@ const AdminCommentableComment = ({ comment }: { comment: CommentProps }) => (
             }
           </li>
           <li>
-            <WithTooltip tip={formatDistanceToNow(new Date(comment.updated_at), { addSuffix: true })}>
-              {formatDate(new Date(comment.updated_at))}
-            </WithTooltip>
+            <DateTimeWithRelativeTooltip date={comment.updated_at} />
           </li>
         </ul>
         <div dangerouslySetInnerHTML={{ __html: comment.content_formatted }} />

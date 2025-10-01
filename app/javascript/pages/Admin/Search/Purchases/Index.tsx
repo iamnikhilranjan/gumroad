@@ -1,16 +1,17 @@
 import React from "react";
-import { usePage } from "@inertiajs/react";
-import AdminPurchases from "$app/components/Admin/Purchases";
-import { type Purchase } from "$app/components/Admin/Purchases/Purchase";
-import { type Pagination } from "$app/hooks/useLazyFetch";
+import { usePage, router } from "@inertiajs/react";
+import AdminPurchases from "$app/components/Admin/Search/Purchases";
+import { type Purchase } from "$app/components/Admin/Search/Purchases/Purchase";
+import { type Pagination as PaginationProps } from "$app/hooks/useLazyFetch";
 import AdminEmptyState from "$app/components/Admin/EmptyState";
+import { Pagination } from "$app/components/Pagination";
 
 type Props = {
   purchases: Purchase[];
-  pagination: Pagination;
   query: string;
   product_title_query: string;
   purchase_status: string;
+  pagination: PaginationProps;
 };
 
 const AdminSearchPurchases = () => {
@@ -20,14 +21,30 @@ const AdminSearchPurchases = () => {
     return <AdminEmptyState message="No purchases found." />;
   }
 
+  const paginationProps = {
+    pages: pagination.count / pagination.limit,
+    page: pagination.page,
+  };
+
+  const onChangePage = (page: number) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page.toString());
+    router.visit(Routes.admin_search_purchases_path(), {
+      data: Object.fromEntries(params),
+      only: ["purchases", "pagination"],
+    });
+  };
+
   return (
-    <AdminPurchases
-      purchases={purchases}
-      pagination={pagination}
-      query={query}
-      product_title_query={product_title_query}
-      purchase_status={purchase_status}
-    />
+    <div className="space-y-4">
+      <AdminPurchases
+        purchases={purchases}
+        query={query}
+        product_title_query={product_title_query}
+        purchase_status={purchase_status}
+      />
+      <Pagination pagination={paginationProps} onChangePage={onChangePage} />
+    </div>
   );
 };
 

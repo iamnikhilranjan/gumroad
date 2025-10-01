@@ -222,35 +222,39 @@ module Purchase::AsJson
       only: [
         :id,
         :email,
-        :formatted_display_price,
-        :formatted_gumroad_tax_amount,
         :link,
+        :error_code,
+        :stripe_refunded,
+        :stripe_partially_refunded,
+        :created_at
       ],
       include: {
         link: {
           original: true,
-          only: [:id, :long_url, :name]
+          only: [:id, :name],
+          methods: [:long_url],
+          include: {
+            product_refund_policy: {
+              original: true,
+              only: [:id, :title, :max_refund_period_in_days]
+            }
+          }
         },
-        seller: {
-          original: true,
-          only: [:email]
-        }
+        seller: { original: true, only: [:id, :email] },
+        purchase_refund_policy: { original: true, only: [:id, :title, :max_refund_period_in_days] }
       },
       methods: [
+        :formatted_display_price,
+        :formatted_gumroad_tax_amount,
         :variants_list,
-        :purchase_states,
-        :purchase_refund_policy,
         :formatted_error_code,
-        :purchase_state,
+        :purchase_state
       ]
-    ).merge!(
+    ).merge(
       failed: failed?,
-      error_code: error_code,
-      stripe_refunded: stripe_refunded,
-      stripe_partially_refunded: stripe_partially_refunded,
       chargedback_not_reversed: chargedback_not_reversed?,
       chargeback_reversed: chargeback_reversed?,
-    )
+    ).stringify_keys
   end
 
   def as_json_for_admin_review
