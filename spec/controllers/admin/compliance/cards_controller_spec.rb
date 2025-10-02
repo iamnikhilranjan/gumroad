@@ -25,26 +25,17 @@ describe Admin::Compliance::CardsController do
                               price_cents: 777,
                               card_expiry_year: 2022,
                               card_expiry_month: 10)
-      @charge_mastercard = create(:service_charge,
-                                  card_type: "mastercard",
-                                  card_visual: "**** **** **** 5678",
-                                  created_at: Time.zone.local(2019, 3, 19, 1, 2, 3),
-                                  charge_cents: 888,
-                                  card_expiry_year: 2023,
-                                  card_expiry_month: 11)
     end
 
     after do
       expect(response).to be_successful
     end
 
-    it "assigns purchases and service_charges to instance variable" do
+    it "assigns purchases to instance variable" do
       expect_any_instance_of(AdminSearchService).to receive(:search_purchases).with(card_type:, transaction_date: "2022-02-22", limit:).and_return(Purchase.none)
-      expect_any_instance_of(AdminSearchService).to receive(:search_service_charges).with(card_type:, transaction_date: "2022-02-22", limit:).and_return(ServiceCharge.none)
       get :index, params: { card_type:, transaction_date: }
 
       expect(assigns(:purchases)).to eq([])
-      expect(assigns(:service_charges)).to eq([])
     end
 
     context "when transaction_date is invalid" do
@@ -52,25 +43,21 @@ describe Admin::Compliance::CardsController do
 
       it "shows error flash message and no purchases" do
         expect_any_instance_of(AdminSearchService).to_not receive(:search_purchases)
-        expect_any_instance_of(AdminSearchService).to_not receive(:search_service_charges)
         get :index, params: { card_type:, transaction_date: "12/31" }
 
         assert_response :success
         expect(flash[:alert]).to eq("Please enter the date using the MM/DD/YYYY format.")
         expect(assigns(:purchases)).to eq([])
-        expect(assigns(:service_charges)).to eq([])
       end
     end
 
     context "when there is no results" do
       it "assigns empty arrays to instance variables" do
         expect_any_instance_of(AdminSearchService).to receive(:search_purchases).with(card_type:, limit:).and_return(Purchase.none)
-        expect_any_instance_of(AdminSearchService).to receive(:search_service_charges).with(card_type:, limit:).and_return(ServiceCharge.none)
         get :index, params: { card_type: }
 
         assert_response :success
         expect(assigns(:purchases)).to eq([])
-        expect(assigns(:service_charges)).to eq([])
       end
     end
 
@@ -78,23 +65,9 @@ describe Admin::Compliance::CardsController do
       it "assigns purchases to instance variable" do
         card_type = "visa"
         expect_any_instance_of(AdminSearchService).to receive(:search_purchases).with(card_type:, limit:).and_return([@purchase_visa])
-        expect_any_instance_of(AdminSearchService).to receive(:search_service_charges).with(card_type:, limit:).and_return(ServiceCharge.none)
         get :index, params: { card_type: }
 
         expect(assigns(:purchases)).to eq([@purchase_visa])
-        expect(assigns(:service_charges)).to eq([])
-      end
-    end
-
-    context "when a charge is found" do
-      it "assigns service_charges to instance variables" do
-        card_type = "mastercard"
-        expect_any_instance_of(AdminSearchService).to receive(:search_purchases).with(card_type:, limit:).and_return(Purchase.none)
-        expect_any_instance_of(AdminSearchService).to receive(:search_service_charges).with(card_type:, limit:).and_return([@charge_mastercard])
-        get :index, params: { card_type: }
-
-        expect(assigns(:purchases)).to eq([])
-        expect(assigns(:service_charges)).to eq([@charge_mastercard])
       end
     end
   end

@@ -48,64 +48,7 @@ describe ApplicationController do
     it { expect(ApplicationController.ancestors.include?(CustomDomainRouteBuilder)).to eq(true) }
   end
 
-  describe "Event creation" do
-    it "sets the referrer from params if its provided" do
-      allow(controller).to receive(:params).and_return(referrer: "http://www.google.com")
-      event = controller.create_service_charge_event(create(:service_charge))
-      expect(event.referrer).to eq "http://www.google.com"
-    end
-
-    it "sets the referrer from params even if params is an array" do
-      allow(controller).to receive(:params).and_return(referrer: ["https://gumroad.com", "https://www.google.com"])
-      event = controller.create_service_charge_event(create(:service_charge))
-      expect(event.referrer).to eq "https://www.google.com"
-    end
-
-    it "sets the referrer from the request if it is not provided in the params" do
-      allow(controller).to receive(:params).and_return(referrer: nil)
-      expect(request).to receive(:referrer).and_return("http://www.yahoo.com")
-      event = controller.create_service_charge_event(create(:service_charge))
-      expect(event.referrer).to eq "http://www.yahoo.com"
-    end
-
-    context "with admin signed" do
-      let(:admin) { create(:admin_user) }
-      let(:user) { create(:user) }
-
-      before do
-        sign_in admin
-      end
-
-      context "with admin becoming user" do
-        before do
-          controller.impersonate_user(user)
-        end
-
-        it "does not return an event" do
-          stubbed_cookie
-          event = controller.create_user_event("service_charge")
-          expect(event).to be(nil)
-        end
-      end
-
-      context "without admin becoming user" do
-        it "returns an event" do
-          stubbed_cookie
-          event = controller.create_user_event("service_charge")
-          expect(event).to_not be(nil)
-        end
-      end
-    end
-
-    it "saves the browser_plugins and friend actions in extra_features" do
-      stubbed_cookie
-      event = controller.create_user_event("service_charge")
-      expect(event.extra_features[:browser_plugins]).to eq "emptypluginstring"
-      expect(event.extra_features[:friend_actions]).to eq "fdkljafldkasjfkljasf"
-      expect(event.extra_features[:browser]).to eq "Rails Testing"
-      expect(event).to_not be(nil)
-    end
-
+  describe "Event creation" dop
     it "survives being called with nil" do
       event = controller.create_user_event(nil)
       expect(event).to be_nil

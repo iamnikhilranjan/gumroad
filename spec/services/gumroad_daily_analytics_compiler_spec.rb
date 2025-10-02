@@ -66,9 +66,10 @@ describe GumroadDailyAnalyticsCompiler do
       expect(value).to eq(30)
     end
 
-    it "aggregates both purchase fees and service charges" do
+    it "aggregates purchase fees" do
       create :purchase, created_at: Time.utc(2023, 1, 5), price_cents: 100 # fee_cents: 10
-      create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 20
+      create :purchase, created_at: Time.utc(2023, 1, 5), price_cents: 200 # fee_cents: 20
+
       Purchase.update_all("fee_cents = price_cents / 10") # Force fee to be 10% of purchase amount
 
       range = Time.utc(2023, 1, 5)..Time.utc(2023, 1, 5)
@@ -107,41 +108,6 @@ describe GumroadDailyAnalyticsCompiler do
         create :purchase, created_at: Time.utc(2023, 1, 5), price_cents: 200, stripe_refunded: true # fee_cents: 20
         create :purchase, created_at: Time.utc(2023, 1, 5), price_cents: 300 # fee_cents: 30
         Purchase.update_all("fee_cents = price_cents / 10") # Force fee to be 10% of purchase amount
-
-        range = Time.utc(2023, 1, 5)..Time.utc(2023, 1, 5)
-        value = GumroadDailyAnalyticsCompiler.compile_gumroad_fee_cents(between: range)
-
-        expect(value).to eq(40)
-      end
-    end
-
-    context "service charges" do
-      it "aggregates service charges" do
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 10
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 20
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 30
-
-        range = Time.utc(2023, 1, 5)..Time.utc(2023, 1, 5)
-        value = GumroadDailyAnalyticsCompiler.compile_gumroad_fee_cents(between: range)
-
-        expect(value).to eq(60)
-      end
-
-      it "ignores failed service charges" do
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 10
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 20, state: "failed"
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 30
-
-        range = Time.utc(2023, 1, 5)..Time.utc(2023, 1, 5)
-        value = GumroadDailyAnalyticsCompiler.compile_gumroad_fee_cents(between: range)
-
-        expect(value).to eq(40)
-      end
-
-      it "ignores refunded service charges" do
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 10
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 20, charge_processor_refunded: 13
-        create :service_charge, created_at: Time.utc(2023, 1, 5), charge_cents: 30
 
         range = Time.utc(2023, 1, 5)..Time.utc(2023, 1, 5)
         value = GumroadDailyAnalyticsCompiler.compile_gumroad_fee_cents(between: range)

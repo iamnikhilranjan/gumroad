@@ -15,16 +15,11 @@ class Admin::Compliance::CardsController < Admin::BaseController
       rescue ArgumentError
         flash[:alert] = "Please enter the date using the MM/DD/YYYY format."
         @purchases = []
-        @service_charges = []
         return
       end
     end
 
-    purchases = AdminSearchService.new.search_purchases(**search_params)
-    service_charges = AdminSearchService.new.search_service_charges(**search_params)
-
-    @purchases = purchases
-    @service_charges = service_charges
+    @purchases = AdminSearchService.new.search_purchases(**search_params)
   end
 
   def refund

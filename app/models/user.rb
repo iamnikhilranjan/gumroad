@@ -78,7 +78,6 @@ class User < ApplicationRecord
   has_many :product_files, through: :links
   has_many :third_party_analytics
   has_many :zip_tax_rates
-  has_many :service_charges
   has_many :recurring_services
   has_many :direct_affiliate_accounts, foreign_key: :affiliate_user_id, class_name: DirectAffiliate.name
   has_many :affiliate_accounts, foreign_key: :affiliate_user_id, class_name: Affiliate.name

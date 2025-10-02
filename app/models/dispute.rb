@@ -8,7 +8,6 @@ class Dispute < ApplicationRecord
   belongs_to :seller, class_name: "User", optional: true
   belongs_to :purchase, optional: true
   belongs_to :charge, optional: true
-  belongs_to :service_charge, optional: true
   has_many :credits
   has_many :balance_transactions
   has_one :dispute_evidence
@@ -88,7 +87,7 @@ class Dispute < ApplicationRecord
   end
 
   def disputable
-    charge || purchase || service_charge
+    charge || purchase
   end
 
   def purchases
@@ -107,7 +106,7 @@ class Dispute < ApplicationRecord
     end
 
     def only_one_disputable_present
-      errors.add(:base, "Only one Disputable object must be provided.") unless [charge, purchase, service_charge].one?(&:present?)
+      errors.add(:base, "Only one Disputable object must be provided.") unless [charge, purchase].one?(&:present?)
     end
 
     def disputable_has_seller? # this method exists because ServiceCharge does not have a seller

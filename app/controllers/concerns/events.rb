@@ -38,18 +38,6 @@ module Events
     )
   end
 
-  def create_service_charge_event(service_charge)
-    create_event(
-      billing_zip: service_charge.card_zip_code,
-      card_type: service_charge.card_type,
-      card_visual: service_charge.card_visual,
-      event_name: Event::NAME_SERVICE_CHARGE,
-      price_cents: service_charge.charge_cents,
-      service_charge_id: service_charge.id,
-      purchase_state: service_charge.state
-    )
-  end
-
   private
     def create_event(args)
       return if impersonating?

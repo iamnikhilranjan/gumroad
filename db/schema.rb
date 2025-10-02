@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_02_175413) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", limit: 191, null: false
     t.string "record_type", limit: 191, null: false
@@ -776,7 +776,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.datetime "lost_at", precision: nil
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-    t.integer "service_charge_id"
     t.bigint "seller_id"
     t.datetime "event_created_at"
     t.bigint "charge_id"
@@ -785,7 +784,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.index ["seller_id", "event_created_at"], name: "index_disputes_on_seller_id_and_event_created_at"
     t.index ["seller_id", "lost_at"], name: "index_disputes_on_seller_id_and_lost_at"
     t.index ["seller_id", "won_at"], name: "index_disputes_on_seller_id_and_won_at"
-    t.index ["service_charge_id"], name: "index_disputes_on_service_charge_id"
   end
 
   create_table "dropbox_files", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -861,14 +859,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.string "referrer_domain"
     t.string "ip_state"
     t.string "active_test_path_assignments"
-    t.integer "service_charge_id"
     t.index ["browser_guid"], name: "index_events_on_browser_guid"
     t.index ["created_at"], name: "index_events_on_created_at"
     t.index ["event_name", "link_id", "created_at"], name: "index_events_on_event_name_and_link_id"
     t.index ["ip_address"], name: "index_events_on_ip_address"
     t.index ["link_id"], name: "index_events_on_link_id"
     t.index ["purchase_id"], name: "index_events_on_purchase_id"
-    t.index ["service_charge_id"], name: "index_events_on_service_charge_id"
     t.index ["user_id"], name: "index_events_on_user_id"
     t.index ["visit_id"], name: "index_events_on_visit_id"
   end
@@ -1952,52 +1948,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["post_id", "email"], name: "index_sent_post_emails_on_post_id_and_email", unique: true
-  end
-
-  create_table "service_charges", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.datetime "created_at", precision: nil
-    t.datetime "updated_at", precision: nil
-    t.integer "user_id"
-    t.integer "recurring_service_id"
-    t.integer "charge_cents"
-    t.string "charge_cents_currency", limit: 191, default: "usd"
-    t.string "state", limit: 191
-    t.datetime "succeeded_at", precision: nil
-    t.integer "credit_card_id"
-    t.integer "card_expiry_month"
-    t.integer "card_expiry_year"
-    t.string "card_data_handling_mode", limit: 191
-    t.string "card_bin", limit: 191
-    t.string "card_type", limit: 191
-    t.string "card_country", limit: 191
-    t.string "card_zip_code", limit: 191
-    t.string "card_visual", limit: 191
-    t.string "charge_processor_id", limit: 191
-    t.integer "charge_processor_fee_cents"
-    t.string "charge_processor_fee_cents_currency", limit: 191, default: "usd"
-    t.string "charge_processor_transaction_id", limit: 191
-    t.string "charge_processor_fingerprint", limit: 191
-    t.string "charge_processor_card_id", limit: 191
-    t.string "charge_processor_status", limit: 191
-    t.string "charge_processor_error_code", limit: 191
-    t.boolean "charge_processor_refunded", default: false, null: false
-    t.datetime "chargeback_date", precision: nil
-    t.string "json_data", limit: 191
-    t.string "error_code", limit: 191
-    t.integer "merchant_account_id"
-    t.string "browser_guid", limit: 191
-    t.string "ip_address", limit: 191
-    t.string "ip_country", limit: 191
-    t.string "ip_state", limit: 191
-    t.string "session_id", limit: 191
-    t.integer "flags", default: 0, null: false
-    t.string "discount_code", limit: 100
-    t.string "processor_payment_intent_id"
-    t.index ["card_type", "card_visual", "charge_processor_fingerprint"], name: "index_service_charges_on_card_type_visual_fingerprint"
-    t.index ["card_type", "card_visual", "created_at", "charge_processor_fingerprint"], name: "index_service_charges_on_card_type_visual_date_fingerprint"
-    t.index ["created_at"], name: "index_service_charges_on_created_at"
-    t.index ["recurring_service_id"], name: "index_service_charges_on_recurring_service_id"
-    t.index ["user_id"], name: "index_service_charges_on_user_id"
   end
 
   create_table "shipments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|

@@ -22,16 +22,6 @@ FactoryBot.define do
       end
     end
 
-    factory :service_charge_event do
-      event_name { "service_charge" }
-      service_charge
-      purchase_state { "successful" }
-
-      after(:build) do |event|
-        event.price_cents ||= event.service_charge.charge_cents
-      end
-    end
-
     factory :post_view_event do
       event_name { "post_view" }
     end

@@ -11,9 +11,6 @@ describe CompileGumroadDailyAnalyticsJob do
     create :purchase, created_at: Time.utc(2023, 1, 10, 14, 30), price_cents: 3000
     create :purchase, created_at: Time.utc(2023, 1, 10, 19, 0), price_cents: 2000, was_product_recommended: true
     create :purchase, created_at: Time.utc(2023, 1, 10, 19, 0), price_cents: 1500, was_product_recommended: true
-    create :service_charge, created_at: Time.utc(2023, 1, 10, 20, 0), charge_cents: 25
-    create :service_charge, created_at: Time.utc(2023, 1, 10, 21, 0), charge_cents: 25
-
     create :purchase, created_at: Time.utc(2023, 1, 14, 10, 0), price_cents: 5000
     create :purchase, created_at: Time.utc(2023, 1, 14, 12, 0), price_cents: 10000, was_product_recommended: true
     create :gumroad_daily_analytic, period_ended_at: Time.utc(2023, 1, 14).end_of_day, gumroad_price_cents: 999
@@ -26,7 +23,7 @@ describe CompileGumroadDailyAnalyticsJob do
     expect(GumroadDailyAnalytic.all.size).to eq(6) # The refresh period (5 days) + today = 6 days
 
     expect(analytic_1.gumroad_price_cents).to eq(9500)
-    expect(analytic_1.gumroad_fee_cents).to eq(1000)
+    expect(analytic_1.gumroad_fee_cents).to eq(950)
     expect(analytic_1.creators_with_sales).to eq(4)
     expect(analytic_1.gumroad_discover_price_cents).to eq(3500)
 

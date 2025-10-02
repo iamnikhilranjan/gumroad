@@ -8,12 +8,7 @@ class GumroadDailyAnalyticsCompiler
     end
 
     def compile_gumroad_fee_cents(between: nil)
-      purchase_cents = paid_purchases_between(between:)
-        .sum(:fee_cents)
-      service_cents = service_charges_between(between:)
-        .sum(:charge_cents)
-
-      purchase_cents + service_cents
+      paid_purchases_between(between:).sum(:fee_cents)
     end
 
     def compile_creators_with_sales(between: nil)
@@ -35,13 +30,6 @@ class GumroadDailyAnalyticsCompiler
       def paid_purchases_between(between:)
         Purchase
           .paid
-          .created_between(between)
-      end
-
-      def service_charges_between(between:)
-        ServiceCharge
-          .successful
-          .not_refunded
           .created_between(between)
       end
   end

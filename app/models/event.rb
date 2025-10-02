@@ -14,7 +14,6 @@ class Event < ApplicationRecord
     post_view
     product_refund_policy_fine_print_view
     purchase
-    service_charge
     settlement_declined
     refund
   ]
@@ -25,7 +24,6 @@ class Event < ApplicationRecord
   has_one :installment_event
 
   belongs_to :purchase, optional: true
-  belongs_to :service_charge, optional: true
 
   has_flags 1 => :from_profile,
             2 => :was_product_recommended,
@@ -47,10 +45,8 @@ class Event < ApplicationRecord
   scope :by_browser_guid,                         ->(guid) { where(browser_guid: guid) }
   scope :by_ip_address,                           ->(ip) { where(ip_address: ip) }
   scope :purchase,                                -> { where(event_name: NAME_PURCHASE) }
-  scope :service_charge,                          -> { where(event_name: NAME_SERVICE_CHARGE) }
   scope :link_view,                               -> { where(event_name: "link_view") }
   scope :post_view,                               -> { where(event_name: NAME_POST_VIEW) }
-  scope :service_charge_successful,               -> { service_charge.where(purchase_state: "successful") }
   scope :purchase_successful,                     -> { purchase.where(purchase_state: "successful") }
   scope :not_refunded,                            -> { purchase_successful.where("events.refunded is null or events.refunded = 0") }
   scope :for_products,                            ->(products) { where(link_id: products) }
