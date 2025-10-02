@@ -109,9 +109,8 @@ describe SslCertificates::LetsEncrypt do
       allow(@http_challenge_double).to receive(:file_content).and_return(@sample_file_content)
     end
 
-    it "uploads validation file to S3" do
-      key = "custom-domains-ssl/test/#{@custom_domain.domain}/public/#{@sample_filename}"
-      expect(@obj).to receive(:write_to_s3).with(key, @sample_file_content)
+    it "stores validation file in Redis" do
+      expect(@obj).to receive(:store_http_challenge_in_redis).with(@sample_filename, @sample_file_content)
 
       @obj.send(:prepare_http_challenge, @http_challenge_double)
     end
@@ -202,6 +201,52 @@ describe SslCertificates::LetsEncrypt do
     end
   end
 
+  describe "#store_http_challenge_in_redis" do
+    before do
+      @sample_filename = "sample_challenge_token"
+      @sample_content = "sample_challenge_content"
+      @redis_key = "acme_challenge:#{@sample_filename}"
+
+      allow($redis).to receive(:setex)
+      allow(@obj).to receive(:log_message)
+    end
+
+    it "stores challenge content in Redis with expiration" do
+      expect($redis).to receive(:setex).with(@redis_key, 3600, @sample_content)
+      expect(@obj).to receive(:log_message).with(@custom_domain.domain, "Stored HTTP challenge in Redis: #{@redis_key}")
+
+      @obj.send(:store_http_challenge_in_redis, @sample_filename, @sample_content)
+    end
+  end
+
+  describe "#delete_http_challenge_from_redis" do
+    before do
+      @sample_filename = "sample_challenge_token"
+      @redis_key = "acme_challenge:#{@sample_filename}"
+
+      allow($redis).to receive(:del)
+      allow(@obj).to receive(:log_message)
+    end
+
+    it "deletes challenge from Redis" do
+      expect($redis).to receive(:del).with(@redis_key)
+      expect(@obj).to receive(:log_message).with(@custom_domain.domain, "Deleted HTTP challenge from Redis: #{@redis_key}")
+
+      @obj.send(:delete_http_challenge_from_redis, @sample_filename)
+    end
+  end
+
+  describe "#http_challenge_redis_key" do
+    it "returns the correct Redis key format" do
+      filename = "test_challenge_token"
+      expected_key = "acme_challenge:#{filename}"
+
+      result = @obj.send(:http_challenge_redis_key, filename)
+
+      expect(result).to eq expected_key
+    end
+  end
+
   describe "#process" do
     before do
       @order_double          = double("order_double")
@@ -221,14 +266,10 @@ describe SslCertificates::LetsEncrypt do
       http_challenge_file = ".well-known/acme-challenge/challenge-file"
       allow(@http_challenge_double).to receive(:filename).and_return(http_challenge_file)
 
-      s3_client = double("s3_client")
-      @s3_bucket = double("s3_bucket")
-      @s3_object = double("s3_object")
-      allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-      allow(s3_client).to receive(:bucket).and_return(@s3_bucket)
-      @http_challenge_key = "custom-domains-ssl/test/www.example.com/public/#{http_challenge_file}"
-      allow(@s3_bucket).to receive(:object).with(@http_challenge_key).and_return(@s3_object)
-      allow(@s3_object).to receive(:delete)
+      # Mock Redis operations
+      allow($redis).to receive(:setex)
+      allow($redis).to receive(:del)
+      allow_any_instance_of(described_class).to receive(:delete_http_challenge_from_redis)
     end
 
     context "when the order is successful" do
@@ -244,9 +285,8 @@ describe SslCertificates::LetsEncrypt do
         @obj.process
       end
 
-      it "deletes the http challenge file" do
-        expect(@s3_bucket).to receive(:object).with(@http_challenge_key).and_return(@s3_object)
-        expect(@s3_object).to receive(:delete)
+      it "deletes the http challenge from Redis" do
+        expect(@obj).to receive(:delete_http_challenge_from_redis).with(http_challenge_file)
 
         @obj.process
       end
@@ -268,9 +308,8 @@ describe SslCertificates::LetsEncrypt do
         expect(@custom_domain.ssl_certificate_issued_at).to be_nil
       end
 
-      it "deletes the http challenge file" do
-        expect(@s3_bucket).to receive(:object).with(@http_challenge_key).and_return(@s3_object)
-        expect(@s3_object).to receive(:delete)
+      it "deletes the http challenge from Redis" do
+        expect(@obj).to receive(:delete_http_challenge_from_redis).with(http_challenge_file)
 
         @obj.process
       end
