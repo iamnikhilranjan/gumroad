@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-  include ExternalId, Payment::Stats, JsonData, FlagShihTzu, TimestampScopes, Payment::FailureReason
+  include ExternalId, Payment::Stats, JsonData, FlagShihTzu, TimestampScopes, Payment::FailureReason, AsJson
 
   CREATING = "creating"
   PROCESSING = "processing"
@@ -48,7 +48,7 @@ class Payment < ApplicationRecord
 
     event :mark_cancelled do
       transition processing: :cancelled
-      transition unclaimed: :cancelled, if: ->(payment) { payment.processor == PayoutProcessorType::PAYPAL }
+      transition unclaimed: :cancelled, if: :paypal_processor?
     end
 
     event :mark_completed do
@@ -65,11 +65,11 @@ class Payment < ApplicationRecord
 
     event :mark_returned do
       transition %i[processing unclaimed] => :returned
-      transition completed: :returned, if: ->(payment) { payment.processor != PayoutProcessorType::PAYPAL }
+      transition completed: :returned, if: :paypal_processor?
     end
 
     event :mark_unclaimed do
-      transition processing: :unclaimed, if: ->(payment) { payment.processor == PayoutProcessorType::PAYPAL }
+      transition processing: :unclaimed, if: :paypal_processor?
     end
 
     before_transition any => :failed, do: ->(payment, transition) { payment.failure_reason = transition.args.first }
@@ -95,16 +95,16 @@ class Payment < ApplicationRecord
     end
 
     state any - %i[creating processing] do
-      validates_presence_of :correlation_id, if: proc { |p| p.processor == PayoutProcessorType::PAYPAL }
+      validates_presence_of :correlation_id, if: :paypal_processor?
     end
 
     state any - %i[creating processing cancelled failed] do
-      validates :stripe_transfer_id, :stripe_connect_account_id, presence: true, if: proc { |p| p.processor == PayoutProcessorType::STRIPE }
+      validates :stripe_transfer_id, :stripe_connect_account_id, presence: true, if: :stripe_processor?
     end
 
     state :completed do
-      validates_presence_of :txn_id, if: proc { |p| p.processor == PayoutProcessorType::PAYPAL }
-      validates_presence_of :amount_cents_in_local_currency, if: proc { |p| p.processor == PayoutProcessorType::ZENGIN }
+      validates_presence_of :txn_id, if: :paypal_processor?
+      validates_presence_of :amount_cents_in_local_currency, if: :zengin_processor?
       validates_presence_of :processor_fee_cents
     end
   end
@@ -126,6 +126,26 @@ class Payment < ApplicationRecord
   def mark!(state)
     send("mark_#{state}!")
   end
+
+  def paypal_processor?
+    processor == PayoutProcessorType::PAYPAL
+  end
+  alias_method :is_paypal_processor, :paypal_processor?
+
+  def ach_processor?
+    processor == PayoutProcessorType::ACH
+  end
+  alias_method :is_ach_processor, :ach_processor?
+
+  def zengin_processor?
+    processor == PayoutProcessorType::ZENGIN
+  end
+  alias_method :is_zengin_processor, :zengin_processor?
+
+  def stripe_processor?
+    processor == PayoutProcessorType::STRIPE
+  end
+  alias_method :is_stripe_processor, :stripe_processor?
 
   def displayed_amount
     Money.new(amount_cents, currency).format(no_cents_if_whole: true, symbol: true, with_currency: currency != Currency::USD)
@@ -172,7 +192,7 @@ class Payment < ApplicationRecord
   end
 
   def humanized_failure_reason
-    if processor == PayoutProcessorType::PAYPAL
+    if paypal_processor?
       failure_reason.present? ? "#{failure_reason}: #{PAYPAL_MASS_PAY[failure_reason]}" : nil
     else
       failure_reason
@@ -186,29 +206,7 @@ class Payment < ApplicationRecord
   def sync_with_payout_processor
     return unless NON_TERMINAL_STATES.include?(state)
 
-    sync_with_paypal if processor == PayoutProcessorType::PAYPAL
-  end
-
-  def as_json(options = {})
-    json = {
-      id: external_id,
-      amount: format("%.2f", (amount_cents || 0) / 100.0),
-      currency: currency,
-      status: state,
-      created_at: created_at,
-      processed_at: state == COMPLETED ? updated_at : nil,
-      payment_processor: processor,
-      bank_account_visual: bank_account&.account_number_visual,
-      paypal_email: payment_address
-    }
-
-    if options[:include_sales]
-      json[:sales] = successful_sales.map(&:external_id)
-      json[:refunded_sales] = refunded_sales.map(&:external_id)
-      json[:disputed_sales] = disputed_sales.map(&:external_id)
-    end
-
-    json
+    sync_with_paypal if paypal_processor?
   end
 
   def successful_sales
@@ -257,7 +255,7 @@ class Payment < ApplicationRecord
     end
 
     def sync_with_paypal
-      return unless processor == PayoutProcessorType::PAYPAL
+      return unless paypal_processor?
 
       # For split mode payouts we only sync if we have the txn_ids of individual split parts,
       # and do not look up or search by PayPal email address.
@@ -291,7 +289,7 @@ class Payment < ApplicationRecord
                                                            paypal_fee: paypal_response[:paypal_fee])
         end
       end
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error("Error syncing PayPal payout #{id}: #{e.message}")
       errors.add :base, e.message
     end

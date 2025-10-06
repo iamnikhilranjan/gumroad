@@ -141,9 +141,9 @@ module Payment::FailureReason
     def add_payment_failure_reason_comment
       return unless failure_reason.present?
 
-      solution = if processor == PayoutProcessorType::PAYPAL
+      solution = if paypal_processor?
         PAYPAL_FAILURE_SOLUTIONS[failure_reason]
-      elsif processor == PayoutProcessorType::STRIPE
+      elsif stripe_processor?
         STRIPE_FAILURE_SOLUTIONS[failure_reason]
       end
 

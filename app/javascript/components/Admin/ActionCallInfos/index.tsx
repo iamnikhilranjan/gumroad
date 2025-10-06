@@ -59,7 +59,9 @@ const AdminActionCallInfos = ({
         </tbody>
       </table>
 
-      <Pagination pagination={paginationProps} onChangePage={onChangePage} />
+      {paginationProps.pages > 1 && (
+        <Pagination pagination={paginationProps} onChangePage={onChangePage} />
+      )}
     </div>
   );
 };

@@ -34,6 +34,14 @@ module User::PayoutSchedule
     upcoming_payout_date
   end
 
+  def current_payout_stripe_processor?
+    current_payout_processor == PayoutProcessorType::STRIPE
+  end
+
+  def current_payout_paypal_processor?
+    current_payout_processor == PayoutProcessorType::PAYPAL
+  end
+
   def current_payout_processor
     if (paypal_payout_email.present? && active_bank_account.blank?) || !native_payouts_supported?
       PayoutProcessorType::PAYPAL
@@ -41,6 +49,7 @@ module User::PayoutSchedule
       PayoutProcessorType::STRIPE
     end
   end
+
 
   def upcoming_payout_amounts
     upcoming_payout_date = next_payout_date

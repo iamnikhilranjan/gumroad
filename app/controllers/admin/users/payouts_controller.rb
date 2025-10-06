@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Admin::Users::PayoutsController < Admin::Users::BaseController
+  include Pagy::Backend
   include Admin::FetchUser
 
   before_action :fetch_payment, only: %i[show retry cancel fail sync]
@@ -9,16 +10,32 @@ class Admin::Users::PayoutsController < Admin::Users::BaseController
   RECORDS_PER_PAGE = 20
   private_constant :RECORDS_PER_PAGE
 
+  layout "admin_inertia", only: [:index, :show]
+
   def index
     @title = "Payouts"
-    @payouts = @user.payments
-      .order(id: :desc)
-      .page_with_kaminari(params[:page])
-      .per(RECORDS_PER_PAGE)
+
+    pagination, payouts = pagy(
+      @user.payments.order(id: :desc),
+      limit: params[:per_page] || RECORDS_PER_PAGE,
+      page: params[:page]
+    )
+
+    render inertia: "Admin/Users/Payouts/Index",
+           props: inertia_props(
+             user: @user.as_json(original: true, only: [:id]),
+             payouts: payouts.as_json(admin: true),
+             pagination:
+           )
   end
 
   def show
     @title = "Payout"
+
+    render inertia: "Admin/Users/Payouts/Show",
+           props: inertia_props(
+             payout: @payment.as_json(admin: true),
+           )
   end
 
   def retry
@@ -35,7 +52,7 @@ class Admin::Users::PayoutsController < Admin::Users::BaseController
   end
 
   def cancel
-    return render json: { success: false, message: "Failed! You can only cancel PayPal payouts." } unless @payment.processor == PayoutProcessorType::PAYPAL
+    return render json: { success: false, message: "Failed! You can only cancel PayPal payouts." } unless @payment.paypal_processor?
     return render json: { success: false, message: "Failed! Payout is not in an unclaimed state." } unless @payment.unclaimed?
 
     @payment.with_lock do
@@ -62,7 +79,7 @@ class Admin::Users::PayoutsController < Admin::Users::BaseController
   end
 
   def sync
-    return render json: { success: false, message: "Failed! You can only sync PayPal payouts." } unless @payment.processor == PayoutProcessorType::PAYPAL
+    return render json: { success: false, message: "Failed! You can only sync PayPal payouts." } unless @payment.paypal_processor?
     return render json: { success: false, message: "Failed! Payout is already in terminal state." } unless Payment::NON_TERMINAL_STATES.include?(@payment.state)
 
     @payment.with_lock do
