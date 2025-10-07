@@ -14,22 +14,26 @@ type AdminCommentableFormProps = {
 };
 
 const AdminCommentableForm = ({ endpoint, onCommentAdded, commentableType }: AdminCommentableFormProps) => {
+  const form = useForm("AdminAddComment", { comment: { content: "" } });
   const {
     data: {
       comment: { content },
     },
     setData,
     processing,
-    reset,
-  } = useForm("AdminAddComment", { comment: { content: "" } });
+  } = form;
 
-  const onContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setData("comment.content", event.target.value);
-  };
+  const onContentChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setData("comment.content", event.target.value);
+    },
+    [setData],
+  );
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // eslint-disable-next-line no-alert
     if (confirm("Are you sure you want to post this comment?")) {
       const formData = new FormData();
       formData.append("comment[content]", content);
@@ -42,7 +46,7 @@ const AdminCommentableForm = ({ endpoint, onCommentAdded, commentableType }: Adm
       if (response.ok) {
         const { comment } = cast<{ comment: CommentProps }>(await response.json());
         showAlert("Successfully added comment.", "success");
-        reset();
+        form.reset();
         onCommentAdded(comment);
       } else {
         showAlert("Failed to add comment.", "error");
@@ -51,7 +55,7 @@ const AdminCommentableForm = ({ endpoint, onCommentAdded, commentableType }: Adm
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={(e) => void onSubmit(e)}>
       <fieldset>
         <div className="input-with-button">
           <textarea

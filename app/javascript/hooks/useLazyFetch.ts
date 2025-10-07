@@ -6,7 +6,7 @@ import { showAlert } from "$app/components/server-components/Alert";
 
 interface UseLazyFetchOptions<T> {
   url: string;
-  responseParser: (data: any) => T;
+  responseParser: (data: unknown) => T;
   hasMore?: boolean;
 }
 
@@ -37,12 +37,23 @@ export type Pagination = {
   to: number;
 };
 
+type PaginatedResponse = {
+  pagination: Pagination;
+};
+
+const isPaginatedResponse = (data: unknown): data is PaginatedResponse => {
+  if (typeof data !== "object" || data === null || !("pagination" in data)) {
+    return false;
+  }
+  return typeof data.pagination === "object" && data.pagination !== null;
+};
+
 // Internal hook that handles the core fetching logic
 const useLazyFetchCore = <T>(
   initialData: T,
   options: UseLazyFetchOptions<T>,
   shouldFetchCondition: (hasLoaded: boolean) => boolean,
-  onSuccess?: (responseData: any, parsedData: T) => void,
+  onSuccess?: (responseData: unknown, parsedData: T) => void,
 ) => {
   const [data, setData] = React.useState<T>(initialData);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -65,7 +76,7 @@ const useLazyFetchCore = <T>(
           accept: "json",
           url: url.pathname + url.search,
         });
-        const responseData = await response.json();
+        const responseData: unknown = await response.json();
         const parsedData = options.responseParser(responseData);
 
         setData(parsedData);
@@ -107,6 +118,15 @@ interface UseLazyPaginatedFetchOptions<T> extends UseLazyFetchOptions<T> {
   perPage?: number;
 }
 
+function mergeArrayData<T>(prev: T, next: T, mode: "append" | "prepend"): T {
+  if (!Array.isArray(prev) || !Array.isArray(next)) {
+    return next;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  return (mode === "append" ? [...prev, ...next] : [...next, ...prev]) as T;
+}
+
 export const useLazyPaginatedFetch = <T>(
   initialData: T,
   options: UseLazyPaginatedFetchOptions<T>,
@@ -136,23 +156,22 @@ export const useLazyPaginatedFetch = <T>(
     options,
     (hasLoaded) => !hasLoaded || hasMore,
     (responseData, parsedData) => {
-      const { pagination: paginationData } = responseData as unknown as { pagination: Pagination };
+      if (!isPaginatedResponse(responseData)) {
+        return;
+      }
+
+      const { pagination: paginationData } = responseData;
       setPagination(paginationData);
 
-      const canFetchMore = !!paginationData && paginationData.next !== null;
+      const canFetchMore = paginationData.next !== null;
       setHasMore(canFetchMore);
 
-      const canAddData = Array.isArray(currentData) && Array.isArray(parsedData);
-
-      // Handle data based on mode
-      if (mode === "append" && canAddData) {
-        setCurrentData([...currentData, ...parsedData] as T);
-      } else if (mode === "prepend" && canAddData) {
-        setCurrentData([...parsedData, ...currentData] as T);
-      } else {
-        // Replace mode or non-array data
+      if (mode === "replace") {
         setCurrentData(parsedData);
+        return;
       }
+
+      setCurrentData((prev) => mergeArrayData(prev, parsedData, mode));
     },
   );
 

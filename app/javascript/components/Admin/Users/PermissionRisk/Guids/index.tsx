@@ -40,7 +40,7 @@ const AdminUserGuids = ({ user_id }: { user_id: number }) => {
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchUserGuids();
+      void fetchUserGuids();
     }
   };
 

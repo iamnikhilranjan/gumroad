@@ -30,10 +30,17 @@ const FlagForTosViolations = ({ user, product, compliance }: FlagForTosViolation
     fetchData: fetchTosViolationFlags,
   } = useLazyFetch<TosViolationFlags[]>([], {
     url: Routes.admin_user_product_tos_violation_flags_path(user.id, product.id, { format: "json" }),
-    responseParser: (data) => cast<TosViolationFlags[]>(data.tos_violation_flags),
+    responseParser: (data) => {
+      const parsed = cast<{ tos_violation_flags: TosViolationFlags[] }>(data);
+      return parsed.tos_violation_flags;
+    },
   });
 
-  const fetchIfFlagged = () => flaggedForTosViolation && fetchTosViolationFlags();
+  const fetchIfFlagged = () => {
+    if (flaggedForTosViolation) {
+      void fetchTosViolationFlags();
+    }
+  };
 
   React.useEffect(() => {
     fetchIfFlagged();

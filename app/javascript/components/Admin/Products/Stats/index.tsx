@@ -2,11 +2,9 @@ import * as React from "react";
 import { cast } from "ts-safe-cast";
 
 import { useLazyFetch } from "$app/hooks/useLazyFetch";
-import { assertResponseError } from "$app/utils/request";
 
 import AdminProductStatsSales, { type AdminProductStatsSalesProps } from "$app/components/Admin/Products/Stats/Sales";
 import AdminProductStatsViewCount from "$app/components/Admin/Products/Stats/ViewCount";
-import { showAlert } from "$app/components/server-components/Alert";
 
 const AdminProductStats = ({ product_id }: { product_id: number }) => {
   const {
@@ -41,13 +39,8 @@ const AdminProductStats = ({ product_id }: { product_id: number }) => {
   );
 
   React.useEffect(() => {
-    try {
-      fetchViewsCount();
-      fetchSalesStats();
-    } catch (e) {
-      assertResponseError(e);
-      showAlert(e.message, "error");
-    }
+    void fetchViewsCount();
+    void fetchSalesStats();
   }, []);
 
   return (

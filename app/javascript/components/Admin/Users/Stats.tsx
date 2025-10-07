@@ -1,4 +1,5 @@
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
 import { request, assertResponseError } from "$app/utils/request";
 
@@ -7,6 +8,13 @@ import { showAlert } from "$app/components/server-components/Alert";
 import { useRunOnce } from "$app/components/useRunOnce";
 
 type UserStatsProps = {
+  total: string;
+  balance: string;
+  chargeback_volume: string;
+  chargeback_count: string;
+};
+
+type ResponseData = {
   total: string;
   balance: string;
   chargeback_volume: string;
@@ -25,15 +33,15 @@ const AdminUserStats = ({ user_id }: { user_id: number }) => {
           accept: "json",
         });
         if (!response.ok) assertResponseError(response);
-        const userStats: UserStatsProps = await response.json();
-        setUserStats(userStats);
+        const data = cast<ResponseData>(await response.json());
+        setUserStats(data);
       } catch (e) {
         assertResponseError(e);
         showAlert(e.message, "error");
       }
     };
 
-    fetchUserStats();
+    void fetchUserStats();
   });
 
   return (

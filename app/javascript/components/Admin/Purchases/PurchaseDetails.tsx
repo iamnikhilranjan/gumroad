@@ -58,7 +58,7 @@ type Affiliate = {
 
 export type Refund = {
   id: number;
-  user: {
+  user?: {
     id: number;
     name: string;
   };
@@ -80,7 +80,7 @@ export type ProductPurchase = {
   url_redirect_id: number;
   url_redirect_external_id: string;
   uses: number;
-  url_redirect: UrlRedirect;
+  url_redirect?: UrlRedirect;
   link: {
     id: number;
     name: string;
@@ -175,17 +175,17 @@ export interface Purchase {
   charge_transaction_url?: string;
   email_infos: EmailInfo[];
   product_purchases: ProductPurchase[];
-  url_redirect: UrlRedirect;
-  subscription: Subscription;
-  offer_code: OfferCode;
+  url_redirect?: UrlRedirect;
+  subscription?: Subscription;
+  offer_code?: OfferCode;
   full_name: string;
   street_address: string;
   city: string;
   state: string;
   zip_code: string;
   country: string;
-  purchase_custom_fields: PurchaseCustomField[];
-  license: License;
+  purchase_custom_fields?: PurchaseCustomField[];
+  license?: License;
   can_contact: boolean;
   is_gift_sender_purchase: boolean;
   is_gift_receiver_purchase: boolean;

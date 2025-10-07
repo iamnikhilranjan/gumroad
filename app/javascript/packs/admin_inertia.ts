@@ -9,18 +9,26 @@ const AdminLayout = (page: React.ReactNode) => React.createElement(Layout, { chi
 
 type PageComponent = React.ComponentType & { layout?: (page: React.ReactNode) => React.ReactElement };
 
+const isPageComponent = (value: unknown): value is PageComponent => typeof value === "function";
+
 const resolvePageComponent = async (name: string): Promise<PageComponent> => {
   try {
-    const page = await import(`../pages/${name}.tsx`);
-    const component: PageComponent = page.default;
-    component.layout = AdminLayout;
-    return component;
-  } catch {
-    try {
-      const page = await import(`../pages/${name}.jsx`);
-      const component: PageComponent = page.default;
+    const page: unknown = await import(`../pages/${name}.tsx`);
+    if (page && typeof page === "object" && "default" in page && isPageComponent(page.default)) {
+      const component = page.default;
       component.layout = AdminLayout;
       return component;
+    }
+    throw new Error(`Invalid page component: ${name}`);
+  } catch {
+    try {
+      const page: unknown = await import(`../pages/${name}.jsx`);
+      if (page && typeof page === "object" && "default" in page && isPageComponent(page.default)) {
+        const component = page.default;
+        component.layout = AdminLayout;
+        return component;
+      }
+      throw new Error(`Invalid page component: ${name}`);
     } catch {
       throw new Error(`Admin page component not found: ${name}`);
     }

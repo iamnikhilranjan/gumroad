@@ -6,7 +6,6 @@ import AdminSalesReportsPage from "$app/components/Admin/SalesReportsPage";
 type Props = {
   countries: [string, string][];
   job_history: JobHistoryItem[];
-  form_action: string;
   authenticity_token: string;
 };
 
@@ -21,15 +20,10 @@ type JobHistoryItem = {
 };
 
 const AdminSalesReports = () => {
-  const { countries, job_history, form_action, authenticity_token } = usePage<Props>().props;
+  const { countries, job_history, authenticity_token } = usePage<Props>().props;
 
   return (
-    <AdminSalesReportsPage
-      countries={countries}
-      job_history={job_history}
-      form_action={form_action}
-      authenticity_token={authenticity_token}
-    />
+    <AdminSalesReportsPage countries={countries} job_history={job_history} authenticity_token={authenticity_token} />
   );
 };
 

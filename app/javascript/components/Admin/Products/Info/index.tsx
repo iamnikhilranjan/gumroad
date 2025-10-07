@@ -18,15 +18,19 @@ const AdminProductInfo = ({ product }: Props) => {
     data: info,
     isLoading,
     fetchData: fetchInfo,
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   } = useLazyFetch<InfoProps>({} as InfoProps, {
     url: Routes.admin_product_info_path(product.id, { format: "json" }),
-    responseParser: (data) => cast<InfoProps>(data.info),
+    responseParser: (data) => {
+      const parsed = cast<{ info: InfoProps }>(data);
+      return parsed.info;
+    },
   });
 
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchInfo();
+      void fetchInfo();
     }
   };
 

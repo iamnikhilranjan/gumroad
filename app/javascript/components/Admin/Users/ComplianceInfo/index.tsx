@@ -17,15 +17,18 @@ const AdminUserComplianceInfo = ({ user }: AdminUserComplianceInfoProps) => {
     data: complianceInfo,
     isLoading,
     fetchData: fetchComplianceInfo,
-  } = useLazyFetch<ComplianceInfoProps | null>(null as ComplianceInfoProps | null, {
+  } = useLazyFetch<ComplianceInfoProps | null>(null, {
     url: Routes.admin_user_compliance_info_path(user.id, { format: "json" }),
-    responseParser: (data) => cast<ComplianceInfoProps | null>(data.compliance_info),
+    responseParser: (data) => {
+      const parsed = cast<{ compliance_info: ComplianceInfoProps | null }>(data);
+      return parsed.compliance_info;
+    },
   });
 
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchComplianceInfo();
+      void fetchComplianceInfo();
     }
   };
 

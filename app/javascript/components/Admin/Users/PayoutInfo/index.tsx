@@ -13,21 +13,25 @@ type AdminUserPayoutInfoProps = {
 const AdminUserPayoutInfo = ({ user }: AdminUserPayoutInfoProps) => {
   const [open, setOpen] = React.useState(false);
 
-  const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
-    setOpen(e.currentTarget.open);
-    if (e.currentTarget.open) {
-      fetchPayoutInfo();
-    }
-  };
-
   const {
     data: payoutInfo,
     isLoading,
     fetchData: fetchPayoutInfo,
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   } = useLazyFetch<PayoutInfoProps>({} as PayoutInfoProps, {
     url: Routes.admin_user_payout_info_path(user.id, { format: "json" }),
-    responseParser: (data) => cast<PayoutInfoProps>(data.payout_info),
+    responseParser: (data) => {
+      const parsed = cast<{ payout_info: PayoutInfoProps }>(data);
+      return parsed.payout_info;
+    },
   });
+
+  const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
+    setOpen(e.currentTarget.open);
+    if (e.currentTarget.open) {
+      void fetchPayoutInfo();
+    }
+  };
 
   return (
     <>

@@ -20,7 +20,9 @@ const AdminCommentableComments = ({
 }: AdminCommentableCommentsProps) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    hasMore && onLoadMore();
+    if (hasMore) {
+      onLoadMore();
+    }
   };
 
   if (count === 0 && !isLoading)

@@ -52,7 +52,7 @@ export const SearchPopover = ({ card_types }: Props) => {
       return;
     }
 
-    if (queryFields.includes(activeField as any)) {
+    if (activeField && ["user_query", "purchase_query", "affiliate_query"].includes(activeField)) {
       cardFields.forEach((field) => setData(field, ""));
       queryFields.forEach((field) => {
         if (field !== activeField) setData(field, "");
@@ -61,10 +61,10 @@ export const SearchPopover = ({ card_types }: Props) => {
   };
 
   const submit = (endpoint: string, queryParam?: keyof typeof data | null) => {
-    const queryData = { query: queryParam ? data[queryParam] : "" };
+    const queryData = { query: queryParam ? String(data[queryParam]) : "" };
     const url = new URL(endpoint, window.location.origin);
-    Object.keys(queryData).forEach((key) => {
-      url.searchParams.set(key, queryData[key as keyof typeof queryData]);
+    Object.entries(queryData).forEach(([key, value]) => {
+      url.searchParams.set(key, value);
     });
 
     get(url.toString(), {

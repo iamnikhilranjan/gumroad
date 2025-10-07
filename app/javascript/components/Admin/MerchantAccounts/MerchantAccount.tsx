@@ -24,7 +24,7 @@ export type AdminMerchantAccountProps = {
   deleted_at: string;
 };
 
-export type LiveAttributesProps = Record<string, any>;
+export type LiveAttributesProps = Record<string, unknown>;
 
 type Props = {
   merchant_account: AdminMerchantAccountProps;
@@ -111,7 +111,7 @@ const AdminMerchantAccount = ({ merchant_account, live_attributes }: Props) => {
         {liveAttributes.length > 0 ? (
           <dl>
             {liveAttributes.map(([key, value]) => (
-              <dl>
+              <dl key={key}>
                 <dt>{key}</dt>
                 <dd>
                   <code>{JSON.stringify(value)}</code>

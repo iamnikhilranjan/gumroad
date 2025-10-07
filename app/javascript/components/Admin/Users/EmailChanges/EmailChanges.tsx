@@ -22,7 +22,7 @@ type EmailChangesComponentProps = {
 const EmailChanges = ({ fields, emailChanges, isLoading }: EmailChangesComponentProps) => {
   if (isLoading) return <Loading />;
 
-  if (!emailChanges) return <div>No email changes found.</div>;
+  if (emailChanges.length === 0) return <div>No email changes found.</div>;
 
   return (
     <table>

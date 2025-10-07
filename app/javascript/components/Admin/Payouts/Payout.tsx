@@ -29,7 +29,7 @@ export type Payout = {
   txn_id: string;
   correlation_id: string;
   was_created_in_split_mode: boolean;
-  split_payments_info: Record<string, any>[];
+  split_payments_info: Record<string, unknown>[];
   cancelled: boolean;
   returned: boolean;
   processing: boolean;

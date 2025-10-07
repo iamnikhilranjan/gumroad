@@ -9,17 +9,16 @@ type AdminPurchasesActionsProps = {
 
 const AdminPurchasesActions = ({ purchase }: AdminPurchasesActionsProps) => (
   <>
-    {purchase.can_force_update ||
-      (purchase.failed && (
-        <AdminActionButton
-          url={Routes.sync_status_with_charge_processor_admin_purchase_path(purchase.id)}
-          label="Sync with Stripe/PayPal"
-          loading="syncing..."
-          done="synced!"
-          confirm_message="Are you sure you want to sync this purchase's state with Stripe/PayPal?"
-          success_message="synced!"
-        />
-      ))}
+    {purchase.can_force_update || purchase.failed ? (
+      <AdminActionButton
+        url={Routes.sync_status_with_charge_processor_admin_purchase_path(purchase.id)}
+        label="Sync with Stripe/PayPal"
+        loading="syncing..."
+        done="synced!"
+        confirm_message="Are you sure you want to sync this purchase's state with Stripe/PayPal?"
+        success_message="synced!"
+      />
+    ) : null}
 
     {purchase.successful && !purchase.stripe_refunded ? (
       <>
@@ -59,7 +58,8 @@ const AdminPurchasesActions = ({ purchase }: AdminPurchasesActionsProps) => (
     ) : null}
 
     {purchase.subscription &&
-    !(purchase.subscription.cancelled_at || purchase.subscription.failed_at) &&
+    !purchase.subscription.cancelled_at &&
+    !purchase.subscription.failed_at &&
     !purchase.subscription.ended_at ? (
       <>
         <AdminActionButton
@@ -89,7 +89,9 @@ const AdminPurchasesActions = ({ purchase }: AdminPurchasesActionsProps) => (
         done="Buyer unblocked!"
         success_message="Buyer unblocked!"
       />
-    ) : (
+    ) : null}
+
+    {!purchase.buyer_blocked && (
       <AdminActionButton
         url={Routes.block_buyer_admin_purchase_path(purchase.id)}
         label="Block buyer"

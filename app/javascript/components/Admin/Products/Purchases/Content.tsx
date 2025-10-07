@@ -19,7 +19,9 @@ const AdminProductPurchasesContent = ({
 }: AdminProductPurchasesContentProps) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    hasMore && onLoadMore();
+    if (hasMore) {
+      onLoadMore();
+    }
   };
 
   if (purchases.length === 0 && !isLoading)

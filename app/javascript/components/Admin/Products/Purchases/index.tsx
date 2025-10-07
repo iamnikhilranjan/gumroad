@@ -33,13 +33,16 @@ const AdminProductPurchases = ({ product_id, is_affiliate_user = false, user_id 
     setIsLoading,
   } = useLazyPaginatedFetch<ProductPurchase[]>([], {
     url,
-    responseParser: (data) => cast<ProductPurchase[]>(data.purchases),
+    responseParser: (data) => {
+      const parsed = cast<{ purchases: ProductPurchase[] }>(data);
+      return parsed.purchases;
+    },
     mode: "append",
   });
 
   const fetchNextPage = () => {
     if (purchases.length >= pagination.limit) {
-      fetchPurchases({ page: pagination.page + 1 });
+      void fetchPurchases({ page: pagination.page + 1 });
     }
   };
 

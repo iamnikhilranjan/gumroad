@@ -1,5 +1,6 @@
 import { usePage } from "@inertiajs/react";
 import React from "react";
+import { cast } from "ts-safe-cast";
 
 import AdminProductActions from "$app/components/Admin/Products/Actions";
 import AdminProductComments from "$app/components/Admin/Products/Comments";
@@ -55,7 +56,9 @@ type AdminUsersProductsProductProps = {
 
 const AdminUsersProductsProduct = ({ product, is_affiliate_user = false }: AdminUsersProductsProductProps) => {
   const { url, props } = usePage();
-  const { user, compliance } = props as unknown as { user: User; compliance: Compliance };
+  const user: User = cast<User>(props.user);
+  const compliance: Compliance = cast<Compliance>(props.compliance);
+
   const isCurrentUrl = url === Routes.admin_product_url(product.id);
 
   return (

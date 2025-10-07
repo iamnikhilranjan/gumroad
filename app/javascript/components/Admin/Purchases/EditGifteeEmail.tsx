@@ -11,26 +11,30 @@ type Props = {
 const AdminPurchasesEditGifteeEmail = ({ purchase }: Props) => {
   const { authenticity_token } = usePage().props;
 
-  const { data, setData, post, reset } = useForm({
-    authenticity_token: authenticity_token as string,
+  const form = useForm({
+    authenticity_token: String(authenticity_token),
     update_giftee_email: {
       giftee_email: purchase.gift.giftee_email,
     },
   });
+  const { data, setData } = form;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    post(Routes.update_giftee_email_admin_purchase_path(purchase.id), {
+    form.post(Routes.update_giftee_email_admin_purchase_path(purchase.id), {
       onSuccess: () => {
         showAlert("Giftee email updated successfully!", "success");
-        reset();
+        form.reset();
       },
     });
   };
 
-  const setGifteeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setData("update_giftee_email.giftee_email", event.target.value);
-  };
+  const setGifteeEmail = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setData("update_giftee_email.giftee_email", event.target.value);
+    },
+    [setData],
+  );
 
   return (
     <details>

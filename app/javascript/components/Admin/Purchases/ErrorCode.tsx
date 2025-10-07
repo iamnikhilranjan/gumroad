@@ -18,11 +18,14 @@ const AdminPurchasesErrorCode = ({ purchase }: { purchase: Purchase }) => {
     fetchData: fetchPastChargebackedPurchases,
   } = useLazyFetch<Purchase[]>([], {
     url: Routes.admin_search_purchase_past_chargebacked_purchases_path(purchase.id),
-    responseParser: (data) => cast<Purchase[]>(data.purchases),
+    responseParser: (data) => {
+      const parsed = cast<{ purchases: Purchase[] }>(data);
+      return parsed.purchases;
+    },
   });
 
   React.useEffect(() => {
-    fetchPastChargebackedPurchases();
+    void fetchPastChargebackedPurchases();
   }, []);
 
   if (isLoading) {

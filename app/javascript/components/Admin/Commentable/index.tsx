@@ -24,9 +24,12 @@ const AdminCommentableComments = ({ endpoint, commentableType }: AdminCommentabl
     pagination,
     setHasMore,
     setHasLoaded,
-  } = useLazyPaginatedFetch<CommentProps[]>([] as CommentProps[], {
+  } = useLazyPaginatedFetch<CommentProps[]>([], {
     url: endpoint,
-    responseParser: (data) => cast<CommentProps[]>(data.comments),
+    responseParser: (data: unknown) => {
+      const result = cast<{ comments: CommentProps[] }>(data);
+      return result.comments;
+    },
     mode: "append",
   });
 
@@ -46,7 +49,7 @@ const AdminCommentableComments = ({ endpoint, commentableType }: AdminCommentabl
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchComments();
+      void fetchComments();
     } else {
       resetComments();
     }
@@ -59,7 +62,7 @@ const AdminCommentableComments = ({ endpoint, commentableType }: AdminCommentabl
 
   const fetchNextPage = () => {
     if (pagination.next) {
-      fetchComments({ page: pagination.next });
+      void fetchComments({ page: pagination.next });
     }
   };
 

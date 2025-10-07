@@ -46,7 +46,7 @@ const LastestPosts = ({ user }: LatestPostsProps) => {
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchPosts();
+      void fetchPosts();
     }
   };
 

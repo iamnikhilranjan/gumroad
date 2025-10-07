@@ -59,7 +59,7 @@ const ComplianceInfo = ({ complianceInfo, isLoading }: ComplianceInfoComponentPr
     business_country,
     business_tax_id,
     created_at,
-  } = complianceInfo || {};
+  } = complianceInfo;
 
   return (
     <div className="mt-4 grid gap-4 md:grid-cols-2">

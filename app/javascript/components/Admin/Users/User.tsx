@@ -70,7 +70,8 @@ export type Props = {
 };
 
 const User = ({ user, is_affiliate_user = false }: Props) => {
-  const { url } = usePage() as unknown as { url: string };
+  const page = usePage();
+  const { url } = page;
 
   return (
     <div className="card js-admin-user" data-user-id={user.id}>

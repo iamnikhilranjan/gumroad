@@ -1,4 +1,5 @@
 import React from "react";
+import { cast } from "ts-safe-cast";
 
 import { useLazyFetch } from "$app/hooks/useLazyFetch";
 
@@ -18,10 +19,13 @@ const AdminUserEmailChanges = ({ user }: AdminUserEmailChangesProps) => {
     isLoading,
     fetchData: fetchEmailChanges,
   } = useLazyFetch<{ email_changes: EmailChangesProps; fields: FieldsProps }>(
-    { email_changes: [] as EmailChangesProps, fields: ["email", "payment_address"] as FieldsProps },
+    { email_changes: [], fields: ["email", "payment_address"] },
     {
       url: Routes.admin_user_email_changes_path(user.id, { format: "json" }),
-      responseParser: (data) => data as { email_changes: EmailChangesProps; fields: FieldsProps },
+      responseParser: (data) => {
+        const result = cast<{ email_changes: EmailChangesProps; fields: FieldsProps }>(data);
+        return result;
+      },
     },
   );
 
@@ -30,7 +34,7 @@ const AdminUserEmailChanges = ({ user }: AdminUserEmailChangesProps) => {
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchEmailChanges();
+      void fetchEmailChanges();
     }
   };
 

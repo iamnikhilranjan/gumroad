@@ -16,11 +16,10 @@ type JobHistoryItem = {
 type Props = {
   countries: [string, string][];
   job_history: JobHistoryItem[];
-  form_action: string;
   authenticity_token: string;
 };
 
-const AdminSalesReportsPage = ({ countries, job_history, form_action, authenticity_token }: Props) => {
+const AdminSalesReportsPage = ({ countries, job_history, authenticity_token }: Props) => {
   const countryCodeToName = React.useMemo(() => {
     const map: Record<string, string> = {};
     countries.forEach(([name, code]) => {
@@ -32,7 +31,7 @@ const AdminSalesReportsPage = ({ countries, job_history, form_action, authentici
   return (
     <>
       <Form
-        url={form_action}
+        url={Routes.admin_sales_reports_path()}
         method="POST"
         confirmMessage={false}
         onSuccess={() => {

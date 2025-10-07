@@ -1,4 +1,5 @@
 import React from "react";
+import { cast } from "ts-safe-cast";
 
 import { CurrentUser } from "$app/types/user";
 
@@ -9,29 +10,36 @@ export type Props = {
   current_user: CurrentUser;
 };
 
+type ResponseData = {
+  redirect_to: string;
+};
+
 const AdminNavFooter = ({ current_user }: Props) => {
   const loggedInUser = useLoggedInUser();
 
-  const handleUnbecome = async (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleUnbecome = (ev: React.MouseEvent<HTMLAnchorElement>) => {
     ev.preventDefault();
 
-    try {
-      const response = await fetch(Routes.admin_unimpersonate_path(), {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "",
-        },
-      });
+    void (async () => {
+      try {
+        const response = await fetch(Routes.admin_unimpersonate_path(), {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "",
+          },
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        window.location.href = data.redirect_to;
+        if (response.ok) {
+          const data: ResponseData = cast<ResponseData>(await response.json());
+          window.location.href = data.redirect_to;
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to unbecome:", error);
       }
-    } catch (error) {
-      console.error("Failed to unbecome:", error);
-    }
+    })();
   };
 
   return (

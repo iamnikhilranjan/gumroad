@@ -10,7 +10,7 @@ type Props = {
 };
 
 const AdminPurchasesRefund = ({ refund }: Props) => {
-  const userName = refund.user.name && refund.user.name.length > 0 ? refund.user.name : `User ${refund.user.id}`;
+  const userName = refund.user?.name && refund.user.name.length > 0 ? refund.user.name : `User ${refund.user?.id}`;
 
   return (
     <>

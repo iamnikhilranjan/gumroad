@@ -8,18 +8,11 @@ type TabProps = {
   onClick?: () => void;
   ariaControls?: string;
   className?: string;
-  nodeName?: string;
+  nodeName?: keyof React.JSX.IntrinsicElements;
 };
 
-const Tab = ({
-  children,
-  isSelected,
-  onClick = () => {},
-  ariaControls,
-  className,
-  nodeName = "div" as keyof JSX.IntrinsicElements,
-}: TabProps) => {
-  const Node = nodeName as keyof JSX.IntrinsicElements;
+const Tab = ({ children, isSelected, onClick = () => {}, ariaControls, className, nodeName = "div" }: TabProps) => {
+  const Node = nodeName;
 
   return (
     <Node

@@ -121,14 +121,14 @@ const AdminPurchasesInfo = ({ purchase }: Props) => (
         <AdminPurchasesState purchase={purchase} />
       </dd>
 
-      {purchase.refunds && purchase.refunds.length > 0 ? (
+      {purchase.refunds.length > 0 && (
         <>
           <dt>Refunds</dt>
           <dd>
             <AdminPurchasesRefunds purchase={purchase} />
           </dd>
         </>
-      ) : null}
+      )}
 
       {purchase.card_type &&
       purchase.card_type.length > 0 &&
@@ -183,14 +183,16 @@ const AdminPurchasesInfo = ({ purchase }: Props) => (
             <AdminPurchaseInfoProductPurchases product_purchases={purchase.product_purchases} />
           </dd>
         </>
-      ) : purchase.url_redirect ? (
-        <>
-          <dt>URL redirect</dt>
-          <dd>
-            <AdminPurchaseInfoUrlRedirect url_redirect={purchase.url_redirect} />
-          </dd>
-        </>
-      ) : null}
+      ) : (
+        purchase.url_redirect && (
+          <>
+            <dt>URL redirect</dt>
+            <dd>
+              <AdminPurchaseInfoUrlRedirect url_redirect={purchase.url_redirect} />
+            </dd>
+          </>
+        )
+      )}
 
       {purchase.subscription ? (
         <>
@@ -224,7 +226,7 @@ const AdminPurchasesInfo = ({ purchase }: Props) => (
 
       {purchase.purchase_custom_fields && purchase.purchase_custom_fields.length > 0 ? (
         <>
-          {purchase.purchase_custom_fields.map((field: any) => (
+          {purchase.purchase_custom_fields.map((field: { name: string; value: string }) => (
             <React.Fragment key={field.name}>
               <dt>{field.name}</dt>
               <dd>{field.value} (custom field)</dd>
@@ -233,7 +235,7 @@ const AdminPurchasesInfo = ({ purchase }: Props) => (
         </>
       ) : null}
 
-      {purchase.purchase_state == "preorder_authorization_successful" && (
+      {purchase.purchase_state === "preorder_authorization_successful" && (
         <>
           <dt>Cancel Pre-order</dt>
           <dd>

@@ -82,7 +82,7 @@ const AdminUserMerchantAccounts = ({ user }: AdminUserMerchantAccountsProps) => 
   const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
     setOpen(e.currentTarget.open);
     if (e.currentTarget.open) {
-      fetchMerchantAccounts();
+      void fetchMerchantAccounts();
     }
   };
 

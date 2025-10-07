@@ -7,17 +7,16 @@ const AdminPurchaseInfoProductPurchases = ({ product_purchases }: { product_purc
   <div className="paragraphs">
     <h3>Product Purchases</h3>
     <dl>
-      {product_purchases.map(
-        (product_purchase) =>
-          product_purchase.url_redirect && (
-            <React.Fragment key={product_purchase.id}>
-              <dt>{product_purchase.link.name}</dt>
-              <dd>
-                <AdminPurchaseInfoUrlRedirect url_redirect={product_purchase.url_redirect} />
-              </dd>
-            </React.Fragment>
-          ),
-      )}
+      {product_purchases
+        .filter((product_purchase) => product_purchase.url_redirect)
+        .map((product_purchase) => (
+          <React.Fragment key={product_purchase.id}>
+            <dt>{product_purchase.link.name}</dt>
+            <dd>
+              <AdminPurchaseInfoUrlRedirect url_redirect={product_purchase.url_redirect} />
+            </dd>
+          </React.Fragment>
+        ))}
     </dl>
   </div>
 );

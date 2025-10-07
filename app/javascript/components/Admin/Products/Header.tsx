@@ -68,6 +68,7 @@ const AdminUsersProductsHeader = ({ product, user, isCurrentUrl }: Props) => (
       ) : null}
       {product.alive_product_files.map((file) => (
         <a
+          key={file.external_id}
           href={Routes.admin_access_product_file_admin_product_path(product.id, file.external_id)}
           className="button small"
           target="_blank"
