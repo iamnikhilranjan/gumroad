@@ -3,9 +3,9 @@
 class Admin::MerchantAccountsController < Admin::BaseController
   before_action :set_merchant_account, only: [:show]
 
-  before_action(only: :show) { @title = "Merchant Account #{@merchant_account.id}" }
-
   def show
+    @title = "Merchant Account #{@merchant_account.id}"
+
     render inertia: "Admin/MerchantAccounts/Show",
            props: {
              merchant_account: @merchant_account.as_json(
