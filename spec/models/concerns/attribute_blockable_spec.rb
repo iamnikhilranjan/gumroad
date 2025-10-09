@@ -274,6 +274,117 @@ describe AttributeBlockable do
     end
   end
 
+  describe "blockable attribute introspection" do
+    describe ".blockable_attributes" do
+      it "returns an array of attribute configurations" do
+        expect(User.blockable_attributes).to be_an(Array)
+        expect(User.blockable_attributes).not_to be_empty
+      end
+
+      it "includes configuration for each attr_blockable declaration" do
+        # User has: attr_blockable :email, :form_email, :form_email_domain
+        expect(User.blockable_attributes).to include(
+          { attribute: :email, blockable_method: :email }
+        )
+        expect(User.blockable_attributes).to include(
+          { attribute: :email, blockable_method: :form_email }
+        )
+        expect(User.blockable_attributes).to include(
+          { attribute: :email_domain, blockable_method: :form_email_domain }
+        )
+      end
+
+      it "tracks custom attribute mappings correctly" do
+        # form_email uses :email as the attribute
+        form_email_config = User.blockable_attributes.find do |attr|
+          attr[:blockable_method] == :form_email
+        end
+
+        expect(form_email_config).to eq({ attribute: :email, blockable_method: :form_email })
+      end
+
+      it "returns unique entries per model class" do
+        # Create a custom test model with its own blockable attributes
+        test_model_class = Class.new(ApplicationRecord) do
+          self.table_name = "users"
+          include AttributeBlockable
+          attr_blockable :test_attribute
+
+          def self.name
+            "TestIntrospectionModel"
+          end
+        end
+
+        expect(test_model_class.blockable_attributes).to include(
+          { attribute: :test_attribute, blockable_method: :test_attribute }
+        )
+        # User's attributes shouldn't include the test model's attributes
+        expect(User.blockable_attributes).not_to include(
+          { attribute: :test_attribute, blockable_method: :test_attribute }
+        )
+      end
+    end
+
+    describe ".blockable_method_names" do
+      it "returns an array of blockable method names" do
+        expect(User.blockable_method_names).to be_an(Array)
+        expect(User.blockable_method_names).to all(be_a(Symbol))
+      end
+
+      it "includes all blockable method names defined on the model" do
+        expect(User.blockable_method_names).to include(:email)
+        expect(User.blockable_method_names).to include(:form_email)
+        expect(User.blockable_method_names).to include(:form_email_domain)
+      end
+
+      it "returns only method names without attribute info" do
+        expect(User.blockable_method_names).to eq([:email, :form_email, :form_email_domain])
+      end
+    end
+
+    describe ".with_all_blocked_attributes" do
+      let!(:users) { 3.times.map { |i| create(:user, email: "unblocked#{i}@example.com") } }
+      let!(:blocked_user) { create(:user, email: blocked_email) }
+
+      it "returns an ActiveRecord::Relation" do
+        result = User.with_all_blocked_attributes
+        expect(result).to be_a(ActiveRecord::Relation)
+      end
+
+      it "preloads all blockable attributes" do
+        users_with_preload = User.with_all_blocked_attributes.to_a
+
+        users_with_preload.each do |user|
+          # Check that the cache has been populated for all blockable methods
+          if user.email == blocked_email
+            expect(user.blocked_by_attributes["email"]).to be_a(DateTime)
+          else
+            expect(user.blocked_by_attributes["email"]).to be_nil
+          end
+
+          # The cache should have entries for form_email and form_email_domain too
+          expect(user.blocked_by_attributes).to have_key("form_email")
+          expect(user.blocked_by_attributes).to have_key("form_email_domain")
+        end
+      end
+
+      it "maintains chainability" do
+        result = User.with_all_blocked_attributes.where(id: users.map(&:id))
+        expect(result).to be_a(ActiveRecord::Relation)
+        expect(result.to_a.size).to eq(3)
+      end
+
+      it "correctly identifies blocked users" do
+        all_users = User.with_all_blocked_attributes
+        blocked_users = all_users.select(&:blocked_by_email?)
+        unblocked_users = all_users.reject(&:blocked_by_email?)
+
+        expect(blocked_users.map(&:email)).to include(blocked_email)
+        expect(unblocked_users.map(&:email)).not_to include(blocked_email)
+      end
+    end
+  end
+
   describe ".with_blocked_attributes_for" do
     let!(:users) { 3.times.map { |i| create(:user, email: "unblocked#{i}@example.com") } }
     let!(:blocked_user) { create(:user, email: blocked_email) }

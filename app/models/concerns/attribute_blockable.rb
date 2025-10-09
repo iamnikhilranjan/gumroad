@@ -41,9 +41,23 @@
 #
 # == Caching
 #
-# The concern uses a +blocked_by_attributes+ JSON attribute to cache blocked
-# status. This cache is automatically populated when using +with_blocked_attributes_for+
-# or lazily loaded on first access.
+# The concern uses an instance variable to cache blocked status. This cache is
+# automatically populated when using +with_blocked_attributes_for+ or lazily
+# loaded on first access. The cache is cleared on +reload+.
+#
+# == Introspection
+#
+# The concern tracks all blockable attributes defined on a model:
+#
+#   User.blockable_attributes
+#   # => [{ attribute: :email, blockable_method: :email },
+#   #     { attribute: :email, blockable_method: :form_email }]
+#
+#   User.blockable_method_names
+#   # => [:email, :form_email]
+#
+#   # Preload all blockable attributes automatically
+#   User.with_all_blocked_attributes
 #
 # @example Admin controller with preloading
 #   def index
@@ -63,10 +77,28 @@
 module AttributeBlockable
   extend ActiveSupport::Concern
 
+  # Returns the cache hash for blocked attribute lookups.
+  # Structure: { "method_name" => timestamp_or_nil }
+  #
+  # @return [Hash] Cache of blocked attribute statuses
+  def blocked_by_attributes
+    @blocked_by_attributes ||= {}
+  end
+
+  # Clears the blocked attributes cache
+  def clear_blocked_attributes_cache
+    @blocked_by_attributes = nil
+  end
+
+  # Override reload to clear the cache
+  def reload(*)
+    clear_blocked_attributes_cache
+    super
+  end
+
   included do
-    # JSON attribute for caching blocked status lookups
-    # Structure: { "method_name" => timestamp_or_nil }
-    attribute :blocked_by_attributes, :json, default: {}
+    # Use class_attribute for proper inheritance behavior
+    class_attribute :blockable_attributes, instance_writer: false, default: []
   end
 
   # Provides the +with_blocked_attributes_for+ scope method for ActiveRecord relations.
@@ -215,6 +247,34 @@ module AttributeBlockable
         return if (value = send(blockable_method)).blank?
         unblock_by_method(attribute, value)
       end
+
+      # Register this blockable attribute for introspection
+      self.blockable_attributes = blockable_attributes + [{ attribute: attribute.to_sym, blockable_method: blockable_method.to_sym }]
+    end
+
+    # Returns an array of all blockable method names defined on this model.
+    # Useful for automatically preloading all blockable attributes.
+    #
+    # @return [Array<Symbol>] Array of blockable method names
+    #
+    # @example
+    #   User.blockable_method_names
+    #   # => [:email, :form_email, :form_email_domain]
+    def blockable_method_names
+      blockable_attributes.map { |attr| attr[:blockable_method] }
+    end
+
+    # Preloads all registered blockable attributes for this model.
+    # Convenience method that automatically calls +with_blocked_attributes_for+
+    # with all blockable methods defined via +attr_blockable+.
+    #
+    # @return [ActiveRecord::Relation] Relation with all blockable attributes preloaded
+    #
+    # @example
+    #   User.with_all_blocked_attributes
+    #   # Equivalent to: User.with_blocked_attributes_for(:email, :form_email, :form_email_domain)
+    def with_all_blocked_attributes
+      with_blocked_attributes_for(*blockable_method_names)
     end
 
     # Class-level version of +with_blocked_attributes_for+ for use on model classes.
