@@ -11,7 +11,6 @@ describe Admin::PurchasesController, :vcr do
   let(:admin_user) { create(:admin_user) }
 
   before do
-    create(:gumroad_merchant_account)
     sign_in admin_user
   end
 
