@@ -58,16 +58,9 @@ module Product::AsJson
           is_adult
           is_tiered_membership
         ],
-        include: {
-          alive_product_files: {
-            original: true,
-            methods: %i[external_id s3_filename]
-          },
-          active_integrations: {
-            only: :type
-          }
-        }
+        include: { active_integrations: { only: :type } }
       ).merge(
+        alive_product_files: ordered_alive_product_files.as_json(original: true, methods: %i[external_id s3_filename]),
         admins_can_mark_as_staff_picked: admins_can_mark_as_staff_picked.call(self),
         admins_can_unmark_as_staff_picked: admins_can_unmark_as_staff_picked.call(self)
       )

@@ -19,7 +19,7 @@ module Admin::Users::ListPaginatedProducts
     render inertia: inertia_template, props: {
       user: user.as_json(admin: true, impersonatable: policy([:admin, :impersonators, user]).create?),
       products: InertiaRails.merge do
-                  products.includes(:alive_product_files, :active_integrations).map do |product|
+                  products.includes(:ordered_alive_product_files, :active_integrations).map do |product|
                     product.as_json(
                       admin: true,
                       admins_can_mark_as_staff_picked: ->(product) { policy([:admin, :products, :staff_picked, product]).create? },
