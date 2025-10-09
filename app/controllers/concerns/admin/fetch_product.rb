@@ -16,9 +16,9 @@ module Admin::FetchProduct
       if product_matches.many?
         @title = "Multiple products matched"
         render inertia: "Admin/Products/MultipleMatches",
-               props: inertia_props(
+               props: {
                  product_matches: product_matches.as_json(admin_multiple_matches: true)
-               )
+               }
         return
       else
         @product = product_matches.first || e404
