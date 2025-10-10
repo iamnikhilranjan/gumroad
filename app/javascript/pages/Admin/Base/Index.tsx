@@ -1,4 +1,3 @@
-import { Link } from "@inertiajs/react";
 import React from "react";
 
 const AdminDashboard = () => {
@@ -19,18 +18,18 @@ const AdminDashboard = () => {
             autoComplete="off"
           />
           <div className="flex gap-4">
-            <Link
+            <a
               className="button w-auto flex-1"
               href={Routes.admin_impersonate_path({ user_identifier: userIdentifier })}
             >
               Impersonate user
-            </Link>
-            <Link
+            </a>
+            <a
               className="button w-auto flex-1"
               href={Routes.admin_redirect_to_stripe_dashboard_path({ user_identifier: userIdentifier })}
             >
               View Stripe account
-            </Link>
+            </a>
           </div>
         </div>
       </div>

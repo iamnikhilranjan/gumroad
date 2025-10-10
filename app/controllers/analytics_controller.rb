@@ -6,7 +6,7 @@ class AnalyticsController < Sellers::BaseController
   after_action :set_dashboard_preference_to_sales, only: :index
   before_action :check_payment_details, only: :index
 
-  layout "inertia", only: :index
+  layout "inertia", only: [:index]
 
   def index
     authorize :analytics
@@ -14,7 +14,7 @@ class AnalyticsController < Sellers::BaseController
     @analytics_props = AnalyticsPresenter.new(seller: current_seller).page_props
     LargeSeller.create_if_warranted(current_seller)
 
-    render inertia: "Analytics/index",
+    render inertia: "Analytics/Index",
            props: { analytics_props: @analytics_props }
   end
 

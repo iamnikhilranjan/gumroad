@@ -16,7 +16,7 @@ import { useCurrentSeller } from "$app/components/CurrentSeller";
 import { useAppDomain, useDiscoverUrl } from "$app/components/DomainSettings";
 import { Icon } from "$app/components/Icons";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
-import { Nav as NavFramework, NavLink, useNav } from "$app/components/Nav/Base";
+import { Nav as NavFramework, NavLink, useNav } from "$app/components/Nav";
 import NavbarFooter from "$app/components/Nav/Footer";
 import { useRunOnce } from "$app/components/useRunOnce";
 

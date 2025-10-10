@@ -8,7 +8,7 @@ class CustomersController < Sellers::BaseController
 
   CUSTOMERS_PER_PAGE = 20
 
-  layout "inertia", only: :index
+  layout "inertia", only: [:index]
 
   def index
     product = Link.fetch(params[:link_id]) if params[:link_id].present?

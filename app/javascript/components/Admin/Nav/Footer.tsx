@@ -1,20 +1,25 @@
+import { Link, usePage } from "@inertiajs/react";
 import React from "react";
 import { cast } from "ts-safe-cast";
 
 import { CurrentUser } from "$app/types/user";
+import { assertResponseError } from "$app/utils/request";
 
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { Popover } from "$app/components/Popover";
-
-export type Props = {
-  current_user: CurrentUser;
-};
+import { showAlert } from "$app/components/server-components/Alert";
 
 type ResponseData = {
   redirect_to: string;
 };
 
-const AdminNavFooter = ({ current_user }: Props) => {
+type PageProps = {
+  current_user: CurrentUser;
+  authenticity_token: string;
+};
+
+const AdminNavFooter = () => {
+  const { current_user, authenticity_token: authenticityToken } = cast<PageProps>(usePage().props);
   const loggedInUser = useLoggedInUser();
 
   const handleUnbecome = (ev: React.MouseEvent<HTMLAnchorElement>) => {
@@ -27,7 +32,7 @@ const AdminNavFooter = ({ current_user }: Props) => {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "",
+            "X-CSRF-Token": authenticityToken,
           },
         });
 
@@ -36,8 +41,8 @@ const AdminNavFooter = ({ current_user }: Props) => {
           window.location.href = data.redirect_to;
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error("Failed to unbecome:", error);
+        assertResponseError(error);
+        showAlert(error.message, "error");
       }
     })();
   };
@@ -47,8 +52,8 @@ const AdminNavFooter = ({ current_user }: Props) => {
       position="top"
       trigger={
         <>
-          <img className="user-avatar" src={current_user.avatar_url} alt="Your avatar" />
-          {current_user.name}
+          <img className="user-avatar" src={loggedInUser?.avatarUrl} alt="Your avatar" />
+          {loggedInUser?.name}
         </>
       }
     >
@@ -62,10 +67,10 @@ const AdminNavFooter = ({ current_user }: Props) => {
             <hr />
           </>
         ) : null}
-        <a role="menuitem" href={Routes.logout_url()}>
+        <Link role="menuitem" href={Routes.logout_url()} method="delete">
           <span className="icon icon-box-arrow-in-right-fill"></span>
           Logout
-        </a>
+        </Link>
         {loggedInUser?.isImpersonating ? (
           <a role="menuitem" href="#" onClick={handleUnbecome}>
             <span className="icon icon-box-arrow-in-right-fill"></span>

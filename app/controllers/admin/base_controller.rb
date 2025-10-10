@@ -6,14 +6,13 @@ class Admin::BaseController < ApplicationController
   layout "admin"
 
   inertia_share do
-    RenderingExtension.custom_context(view_context).merge(
+    {
       card_types: CreditCardUtility.card_types_for_react,
-      title: @title,
       compliance: {
         reasons: Compliance::TOS_VIOLATION_REASONS,
         default_reason: Compliance::DEFAULT_TOS_VIOLATION_REASON
       }
-    )
+    }
   end
 
   before_action :require_admin!
@@ -62,7 +61,7 @@ class Admin::BaseController < ApplicationController
     end
   end
 
-  protected
+  private
     def find_user(identifier)
       return nil if identifier.blank?
 
