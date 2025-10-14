@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { getPagedAffiliatedProducts } from "$app/data/affiliated_products";
+import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
 import { asyncVoid } from "$app/utils/promise";
 import { AbortError, assertResponseError } from "$app/utils/request";
 
@@ -308,7 +309,7 @@ const AffiliatedPage = ({
                 <StatsItem
                   title="Revenue"
                   description="Your gross sales from all affiliated products."
-                  value={stats.total_revenue}
+                  value={formatPriceCentsWithCurrencySymbol("usd", stats.total_revenue, { symbolFormat: "short" })}
                 />
                 <StatsItem title="Sales" description="Your number of affiliated sales." value={stats.total_sales} />
                 <StatsItem

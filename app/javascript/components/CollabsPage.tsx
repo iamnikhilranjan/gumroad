@@ -1,13 +1,14 @@
 import * as React from "react";
 
 import { Membership, Product } from "$app/data/collabs";
+import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
 
 import { NavigationButton } from "$app/components/Button";
 import { PaginationProps } from "$app/components/Pagination";
 import { ProductsLayout } from "$app/components/ProductsLayout";
 import { CollabsMembershipsTable } from "$app/components/ProductsPage/Collabs/MembershipsTable";
 import { CollabsProductsTable } from "$app/components/ProductsPage/Collabs/ProductsTable";
-import { Stats } from "$app/components/Stats";
+import { Stats, StatsItem } from "$app/components/Stats";
 import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/affiliated.png";
@@ -59,30 +60,28 @@ const CollabsPage = ({
         </div>
       ) : (
         <div style={{ display: "grid", gap: "var(--spacer-7)" }}>
-          <Stats
-            values={[
-              {
-                title: "Total revenue",
-                description: "Gross sales from all your product collabs.",
-                value: stats.total_revenue,
-              },
-              {
-                title: "Customers",
-                description: "Unique customers across all your product collabs.",
-                value: stats.total_customers,
-              },
-              {
-                title: "Active members",
-                description: "Members with an active subscription from your product collabs.",
-                value: stats.total_members,
-              },
-              {
-                title: "Collaborations",
-                description: "Total number of product collabs.",
-                value: stats.total_collaborations,
-              },
-            ]}
-          />
+          <Stats>
+            <StatsItem
+              title="Total revenue"
+              description="Gross sales from all your product collabs."
+              value={formatPriceCentsWithCurrencySymbol("usd", stats.total_revenue, { symbolFormat: "short" })}
+            />
+            <StatsItem
+              title="Customers"
+              description="Unique customers across all your product collabs."
+              value={stats.total_customers}
+            />
+            <StatsItem
+              title="Active members"
+              description="Members with an active subscription from your product collabs."
+              value={stats.total_members}
+            />
+            <StatsItem
+              title="Collaborations"
+              description="Total number of product collabs."
+              value={stats.total_collaborations}
+            />
+          </Stats>
           <div style={{ display: "grid", gap: "var(--spacer-7)" }}>
             {memberships.length ? (
               <CollabsMembershipsTable entries={memberships} pagination={membershipsPagination} />
