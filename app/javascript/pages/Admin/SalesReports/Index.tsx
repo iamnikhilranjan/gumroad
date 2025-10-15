@@ -1,29 +1,23 @@
 import { usePage } from "@inertiajs/react";
-import React from "react";
+import * as React from "react";
 
-import AdminSalesReportsPage from "$app/components/Admin/SalesReportsPage";
+import AdminSalesReportsForm from "$app/components/Admin/SalesReports/Form";
+import AdminSalesReportsJobHistory, { type JobHistoryItem } from "$app/components/Admin/SalesReports/JobHistory";
 
-type Props = {
+type PageProps = {
   countries: [string, string][];
   job_history: JobHistoryItem[];
   authenticity_token: string;
 };
 
-type JobHistoryItem = {
-  job_id: string;
-  country_code: string;
-  start_date: string;
-  end_date: string;
-  enqueued_at: string;
-  status: string;
-  download_url?: string;
-};
-
 const AdminSalesReports = () => {
-  const { countries, job_history, authenticity_token } = usePage<Props>().props;
+  const { countries, job_history: jobHistory, authenticity_token: authenticityToken } = usePage<PageProps>().props;
 
   return (
-    <AdminSalesReportsPage countries={countries} job_history={job_history} authenticity_token={authenticity_token} />
+    <>
+      <AdminSalesReportsForm countries={countries} authenticityToken={authenticityToken} />
+      <AdminSalesReportsJobHistory countries={countries} jobHistory={jobHistory} />
+    </>
   );
 };
 
