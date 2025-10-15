@@ -179,7 +179,7 @@ describe ProductFile do
     end
 
     it "preserves s3 key for files containing percent and ampersand in filename" do
-      product_file = create(:product_file, url: "https://s3.amazonaws.com/gumroad-specs/specs/test file %26 & ) %29.txt")
+      product_file = create(:product_file, url: "#{S3_BASE_URL}/specs/test file %26 & ) %29.txt")
       expect(product_file.s3_key).to eq "specs/test file %26 & ) %29.txt"
     end
 
@@ -985,7 +985,7 @@ describe ProductFile do
       context "when an image product file is created" do
         it "resets moderated_by_iffy flag on the associated product" do
           expect do
-            create(:product_file, link: product, url: "https://s3.amazonaws.com/gumroad-specs/specs/kFDzu.png")
+            create(:product_file, link: product, url: "#{S3_BASE_URL}/specs/kFDzu.png")
           end.to change { product.reload.moderated_by_iffy }.from(true).to(false)
         end
       end

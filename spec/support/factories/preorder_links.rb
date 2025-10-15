@@ -6,7 +6,7 @@ FactoryBot.define do
     release_at { 2.months.from_now }
 
     factory :preorder_product_with_content do
-      url { "https://s3.amazonaws.com/gumroad-specs/specs/magic.mp3" }
+      url { "#{S3_BASE_URL}/specs/magic.mp3" }
     end
   end
 end

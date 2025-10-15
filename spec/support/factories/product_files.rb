@@ -22,19 +22,19 @@ FactoryBot.define do
     end
 
     factory :non_streamable_video do
-      url { "https://s3.amazonaws.com/gumroad-specs/specs/ScreenRecording.mpg" }
+      url { "#{S3_BASE_URL}/specs/ScreenRecording.mpg" }
       filetype { "mpg" }
       filegroup { "url" }
     end
 
     factory :listenable_audio do
-      url { "https://s3.amazonaws.com/gumroad-specs/specs/magic.mp3" }
+      url { "#{S3_BASE_URL}/specs/magic.mp3" }
       filetype { "mp3" }
       filegroup { "audio" }
     end
 
     factory :non_listenable_audio do
-      url { "https://s3.amazonaws.com/gumroad-specs/specs/test-with-tags.aiff" }
+      url { "#{S3_BASE_URL}/specs/test-with-tags.aiff" }
       filetype { "aiff" }
       filegroup { "url" }
     end
@@ -46,7 +46,7 @@ FactoryBot.define do
     end
 
     factory :non_readable_document, aliases: [:epub_product_file] do
-      url { "https://s3.amazonaws.com/gumroad-specs/specs/test.epub" }
+      url { "#{S3_BASE_URL}/specs/test.epub" }
       filetype { "epub" }
       filegroup { "epub_document" }
     end

@@ -1487,7 +1487,7 @@ describe LinksController, :vcr, inertia: true do
         end
 
         it "preserves correct s3 key for s3 files containing percent and ampersand" do
-          urls = ["https://s3.amazonaws.com/gumroad-specs/specs/test file %26 & ) %29.txt"]
+          urls = ["#{S3_BASE_URL}/specs/test file %26 & ) %29.txt"]
           post :update, params: @params.merge!(files: files_data_from_urls(urls)), format: :json
           expect(response).to be_successful
           product_file = @product.alive_product_files.first

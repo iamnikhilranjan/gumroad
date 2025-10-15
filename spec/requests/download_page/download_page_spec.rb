@@ -6,8 +6,8 @@ describe("Download Page", type: :system, js: true) do
   describe "open in app" do
     before do
       @product = create(:product, user: create(:user))
-      create(:product_file, link_id: @product.id, url: "https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf").analyze
-      create(:product_file, link_id: @product.id, url: "https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf").analyze
+      create(:product_file, link_id: @product.id, url: "#{S3_BASE_URL}/specs/nyt.pdf").analyze
+      create(:product_file, link_id: @product.id, url: "#{S3_BASE_URL}/specs/nyt.pdf").analyze
     end
 
     it "allows the user to create an account and show instructions to get the app" do
@@ -212,8 +212,8 @@ describe("Download Page", type: :system, js: true) do
       login_as(@user)
 
       product = create(:product, user: create(:user))
-      create(:product_file, link_id: product.id, url: "https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf").analyze
-      create(:product_file, link_id: product.id, url: "https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf").analyze
+      create(:product_file, link_id: product.id, url: "#{S3_BASE_URL}/specs/nyt.pdf").analyze
+      create(:product_file, link_id: product.id, url: "#{S3_BASE_URL}/specs/nyt.pdf").analyze
       @purchase = create(:purchase_with_balance, link: product, email: @user.email, purchaser_id: nil)
       url_redirect = @purchase.url_redirect
       visit("/d/#{url_redirect.token}")

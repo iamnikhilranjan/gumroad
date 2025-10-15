@@ -15,7 +15,7 @@ describe "S3Retrievable" do
 
   subject(:s3_retrievable_object) do
     model.new.tap do |test_class|
-      test_class.url = "https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf"
+      test_class.url = "#{S3_BASE_URL}/specs/nyt.pdf"
     end
   end
 
@@ -31,7 +31,7 @@ describe "S3Retrievable" do
 
   describe "#unique_url_identifier" do
     it "returns url as an identifier" do
-      expect(s3_retrievable_object.unique_url_identifier).to eq("https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf")
+      expect(s3_retrievable_object.unique_url_identifier).to eq("#{S3_BASE_URL}/specs/nyt.pdf")
     end
 
     context "when it has an s3 guid" do
@@ -82,7 +82,7 @@ describe "S3Retrievable" do
 
   describe "#s3_url" do
     it "returns s3 url value" do
-      expect(s3_retrievable_object.s3_url).to eq("https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf")
+      expect(s3_retrievable_object.s3_url).to eq("#{S3_BASE_URL}/specs/nyt.pdf")
     end
 
     include_examples "s3 retrievable instance method", "s3_url"
@@ -179,7 +179,7 @@ describe "S3Retrievable" do
     end
 
     it "does nothing if the file exists on S3" do
-      previous_url = "https://s3.amazonaws.com/gumroad-specs/specs/sample.mov"
+      previous_url = "#{S3_BASE_URL}/specs/sample.mov"
       record = model.create!(url: previous_url)
 
       record.confirm_s3_key!

@@ -363,7 +363,7 @@ describe UrlRedirectsController do
         @seller = create(:user)
         @product = create(:product, user: @seller)
         @seller_installment = create(:installment, seller: @seller, installment_type: "seller", link: nil)
-        @seller_installment.product_files.create!(url: "https://s3.amazonaws.com/gumroad-specs/specs/magic.mp3")
+        @seller_installment.product_files.create!(url: "#{S3_BASE_URL}/specs/magic.mp3")
         @url_redirect = create(:url_redirect, installment: @seller_installment, purchase: nil, link: @product)
         @token = @url_redirect.token
         allow_any_instance_of(Aws::S3::Object).to receive(:content_length).and_return(1_000_000)
@@ -978,7 +978,7 @@ describe UrlRedirectsController do
           subtitle_file_en = create(:subtitle_file, language: "English", url: "https://s3.amazonaws.com/gumroad-specs/attachment/english.srt", product_file: video_file_2)
           subtitle_file_fr = create(:subtitle_file, language: "Français", url: "https://s3.amazonaws.com/gumroad-specs/attachment/french.srt", product_file: video_file_2)
           video_file_3 = create(:product_file, url: "https://s3.amazonaws.com/gumroad-specs/attachments/2/original/chapter_2_no_spaces.mp4", display_name: "Chapter 2 No Spaces", position: 0)
-          mp3_file = create(:product_file, url: "https://s3.amazonaws.com/gumroad-specs/specs/magic.mp3")
+          mp3_file = create(:product_file, url: "#{S3_BASE_URL}/specs/magic.mp3")
           installment = create(:installment)
           installment.product_files << video_file_1 << video_file_2 << pdf_file << video_file_3 << mp3_file
           url_redirect = create(:installment_url_redirect, installment:)
@@ -1513,7 +1513,7 @@ describe UrlRedirectsController do
 
         it "gets current product file if replaced" do
           @product.product_files.each(&:mark_deleted)
-          create(:product_file, link: @product, url: "https://s3.amazonaws.com/gumroad-specs/specs/nyt.pdf", filetype: "pdf")
+          create(:product_file, link: @product, url: "#{S3_BASE_URL}/specs/nyt.pdf", filetype: "pdf")
           get(:read, params: { id: @url_redirect.token })
           expect(assigns(:read_url)).to include("nyt.pdf")
         end
@@ -1635,7 +1635,7 @@ describe UrlRedirectsController do
       seller = create(:user)
       product = create(:product, user: seller)
       seller_installment = create(:installment, seller:, installment_type: "seller", link: nil)
-      seller_installment.product_files.create!(url: "https://s3.amazonaws.com/gumroad-specs/specs/magic.mp3")
+      seller_installment.product_files.create!(url: "#{S3_BASE_URL}/specs/magic.mp3")
       url_redirect = create(:url_redirect, installment: seller_installment, purchase: nil, link: product)
 
       expect do

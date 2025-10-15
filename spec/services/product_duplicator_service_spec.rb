@@ -4,7 +4,7 @@ require "spec_helper"
 
 describe ProductDuplicatorService do
   let(:seller) { create(:user) }
-  let(:s3_url) { "https://s3.amazonaws.com/gumroad-specs/specs/magic.mp3" }
+  let(:s3_url) { "#{S3_BASE_URL}/specs/magic.mp3" }
   let(:product) do
     product_params = { user: seller, price_cents: 5000, name: "test product",
                        description: "description for test product",
