@@ -1140,6 +1140,40 @@ describe("Product Edit Scenario", type: :system, js: true) do
     end
   end
 
+  describe "Receipt customization" do
+    it "allows updating custom view content button text" do
+      visit edit_link_path(product.unique_permalink)
+
+      within_section "Customize Receipt" do
+        fill_in "View content button text", with: "Download Now!"
+      end
+
+      expect do
+        save_change
+        product.reload
+      end.to change { product.custom_view_content_button_text }.from(nil).to("Download Now!")
+
+      expect(find_field("View content button text").value).to eq("Download Now!")
+    end
+
+    it "allows updating custom receipt text" do
+      visit edit_link_path(product.unique_permalink)
+
+      custom_text = "Thank you for your purchase! Please check your email for download instructions."
+
+      within_section "Customize Receipt" do
+        fill_in "Additional text on receipt", with: custom_text
+      end
+
+      expect do
+        save_change
+        product.reload
+      end.to change { product.custom_receipt_text }.from(nil).to(custom_text)
+
+      expect(find_field("Additional text on receipt").value).to eq(custom_text)
+    end
+  end
+
   it "allows toggling the community chat integration on and off" do
     Feature.activate_user(:communities, seller)
 
