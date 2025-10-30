@@ -1265,6 +1265,12 @@ class Link < ApplicationRecord
     end
 
   private
+    def compute_ppp_prices(price_cents, factors, currency)
+      factors.keys.index_with do |country_code|
+        price_cents == 0 ? 0 : [factors[country_code] * price_cents, currency["min_price"]].max.round
+      end
+    end
+
     def release_custom_permalink_if_possible
       deleted_product = user.links.deleted.find_by(custom_permalink:)
       deleted_product&.update(custom_permalink: nil)

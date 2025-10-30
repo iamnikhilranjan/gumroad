@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class Admin::Products::BaseController < Admin::BaseController
-  include Admin::FetchProduct
+  before_action :set_product
 
-  before_action :fetch_product
+  private
+    def set_product
+      @product = Link.find(params[:product_id])
+    end
 end

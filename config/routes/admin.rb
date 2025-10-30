@@ -32,16 +32,15 @@ namespace :admin do
           post :sync
         end
       end
-      resources :latest_posts, only: [:index]
-      resources :stats, only: [:index]
-      resource :compliance_info, only: [:show]
-      resource :payout_info, only: [:show]
-      resources :merchant_accounts, only: [:index]
-      resources :email_changes, only: [:index]
-      resources :products, only: [:index] do
+      resources :email_changes, only: :index
+      resources :merchant_accounts, only: :index
+      resource :payout_info, only: :show
+      resources :latest_posts, only: :index
+      resources :stats, only: :index
+      resources :products, only: [] do
         scope module: :products do
           resources :tos_violation_flags, only: [:index, :create]
-          resources :purchases, only: [:index]
+          resources :purchases, only: :index
         end
       end
     end
@@ -70,6 +69,12 @@ namespace :admin do
       post :flag_for_fraud
       post :set_custom_fee
       post :toggle_adult_products
+    end
+  end
+
+  resources :affiliates, only: [] do
+    resources :products, only: [], module: :affiliates do
+      resources :purchases, only: :index, module: :products
     end
   end
 
@@ -152,8 +157,17 @@ namespace :admin do
 
   post "/paydays/pay_user/:id", to: "paydays#pay_user", as: :pay_user
 
+  # Search
+  namespace :search do
+    resources :users, only: :index
+    resources :purchases, only: [:index] do
+      scope module: :purchases do
+        resources :past_chargebacked_purchases, only: [:index]
+      end
+    end
+  end
+
   # Compliance
-  get "/users/:user_id/guids", to: "compliance/guids#index", as: :compliance_guids
 
   scope module: "compliance" do
     resources :guids, only: [:show] do
@@ -175,14 +189,5 @@ namespace :admin do
 
   scope module: "users" do
     post :block_ip_address
-  end
-
-  namespace :search do
-    resources :users, only: [:index]
-    resources :purchases, only: [:index] do
-      scope module: :purchases do
-        resources :past_chargebacked_purchases, only: [:index]
-      end
-    end
   end
 end

@@ -577,7 +577,7 @@ class Purchase < ApplicationRecord
   }
 
   scope :for_admin_listing, -> {
-    where(purchase_state: %w[preorder_authorization_successful preorder_concluded_unsuccessfully successful failed not_charged ])
+    where(purchase_state: %w[preorder_authorization_successful preorder_concluded_unsuccessfully successful failed not_charged])
       .exclude_not_charged_except_free_trial
       .order(created_at: :desc, id: :desc)
   }

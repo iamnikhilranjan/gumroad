@@ -1,20 +1,13 @@
 # frozen_string_literal: true
 
 class Admin::ActionCallDashboardController < Admin::BaseController
-  include Pagy::Backend
-
-  RECORDS_PER_PAGE = 15
-
-  def show
+  def index
     @title = "Action Call Dashboard"
+    @admin_action_call_infos = AdminActionCallInfo.order(call_count: :desc, controller_name: :asc, action_name: :asc)
 
-    pagination, admin_action_call_infos = pagy(
-      AdminActionCallInfo.order(call_count: :desc, controller_name: :asc, action_name: :asc),
-      limit: params[:per_page] || RECORDS_PER_PAGE,
-      page: params[:page]
-    )
-
-    render inertia: "Admin/ActionCallDashboard/Show",
-           props: { admin_action_call_infos:, pagination: }
+    render inertia: "Admin/ActionCallDashboard/Index",
+           props: {
+             admin_action_call_infos: @admin_action_call_infos.as_json(only: [:id, :controller_name, :action_name, :call_count])
+           }
   end
 end

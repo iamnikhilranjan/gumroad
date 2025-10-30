@@ -27,6 +27,7 @@ export type ActiveIntegration = {
 export type Product = {
   id: number;
   name: string;
+  long_url: string;
   price_cents: number;
   currency_code: string;
   unique_permalink: string;
@@ -38,7 +39,7 @@ export type Product = {
   user_id: string;
   admins_can_generate_url_redirects: boolean;
   alive_product_files: ProductFile[];
-  stripped_html_safe_description: string;
+  html_safe_description: string;
   alive: boolean;
   is_adult: boolean;
   active_integrations: ActiveIntegration[];
@@ -59,11 +60,11 @@ const AdminUsersProductsProduct = ({ product, is_affiliate_user = false }: Admin
   const user: User = cast<User>(props.user);
   const compliance: Compliance = cast<Compliance>(props.compliance);
 
-  const isCurrentUrl = url === Routes.admin_product_url(product.id);
+  const isCurrentUrl = url === Routes.admin_product_path(product.unique_permalink);
 
   return (
     <article
-      className="override grid gap-4 rounded border border-border bg-background p-4"
+      className="grid gap-4 rounded border border-border bg-background p-4"
       data-product-id={product.unique_permalink}
     >
       <AdminProductHeader product={product} user={user} isCurrentUrl={isCurrentUrl} />

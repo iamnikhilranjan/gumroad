@@ -4,18 +4,20 @@ module Purchase::Blockable
   extend ActiveSupport::Concern
 
   included do
+    include AttributeBlockable
+
     attr_blockable :browser_guid
     attr_blockable :ip_address
     attr_blockable :email
-    attr_blockable :paypal_email, attribute: :email
-    attr_blockable :gifter_email, attribute: :email
+    attr_blockable :paypal_email, object_type: :email
+    attr_blockable :gifter_email, object_type: :email
     attr_blockable :charge_processor_fingerprint
-    attr_blockable :purchaser_email, attribute: :email
-    attr_blockable :recent_stripe_fingerprint, attribute: :charge_processor_fingerprint
+    attr_blockable :purchaser_email, object_type: :email
+    attr_blockable :recent_stripe_fingerprint, object_type: :charge_processor_fingerprint
     attr_blockable :email_domain
-    attr_blockable :paypal_email_domain, attribute: :email_domain
-    attr_blockable :gifter_email_domain, attribute: :email_domain
-    attr_blockable :purchaser_email_domain, attribute: :email_domain
+    attr_blockable :paypal_email_domain, object_type: :email_domain
+    attr_blockable :gifter_email_domain, object_type: :email_domain
+    attr_blockable :purchaser_email_domain, object_type: :email_domain
 
     delegate :email, to: :purchaser, prefix: true, allow_nil: true
   end
@@ -48,18 +50,21 @@ module Purchase::Blockable
       blocked_by_email? ||
       blocked_by_paypal_email? ||
       blocked_by_gifter_email? ||
+      blocked_by_purchaser_email? ||
       blocked_by_ip_address? ||
-      blocked_by_charge_processor_fingerprint?
+      blocked_by_charge_processor_fingerprint? ||
+      blocked_by_recent_stripe_fingerprint?
   end
 
   def block_buyer!(blocking_user_id: nil, comment_content: nil)
     block_by_browser_guid!(by_user_id: blocking_user_id)
-    block_by_ip_address!(by_user_id: blocking_user_id, expires_in: BlockedObject::IP_ADDRESS_BLOCKING_DURATION_IN_MONTHS.months)
     block_by_email!(by_user_id: blocking_user_id)
     block_by_paypal_email!(by_user_id: blocking_user_id)
     block_by_gifter_email!(by_user_id: blocking_user_id)
     block_by_purchaser_email!(by_user_id: blocking_user_id)
+    block_by_ip_address!(by_user_id: blocking_user_id, expires_in: BlockedObject::IP_ADDRESS_BLOCKING_DURATION_IN_MONTHS.months)
     block_by_charge_processor_fingerprint!(by_user_id: blocking_user_id)
+    block_by_recent_stripe_fingerprint!(by_user_id: blocking_user_id)
 
     blocking_user = User.find_by(id: blocking_user_id) if blocking_user_id.present?
     update!(is_buyer_blocked_by_admin: true) if blocking_user&.is_team_member?

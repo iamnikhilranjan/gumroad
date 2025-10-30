@@ -75,9 +75,9 @@ describe Purchase::Blockable do
     end
   end
 
-  describe "#blocked_emails" do
+  describe "email blocking on fraud" do
     context "for a fraudulent transaction" do
-      it "returns a list of blocked emails" do
+      it "blocks the email" do
         purchase = build(:purchase_in_progress,
                          email: "foo@example.com",
                          error_code: PurchaseErrorCode::FRAUD_RELATED_ERROR_CODES.sample)
@@ -85,15 +85,28 @@ describe Purchase::Blockable do
         # Block the email to ensure it shows up in blocked_emails
         BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], "foo@example.com", 1)
 
-        expect(purchase.blocked_emails).to eq ["foo@example.com"]
+        expect(purchase.blocked_by_email?).to be true
+        expect(purchase.blocked_by_email_object&.object_value).to eq("foo@example.com")
+      end
+    end
+
+    context "for a non-fraudulent transaction" do
+      it "does not block the email" do
+        purchase = build(:purchase_in_progress,
+                         email: "foo@example.com",
+                         error_code: "non_fraud_code")
+
+        purchase.mark_failed!
+
+        expect(purchase.blocked_by_email?).to be false
       end
     end
   end
 
-  describe "#blocked_ip_addresses" do
+  describe "ip address blocking" do
     context "when purchase's ip address is not blocked" do
-      it "returns an empty array" do
-        expect(purchase.blocked_ip_addresses).to eq([])
+      it "returns false for blocked check" do
+        expect(purchase.blocked_by_ip_address?).to be false
       end
     end
 
@@ -102,8 +115,9 @@ describe Purchase::Blockable do
         purchase.block_by_ip_address!(expires_in: BlockedObject::IP_ADDRESS_BLOCKING_DURATION_IN_MONTHS.months)
       end
 
-      it "returns the blocked object values" do
-        expect(purchase.blocked_ip_addresses).to contain_exactly(purchase.ip_address)
+      it "returns true for blocked check" do
+        expect(purchase.blocked_by_ip_address?).to be true
+        expect(purchase.blocked_by_ip_address_object&.object_value).to eq(purchase.ip_address)
       end
     end
   end

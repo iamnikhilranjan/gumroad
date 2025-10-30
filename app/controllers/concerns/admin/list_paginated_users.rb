@@ -19,18 +19,23 @@ module Admin::ListPaginatedUsers
         countless_minimal: true
       )
 
+      yield users if block_given?
+
       respond_to do |format|
         format.html do
           render(
             inertia: template,
             props: {
               users: InertiaRails.merge do
-                users.map do |user|
-                  user.as_json(
-                    admin: true,
-                    impersonatable: policy([:admin, :impersonators, user]).create?
-                  )
-                end
+                users.with_attached_avatar
+                     .includes(:admin_manageable_user_memberships)
+                     .with_blocked_attributes_for(:form_email, :form_email_domain)
+                     .map do |user|
+                       Admin::UserPresenter::Card.new(
+                         user:,
+                         impersonatable: policy([:admin, :impersonators, user]).create?
+                       ).props
+                     end
               end,
               pagination:
             }

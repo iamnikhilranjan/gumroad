@@ -18,10 +18,7 @@ class BlockedObject
     define_method("#{object_type}?") { self.object_type == object_type }
   end
   validates_inclusion_of :object_type, in: BLOCKED_OBJECT_TYPES.values
-  validates :expires_at, presence: {
-    if: [:ip_address?, :blocked_at?],
-    unless: :expires_at?
-  }
+  validates :expires_at, presence: { if: %i[ip_address? blocked_at?] }
 
   scope :active, -> { where(:blocked_at.ne => nil).any_of({ expires_at: nil }, { :expires_at.gt => Time.current }) }
 
@@ -42,16 +39,24 @@ class BlockedObject
       blocked_object.unblock! if blocked_object
     end
 
+    def find_object(object_value)
+      find_by(object_value:)
+    rescue NoMethodError
+      BlockedObject.none
+    end
+
     def find_active_object(object_value)
-      active.find_by(object_value:)
+      active.find_object(object_value)
+    end
+
+    def find_objects(object_values)
+      where(:object_value.in => object_values)
     rescue NoMethodError
       BlockedObject.none
     end
 
     def find_active_objects(object_values)
-      active.where(:object_value.in => object_values)
-    rescue NoMethodError
-      BlockedObject.none
+      active.find_objects(object_values)
     end
   end
 

@@ -1,3 +1,3 @@
-import AdminSearchUsers from "$app/components/Admin/Users";
+import AdminUsers from "$app/components/Admin/Users/UserList";
 
-export default AdminSearchUsers;
+export default AdminUsers;

@@ -15,23 +15,18 @@ type AdminProductPurchasesProps = {
 const AdminProductPurchases = ({ product_id, is_affiliate_user = false, user_id }: AdminProductPurchasesProps) => {
   const [open, setOpen] = React.useState(false);
 
-  const urlParams = { format: "json" };
   const url =
     user_id && is_affiliate_user
-      ? Routes.admin_user_product_purchases_path(user_id, product_id, urlParams)
-      : Routes.admin_product_purchases_path(product_id, urlParams);
+      ? Routes.admin_affiliate_product_purchases_path(user_id, product_id, { format: "json" })
+      : Routes.admin_product_purchases_path(product_id, { format: "json" });
 
   const {
     data: purchases,
     isLoading,
-    fetchData: fetchPurchases,
+    fetchNextPage,
     hasMore,
-    pagination,
-    setData: setPurchases,
-    setHasMore,
-    setHasLoaded,
-    setIsLoading,
   } = useLazyPaginatedFetch<ProductPurchase[]>([], {
+    fetchUnlessLoaded: open,
     url,
     responseParser: (data) => {
       const parsed = cast<{ purchases: ProductPurchase[] }>(data);
@@ -40,32 +35,10 @@ const AdminProductPurchases = ({ product_id, is_affiliate_user = false, user_id 
     mode: "append",
   });
 
-  const fetchNextPage = () => {
-    if (purchases.length >= pagination.limit) {
-      void fetchPurchases({ page: pagination.page + 1 });
-    }
-  };
-
-  const resetPurchases = () => {
-    setPurchases([]);
-    setHasLoaded(false);
-    setHasMore(true);
-    setIsLoading(true);
-  };
-
-  const onToggle = (e: React.MouseEvent<HTMLDetailsElement>) => {
-    setOpen(e.currentTarget.open);
-    if (e.currentTarget.open) {
-      void fetchPurchases();
-    } else {
-      resetPurchases();
-    }
-  };
-
   return (
     <>
       <hr />
-      <details open={open} onToggle={onToggle}>
+      <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
         <summary>
           <h3>{is_affiliate_user ? "Affiliate purchases" : "Purchases"}</h3>
         </summary>
@@ -73,7 +46,7 @@ const AdminProductPurchases = ({ product_id, is_affiliate_user = false, user_id 
           purchases={purchases}
           isLoading={isLoading}
           hasMore={hasMore}
-          onLoadMore={fetchNextPage}
+          onLoadMore={() => void fetchNextPage()}
         />
       </details>
     </>

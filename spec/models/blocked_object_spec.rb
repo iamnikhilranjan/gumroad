@@ -432,170 +432,100 @@ describe BlockedObject do
     end
   end
 
-  describe "different object types behavior" do
-    describe "email blocking" do
-      it "blocks and unblocks emails properly" do
-        email = "test@example.com"
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], email, 1)
+  describe "expires_at validation" do
+    context "when object_type is ip_address" do
+      let(:object_type) { BLOCKED_OBJECT_TYPES[:ip_address] }
+      let(:object_value) { "192.168.1.1" }
 
-        blocked_object = BlockedObject.find_by(object_value: email)
-        expect(blocked_object.email?).to be true
-        expect(blocked_object.blocked?).to be true
-        expect(blocked_object.expires_at).to be_nil
+      context "when blocked_at is present" do
+        it "is invalid without expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: Time.current
+          )
+
+          expect(blocked_object).not_to be_valid
+          expect(blocked_object.errors[:expires_at]).to include("can't be blank")
+        end
+
+        it "is valid with expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: Time.current,
+            expires_at: Time.current + 1.hour
+          )
+
+          expect(blocked_object).to be_valid
+        end
+      end
+
+      context "when blocked_at is nil" do
+        it "is valid without expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: nil,
+            expires_at: nil
+          )
+
+          expect(blocked_object).to be_valid
+        end
+
+        it "is valid with expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: nil,
+            expires_at: Time.current + 1.hour
+          )
+
+          expect(blocked_object).to be_valid
+        end
       end
     end
 
-    describe "email_domain blocking" do
-      it "blocks and unblocks email domains properly" do
-        domain = "suspicious-domain.com"
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email_domain], domain, 1)
+    context "when object_type is NOT ip_address" do
+      let(:object_type) { BLOCKED_OBJECT_TYPES[:email] }
+      let(:object_value) { "test@example.com" }
 
-        blocked_object = BlockedObject.find_by(object_value: domain)
-        expect(blocked_object.email_domain?).to be true
-        expect(blocked_object.blocked?).to be true
-        expect(blocked_object.expires_at).to be_nil
+      context "when blocked_at is present" do
+        it "is valid without expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: Time.current,
+            expires_at: nil
+          )
+
+          expect(blocked_object).to be_valid
+        end
+
+        it "is valid with expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: Time.current,
+            expires_at: Time.current + 1.hour
+          )
+
+          expect(blocked_object).to be_valid
+        end
       end
-    end
 
-    describe "browser_guid blocking" do
-      it "blocks and unblocks browser GUIDs properly" do
-        guid = "browser-guid-12345"
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:browser_guid], guid, 1)
+      context "when blocked_at is nil" do
+        it "is valid without expires_at" do
+          blocked_object = BlockedObject.new(
+            object_type: object_type,
+            object_value: object_value,
+            blocked_at: nil,
+            expires_at: nil
+          )
 
-        blocked_object = BlockedObject.find_by(object_value: guid)
-        expect(blocked_object.browser_guid?).to be true
-        expect(blocked_object.blocked?).to be true
-        expect(blocked_object.expires_at).to be_nil
+          expect(blocked_object).to be_valid
+        end
       end
-    end
-
-    describe "product blocking" do
-      it "blocks and unblocks products properly" do
-        product_id = "product-123"
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:product], product_id, 1)
-
-        blocked_object = BlockedObject.find_by(object_value: product_id)
-        expect(blocked_object.product?).to be true
-        expect(blocked_object.blocked?).to be true
-        expect(blocked_object.expires_at).to be_nil
-      end
-    end
-
-    describe "ip_address blocking with expiration" do
-      it "automatically sets expiration for IP addresses" do
-        ip = "192.168.1.100"
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:ip_address], ip, 1, expires_in: 6.months)
-
-        blocked_object = BlockedObject.find_by(object_value: ip)
-        expect(blocked_object.ip_address?).to be true
-        expect(blocked_object.blocked?).to be true
-        expect(blocked_object.expires_at.to_time).to be_within(1.minute).of(6.months.from_now)
-      end
-    end
-  end
-
-  describe "edge cases and error handling" do
-    it "handles blocking the same object multiple times" do
-      email = "duplicate@example.com"
-      first_block = BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], email, 1)
-      second_block = BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], email, 2)
-
-      expect(first_block.id).to eq(second_block.id)
-      expect(second_block.blocked_by).to eq(2)
-      expect(BlockedObject.where(object_value: email).count).to eq(1)
-    end
-
-    it "handles empty object_value" do
-      expect do
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], "", 1)
-      end.not_to raise_error
-
-      blocked_object = BlockedObject.find_by(object_value: "")
-      expect(blocked_object).not_to be_nil
-      expect(blocked_object.blocked?).to be true
-    end
-
-    it "handles nil blocking_user_id" do
-      email = "no-user@example.com"
-      blocked_object = BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], email, nil)
-
-      expect(blocked_object.blocked_by).to be_nil
-      expect(blocked_object.blocked?).to be true
-    end
-
-    it "updates blocked_by when re-blocking" do
-      email = "reblock@example.com"
-      first_block = BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], email, 1)
-      expect(first_block.blocked_by).to eq(1)
-
-      second_block = BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], email, 2)
-      expect(second_block.blocked_by).to eq(2)
-      expect(second_block.id).to eq(first_block.id)
-    end
-
-    it "handles very long object_values" do
-      long_value = "a" * 1000
-      expect do
-        BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], long_value, 1)
-      end.not_to raise_error
-    end
-
-    it "handles special characters in object_value" do
-      special_value = "test+special@example.com"
-      blocked_object = BlockedObject.block!(BLOCKED_OBJECT_TYPES[:email], special_value, 1)
-
-      expect(blocked_object.object_value).to eq(special_value)
-      expect(blocked_object.blocked?).to be true
-    end
-  end
-
-  describe "scopes combinations" do
-    let!(:active_email) { BlockedObject.create!(object_type: BLOCKED_OBJECT_TYPES[:email], object_value: "active@example.com", blocked_at: Time.current, blocked_by: 1) }
-    let!(:expired_email) { BlockedObject.create!(object_type: BLOCKED_OBJECT_TYPES[:email], object_value: "expired@example.com", blocked_at: 2.hours.ago, expires_at: 1.hour.ago, blocked_by: 1) }
-    let!(:active_ip) { BlockedObject.create!(object_type: BLOCKED_OBJECT_TYPES[:ip_address], object_value: "192.168.1.1", blocked_at: Time.current, expires_at: 1.hour.from_now, blocked_by: 1) }
-    let!(:active_browser) { BlockedObject.create!(object_type: BLOCKED_OBJECT_TYPES[:browser_guid], object_value: "active_browser", blocked_at: Time.current, blocked_by: 1) }
-
-    it "combines email scope with active scope" do
-      active_emails = BlockedObject.email.active
-      expect(active_emails).to include(active_email)
-      expect(active_emails).not_to include(expired_email)
-      expect(active_emails).not_to include(active_ip)
-      expect(active_emails).not_to include(active_browser)
-      expect(active_emails.count).to eq(1)
-    end
-
-    it "combines ip_address scope with active scope" do
-      active_ips = BlockedObject.ip_address.active
-      expect(active_ips).to include(active_ip)
-      expect(active_ips).not_to include(active_email)
-      expect(active_ips).not_to include(expired_email)
-      expect(active_ips).not_to include(active_browser)
-      expect(active_ips.count).to eq(1)
-    end
-
-    it "combines browser_guid scope with active scope" do
-      active_browsers = BlockedObject.browser_guid.active
-      expect(active_browsers).to include(active_browser)
-      expect(active_browsers).not_to include(active_email)
-      expect(active_browsers).not_to include(active_ip)
-      expect(active_browsers).not_to include(expired_email)
-      expect(active_browsers.count).to eq(1)
-    end
-
-    it "counts objects across different types" do
-      expect(BlockedObject.email.count).to eq(2) # active + expired
-      expect(BlockedObject.ip_address.count).to eq(1)
-      expect(BlockedObject.browser_guid.count).to eq(1)
-      expect(BlockedObject.email_domain.count).to eq(0)
-      expect(BlockedObject.charge_processor_fingerprint.count).to eq(0)
-      expect(BlockedObject.product.count).to eq(0)
-    end
-
-    it "counts active objects across different types" do
-      expect(BlockedObject.email.active.count).to eq(1) # only active
-      expect(BlockedObject.ip_address.active.count).to eq(1)
-      expect(BlockedObject.browser_guid.active.count).to eq(1)
-      expect(BlockedObject.active.count).to eq(3) # total active
     end
   end
 end
