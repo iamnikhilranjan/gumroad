@@ -1,10 +1,11 @@
 import { Link, useForm, usePage } from "@inertiajs/react";
 import React from "react";
 
+import { type Pagination } from "$app/hooks/useLazyFetch";
+
 import DateTimeWithRelativeTooltip from "$app/components/Admin/DateTimeWithRelativeTooltip";
 import EmptyState from "$app/components/Admin/EmptyState";
 import PaginatedLoader from "$app/components/Admin/PaginatedLoader";
-import { type Pagination } from "$app/hooks/useLazyFetch";
 import { CopyToClipboard } from "$app/components/CopyToClipboard";
 import { Icon } from "$app/components/Icons";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
