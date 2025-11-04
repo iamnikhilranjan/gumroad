@@ -91,16 +91,8 @@ export const NavLinkDropdownItem = ({
   href: string;
   onClick?: (ev: React.MouseEvent<HTMLAnchorElement>) => void;
 }) => (
-  <a
-    role="menuitem"
-    href={href}
-    onClick={onClick}
-    // className="block truncate px-4 py-2 no-underline hover:bg-foreground/10"
-  >
-    <Icon
-      name={icon}
-      // className="mr-3 ml-1"
-    />
+  <a role="menuitem" href={href} onClick={onClick}>
+    <Icon name={icon} />
     {text}
   </a>
 );

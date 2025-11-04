@@ -58,11 +58,7 @@ export const PopoverContent = React.forwardRef<
         <PopoverPrimitive.Arrow
           width={16}
           height={8}
-          className={classNames(
-            // "-mt-px ",
-            "fill-black dark:fill-foreground/35",
-            arrowClassName,
-          )}
+          className={classNames("fill-black dark:fill-foreground/35", arrowClassName)}
         />
       </PopoverPrimitive.Content>
     );
