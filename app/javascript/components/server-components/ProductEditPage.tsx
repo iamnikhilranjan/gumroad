@@ -19,6 +19,7 @@ import { Seller } from "$app/components/Product";
 import { ContentTab } from "$app/components/ProductEdit/ContentTab";
 import { Page } from "$app/components/ProductEdit/ContentTab/PageTab";
 import { ProductTab } from "$app/components/ProductEdit/ProductTab";
+import { ReceiptTab } from "$app/components/ProductEdit/ReceiptTab";
 import { RefundPolicy } from "$app/components/ProductEdit/RefundPolicy";
 import { ShareTab } from "$app/components/ProductEdit/ShareTab";
 import {
@@ -47,6 +48,11 @@ const routes: RouteObject[] = [
     path: "/products/:id/edit/share",
     element: <ShareTab />,
     handle: "share",
+  },
+  {
+    path: "/products/:id/edit/receipt",
+    element: <ReceiptTab />,
+    handle: "receipt",
   },
 ];
 

@@ -124,11 +124,17 @@ export const Layout = ({
   preview,
   isLoading = false,
   headerActions,
+  previewScaleFactor = 0.4,
+  withBorder = true,
+  withNavigationButton = true,
 }: {
   children: React.ReactNode;
   preview?: React.ReactNode;
   isLoading?: boolean;
   headerActions?: React.ReactNode;
+  previewScaleFactor?: number;
+  withBorder?: boolean;
+  withNavigationButton?: boolean;
 }) => {
   const { id, product, updateProduct, uniquePermalink, saving, save, currencyType } = useProductEditContext();
   const rootPath = `/products/${uniquePermalink}/edit`;
@@ -279,6 +285,11 @@ export const Layout = ({
                 </Link>
               </Tab>
             ) : null}
+            <Tab asChild isSelected={tab === "receipt"}>
+              <Link to={`${rootPath}/receipt`} onClick={onTabClick}>
+                Receipt
+              </Link>
+            </Tab>
             <Tab asChild isSelected={tab === "share"}>
               <Link
                 to={`${rootPath}/share`}
@@ -307,27 +318,33 @@ export const Layout = ({
           <aside aria-label="Preview" className="sticky! top-0 min-h-screen self-start overflow-y-auto">
             <header>
               <h2>Preview</h2>
-              <WithTooltip tip="Preview">
-                <NavigationButton
-                  aria-label="Preview"
-                  disabled={isBusy}
-                  href={url}
-                  onClick={(evt) => {
-                    evt.preventDefault();
-                    void save().then(() => window.open(url, "_blank"));
-                  }}
-                >
-                  <Icon name="arrow-diagonal-up-right" />
-                </NavigationButton>
-              </WithTooltip>
+              {Boolean(withNavigationButton) && (
+                <WithTooltip tip="Preview">
+                  <NavigationButton
+                    aria-label="Preview"
+                    disabled={isBusy}
+                    href={url}
+                    onClick={(evt) => {
+                      evt.preventDefault();
+                      void save().then(() => window.open(url, "_blank"));
+                    }}
+                  >
+                    <Icon name="arrow-diagonal-up-right" />
+                  </NavigationButton>
+                </WithTooltip>
+              )}
             </header>
             <Preview
-              scaleFactor={0.4}
-              style={{
-                border: "var(--border)",
-                backgroundColor: "rgb(var(--filled))",
-                borderRadius: "var(--border-radius-2)",
-              }}
+              scaleFactor={previewScaleFactor}
+              style={
+                withBorder
+                  ? {
+                      border: "var(--border)",
+                      backgroundColor: "rgb(var(--filled))",
+                      borderRadius: "var(--border-radius-2)",
+                    }
+                  : {}
+              }
             >
               {preview}
             </Preview>
