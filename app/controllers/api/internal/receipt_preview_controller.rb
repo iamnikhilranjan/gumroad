@@ -11,14 +11,14 @@ class Api::Internal::ReceiptPreviewController < Api::Internal::BaseController
 
     @product.custom_receipt_text = params[:custom_receipt_text]
     @product.custom_view_content_button_text = params[:custom_view_content_button_text]
-    mock_purchase = build_mock_purchase
+    preview_purchase = build_preview_purchase
 
     rendered_html = ApplicationController.renderer.render(
       template: "customer_mailer/receipt",
       layout: "email",
       assigns: {
-        chargeable: mock_purchase,
-        receipt_presenter: ReceiptPresenter.new(mock_purchase, for_email: false)
+        chargeable: preview_purchase,
+        receipt_presenter: ReceiptPresenter.new(preview_purchase, for_email: false)
       }
     )
 
@@ -28,8 +28,8 @@ class Api::Internal::ReceiptPreviewController < Api::Internal::BaseController
   end
 
   private
-    def build_mock_purchase
-      mock_purchase = OpenStruct.new(
+    def build_preview_purchase
+      preview_purchase = OpenStruct.new(
         link: @product,
         seller: @product.user,
         created_at: Time.current,
@@ -47,10 +47,10 @@ class Api::Internal::ReceiptPreviewController < Api::Internal::BaseController
         external_id_for_invoice: "preview_order_id"
       )
 
-      mock_purchase.unbundled_purchases = [mock_purchase]
-      mock_purchase.successful_purchases = [mock_purchase]
-      mock_purchase.orderable = mock_purchase
+      preview_purchase.unbundled_purchases = [preview_purchase]
+      preview_purchase.successful_purchases = [preview_purchase]
+      preview_purchase.orderable = preview_purchase
 
-      mock_purchase
+      preview_purchase
     end
 end

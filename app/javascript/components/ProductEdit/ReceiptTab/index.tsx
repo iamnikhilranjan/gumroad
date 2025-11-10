@@ -1,9 +1,9 @@
 import * as React from "react";
 
 import { Layout } from "$app/components/ProductEdit/Layout";
-import { CustomReceiptTextInput } from "$app/components/ProductEdit/ProductTab/CustomReceiptTextInput";
-import { CustomViewContentButtonTextInput } from "$app/components/ProductEdit/ProductTab/CustomViewContentButtonTextInput";
 import { ReceiptPreview } from "$app/components/ProductEdit/ReceiptPreview";
+import { CustomReceiptTextInput } from "$app/components/ProductEdit/ReceiptTab/CustomReceiptTextInput";
+import { CustomViewContentButtonTextInput } from "$app/components/ProductEdit/ReceiptTab/CustomViewContentButtonTextInput";
 import { useProductEditContext } from "$app/components/ProductEdit/state";
 
 export const ReceiptTab = () => {
