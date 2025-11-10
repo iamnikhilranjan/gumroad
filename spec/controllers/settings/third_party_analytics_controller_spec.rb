@@ -3,7 +3,7 @@
 require "spec_helper"
 require "inertia_rails/rspec"
 
-describe Settings::ThirdPartyAnalyticsController, inertia: true do
+describe Settings::ThirdPartyAnalyticsController, type: :controller, inertia: true do
   render_views
 
   let(:user) { create(:user) }
@@ -20,7 +20,11 @@ describe Settings::ThirdPartyAnalyticsController, inertia: true do
     it "returns successful response with Inertia page data" do
       expect(response).to be_successful
       expect(inertia.component).to eq("Settings/ThirdPartyAnalytics")
+    end
+
+    it "includes settings pages" do
       expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:settings_pages]).not_to be_empty
     end
 
     it "includes third party analytics configuration" do
@@ -38,6 +42,15 @@ describe Settings::ThirdPartyAnalyticsController, inertia: true do
         snippets: be_an(Array)
       )
     end
+
+    context "when user has products" do
+      let!(:product) { create(:product, user:) }
+
+      it "includes products for analytics configuration" do
+        get :show
+        expect(inertia.props[:products]).not_to be_empty
+      end
+    end
   end
 
   describe "PUT update" do
@@ -50,12 +63,35 @@ describe Settings::ThirdPartyAnalyticsController, inertia: true do
       }
     end
 
-    it "returns JSON response" do
+    it "returns successful JSON response" do
       put :update, params:, format: :json
 
       expect(response).to be_successful
-      json = JSON.parse(response.body)
-      expect(json).to have_key("success")
+      expect(response.parsed_body).to have_key("success")
+    end
+
+    it "updates analytics settings" do
+      put :update, params: { user: { disable_third_party_analytics: true } }, format: :json
+
+      user.reload
+      expect(user.disable_third_party_analytics).to be(true)
+    end
+
+    context "with Google Analytics ID" do
+      let(:params) do
+        {
+          user: {
+            google_analytics_id: "UA-12345678-1"
+          }
+        }
+      end
+
+      it "updates Google Analytics ID" do
+        put :update, params:, format: :json
+
+        user.reload
+        expect(user.google_analytics_id).to eq("UA-12345678-1")
+      end
     end
   end
 end

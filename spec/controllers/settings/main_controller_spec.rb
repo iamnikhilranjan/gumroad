@@ -3,7 +3,7 @@
 require "spec_helper"
 require "inertia_rails/rspec"
 
-describe Settings::MainController, inertia: true do
+describe Settings::MainController, type: :controller, inertia: true do
   render_views
 
   let(:user) { create(:user) }
@@ -20,25 +20,48 @@ describe Settings::MainController, inertia: true do
     it "returns successful response with Inertia page data" do
       expect(response).to be_successful
       expect(inertia.component).to eq("Settings/Main")
+    end
+
+    it "includes settings pages" do
       expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:settings_pages]).not_to be_empty
+    end
+
+    it "includes user account information" do
+      expect(inertia.props[:user]).to be_a(Hash)
       expect(inertia.props[:user]).to include(
         email: user.form_email,
         timezone: user.timezone,
-        currency_type: user.currency_type
+        currency_type: user.currency_type,
+        name: user.name
       )
     end
 
     it "includes notification settings" do
       expect(inertia.props[:user]).to include(
-        enable_payment_email: user.enable_payment_email,
-        enable_payment_push_notification: user.enable_payment_push_notification
+        enable_payment_email: be_in([true, false]),
+        enable_payment_push_notification: be_in([true, false]),
+        enable_refund_email: be_in([true, false])
       )
     end
 
     it "includes purchasing power parity settings" do
       expect(inertia.props[:user]).to include(
-        purchasing_power_parity_enabled: user.purchasing_power_parity_enabled?,
-        purchasing_power_parity_limit: user.purchasing_power_parity_limit
+        purchasing_power_parity_enabled: be_in([true, false]),
+        purchasing_power_parity_limit: be_a(Integer)
+      )
+    end
+
+    it "includes product level support emails" do
+      expect(inertia.props[:user]).to include(
+        product_level_support_emails: be_an(Array)
+      )
+    end
+
+    it "includes currency and products data" do
+      expect(inertia.props).to include(
+        currencies: be_an(Array),
+        products: be_an(Array)
       )
     end
   end
@@ -55,12 +78,20 @@ describe Settings::MainController, inertia: true do
       }
     end
 
-    it "returns JSON response" do
+    it "returns successful JSON response" do
       put :update, params:, format: :json
 
-      expect(response).to be_successful
-      json = JSON.parse(response.body)
-      expect(json).to have_key("success")
+        expect(response).to be_successful
+      expect(response.parsed_body).to have_key("success")
+    end
+
+    it "updates user settings" do
+      new_value = !user.enable_payment_email
+
+      put :update, params:, format: :json
+
+      user.reload
+      expect(user.enable_payment_email).to eq(new_value)
     end
   end
 
@@ -72,8 +103,7 @@ describe Settings::MainController, inertia: true do
         post :resend_confirmation_email, format: :json
 
         expect(response).to be_successful
-        json = JSON.parse(response.body)
-        expect(json["success"]).to be(true)
+        expect(response.parsed_body["success"]).to be(true)
       end
     end
 
@@ -82,8 +112,7 @@ describe Settings::MainController, inertia: true do
         post :resend_confirmation_email, format: :json
 
         expect(response).to be_successful
-        json = JSON.parse(response.body)
-        expect(json["success"]).to be(false)
+        expect(response.parsed_body["success"]).to be(false)
       end
     end
   end

@@ -3,7 +3,7 @@
 require "spec_helper"
 require "inertia_rails/rspec"
 
-describe Settings::PasswordController, inertia: true do
+describe Settings::PasswordController, type: :controller, inertia: true do
   render_views
 
   let(:user) { create(:user, password: "oldpassword123") }
@@ -20,8 +20,22 @@ describe Settings::PasswordController, inertia: true do
     it "returns successful response with Inertia page data" do
       expect(response).to be_successful
       expect(inertia.component).to eq("Settings/Password")
+    end
+
+    it "includes settings pages" do
       expect(inertia.props[:settings_pages]).to be_an(Array)
-      expect(inertia.props[:require_old_password]).to be(true)
+      expect(inertia.props[:settings_pages]).not_to be_empty
+    end
+
+    it "includes password requirement flag" do
+      expect(inertia.props[:require_old_password]).to be_in([true, false])
+    end
+
+    context "when user signed up with password" do
+      it "requires old password" do
+        get :show
+        expect(inertia.props[:require_old_password]).to be(true)
+      end
     end
 
     context "when user signed up with OAuth" do
@@ -44,12 +58,15 @@ describe Settings::PasswordController, inertia: true do
       }
     end
 
-    it "updates password" do
+    it "returns successful JSON response" do
       put :update, params:, format: :json
 
       expect(response).to be_successful
-      json = JSON.parse(response.body)
-      expect(json["success"]).to be(true)
+      expect(response.parsed_body["success"]).to be(true)
+    end
+
+    it "updates password successfully" do
+      put :update, params:, format: :json
 
       user.reload
       expect(user.valid_password?("newpassword456")).to be(true)
@@ -65,12 +82,36 @@ describe Settings::PasswordController, inertia: true do
         }
       end
 
-      it "returns error" do
+      it "returns error response" do
         put :update, params:, format: :json
 
-        json = JSON.parse(response.body)
-        expect(json["success"]).to be(false)
-        expect(json["error"]).to include("Incorrect password")
+        expect(response.parsed_body["success"]).to be(false)
+        expect(response.parsed_body["error"]).to include("Incorrect password")
+      end
+
+      it "does not change password" do
+        put :update, params:, format: :json
+
+        user.reload
+        expect(user.valid_password?("oldpassword123")).to be(true)
+      end
+    end
+
+    context "when user signed up with OAuth" do
+      let(:user) { create(:user, provider: "google") }
+      let(:params) do
+        {
+          user: {
+            new_password: "newpassword456"
+          }
+        }
+      end
+
+      it "allows setting password without old password" do
+        put :update, params:, format: :json
+
+        expect(response).to be_successful
+        expect(response.parsed_body["success"]).to be(true)
       end
     end
   end

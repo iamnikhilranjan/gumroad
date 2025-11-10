@@ -3,7 +3,7 @@
 require "spec_helper"
 require "inertia_rails/rspec"
 
-describe Settings::TeamController, inertia: true do
+describe Settings::TeamController, type: :controller, inertia: true do
   render_views
 
   let(:user) { create(:user) }
@@ -20,7 +20,11 @@ describe Settings::TeamController, inertia: true do
     it "returns successful response with Inertia page data" do
       expect(response).to be_successful
       expect(inertia.component).to eq("Settings/Team")
+    end
+
+    it "includes settings pages" do
       expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:settings_pages]).not_to be_empty
     end
 
     it "includes team member information" do
@@ -28,6 +32,15 @@ describe Settings::TeamController, inertia: true do
         member_infos: be_an(Array),
         can_invite_member: be_in([true, false])
       )
+    end
+
+    context "when user has team members" do
+      let!(:team_member) { create(:team_member, seller: user) }
+
+      it "includes the team members in the response" do
+        get :show
+        expect(inertia.props[:member_infos]).not_to be_empty
+      end
     end
   end
 

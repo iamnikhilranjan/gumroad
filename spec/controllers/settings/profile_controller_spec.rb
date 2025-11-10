@@ -3,7 +3,7 @@
 require "spec_helper"
 require "inertia_rails/rspec"
 
-describe Settings::ProfileController, inertia: true do
+describe Settings::ProfileController, type: :controller, inertia: true do
   render_views
 
   let(:user) { create(:user) }
@@ -20,11 +20,23 @@ describe Settings::ProfileController, inertia: true do
     it "returns successful response with Inertia page data" do
       expect(response).to be_successful
       expect(inertia.component).to eq("Settings/Profile")
-      expect(inertia.props[:settings_pages]).to be_an(Array)
     end
 
-    it "includes profile props" do
-      expect(inertia.props).to have_key(:settings_pages)
+    it "includes settings pages" do
+      expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:settings_pages]).not_to be_empty
+    end
+
+    it "includes profile settings" do
+      expect(inertia.props).to include(
+        profile_settings: be_a(Hash)
+      )
+    end
+
+    it "includes seller information" do
+      expect(inertia.props).to include(
+        seller: be_a(Hash)
+      )
     end
   end
 
@@ -37,10 +49,16 @@ describe Settings::ProfileController, inertia: true do
       }
     end
 
-    it "updates user profile" do
+    it "returns successful JSON response" do
       put :update, params:, format: :json
 
       expect(response).to be_successful
+      expect(response.parsed_body).to have_key("success")
+    end
+
+    it "updates user profile" do
+      put :update, params:, format: :json
+
       user.reload
       expect(user.name).to eq("New Name")
     end
@@ -52,9 +70,8 @@ describe Settings::ProfileController, inertia: true do
         put :update, params:, format: :json
 
         expect(response).to be_successful
-        json = JSON.parse(response.body)
-        expect(json["success"]).to be(false)
-        expect(json["error_message"]).to include("confirm your email")
+        expect(response.parsed_body["success"]).to be(false)
+        expect(response.parsed_body["error_message"]).to include("confirm your email")
       end
     end
   end

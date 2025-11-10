@@ -3,7 +3,7 @@
 require "spec_helper"
 require "inertia_rails/rspec"
 
-describe Settings::PaymentsController, inertia: true do
+describe Settings::PaymentsController, type: :controller, inertia: true do
   render_views
 
   let(:user) { create(:user) }
@@ -20,7 +20,11 @@ describe Settings::PaymentsController, inertia: true do
     it "returns successful response with Inertia page data" do
       expect(response).to be_successful
       expect(inertia.component).to eq("Settings/Payments")
+    end
+
+    it "includes settings pages" do
       expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:settings_pages]).not_to be_empty
     end
 
     it "includes payment configuration" do
@@ -33,6 +37,22 @@ describe Settings::PaymentsController, inertia: true do
 
     it "includes user payment details" do
       expect(inertia.props[:user]).to be_a(Hash)
+      expect(inertia.props[:user]).to include(
+        payout_method: be_a(String)
+      )
+    end
+
+    it "includes compliance information" do
+      expect(inertia.props).to include(
+        compliance_info: be_a(Hash)
+      )
+    end
+
+    it "includes payout settings" do
+      expect(inertia.props).to include(
+        payout_threshold_cents: be_an(Integer),
+        payout_frequency: be_a(String)
+      )
     end
   end
 end
