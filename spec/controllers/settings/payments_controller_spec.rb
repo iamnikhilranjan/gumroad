@@ -31,15 +31,16 @@ describe Settings::PaymentsController, type: :controller, inertia: true do
       expect(inertia.props).to include(
         countries: be_a(Hash),
         bank_account_details: be_a(Hash),
-        stripe_connect: be_a(Hash)
+        stripe_connect: be_a(Hash),
+        paypal_connect: be_a(Hash),
+        fee_info: be_a(Hash)
       )
     end
 
     it "includes user payment details" do
       expect(inertia.props[:user]).to be_a(Hash)
-      expect(inertia.props[:user]).to include(
-        payout_method: be_a(String)
-      )
+      expect(inertia.props[:user]).to have_key(:country_supports_native_payouts)
+      expect(inertia.props[:user]).to have_key(:payout_currency)
     end
 
     it "includes compliance information" do

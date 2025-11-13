@@ -81,7 +81,7 @@ describe Settings::ThirdPartyAnalyticsController, type: :controller, inertia: tr
       let(:params) do
         {
           user: {
-            google_analytics_id: "UA-12345678-1"
+            google_analytics_id: "G-12345678"
           }
         }
       end
@@ -90,7 +90,7 @@ describe Settings::ThirdPartyAnalyticsController, type: :controller, inertia: tr
         put :update, params:, format: :json
 
         user.reload
-        expect(user.google_analytics_id).to eq("UA-12345678-1")
+        expect(user.google_analytics_id).to eq("G-12345678")
       end
     end
   end

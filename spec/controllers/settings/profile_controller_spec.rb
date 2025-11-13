@@ -33,9 +33,11 @@ describe Settings::ProfileController, type: :controller, inertia: true do
       )
     end
 
-    it "includes seller information" do
+    it "includes profile data" do
       expect(inertia.props).to include(
-        seller: be_a(Hash)
+        creator_profile: be_a(Hash),
+        sections: be_an(Array),
+        tabs: be_an(Array)
       )
     end
   end

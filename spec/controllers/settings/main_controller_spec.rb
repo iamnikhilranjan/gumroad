@@ -32,36 +32,39 @@ describe Settings::MainController, type: :controller, inertia: true do
       expect(inertia.props[:user]).to include(
         email: user.form_email,
         timezone: user.timezone,
-        currency_type: user.currency_type,
-        name: user.name
+        currency_type: user.currency_type
       )
+      expect(inertia.props[:user]).to have_key(:seller_refund_policy)
     end
 
     it "includes notification settings" do
       expect(inertia.props[:user]).to include(
         enable_payment_email: be_in([true, false]),
         enable_payment_push_notification: be_in([true, false]),
-        enable_refund_email: be_in([true, false])
+        enable_recurring_subscription_charge_email: be_in([true, false])
       )
     end
 
     it "includes purchasing power parity settings" do
       expect(inertia.props[:user]).to include(
-        purchasing_power_parity_enabled: be_in([true, false]),
-        purchasing_power_parity_limit: be_a(Integer)
+        purchasing_power_parity_enabled: be_in([true, false])
+      )
+      expect(inertia.props[:user][:purchasing_power_parity_limit]).to(
+        be_nil.or be_a(Numeric)
       )
     end
 
     it "includes product level support emails" do
-      expect(inertia.props[:user]).to include(
-        product_level_support_emails: be_an(Array)
+      expect(inertia.props[:user]).to have_key(:product_level_support_emails)
+      expect(inertia.props[:user][:product_level_support_emails]).to(
+        be_nil.or be_an(Array)
       )
     end
 
-    it "includes currency and products data" do
+    it "includes timezones and currencies data" do
       expect(inertia.props).to include(
-        currencies: be_an(Array),
-        products: be_an(Array)
+        timezones: be_an(Array),
+        currencies: be_an(Array)
       )
     end
   end

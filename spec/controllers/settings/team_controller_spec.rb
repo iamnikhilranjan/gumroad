@@ -35,11 +35,13 @@ describe Settings::TeamController, type: :controller, inertia: true do
     end
 
     context "when user has team members" do
-      let!(:team_member) { create(:team_member, seller: user) }
+      let!(:team_membership) { create(:team_membership, seller: user, user: create(:user)) }
 
       it "includes the team members in the response" do
         get :show
-        expect(inertia.props[:member_infos]).not_to be_empty
+        member_infos = inertia.props[:member_infos].map { |info| info.respond_to?(:to_hash) ? info.to_hash : info }
+        member_types = member_infos.map { |info| info[:type] }
+        expect(member_types).to include("membership")
       end
     end
   end

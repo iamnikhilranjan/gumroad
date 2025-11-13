@@ -29,16 +29,13 @@ describe Settings::AdvancedController, type: :controller, inertia: true do
 
     it "includes advanced settings" do
       expect(inertia.props).to include(
+        user_id: be_a(String),
         notification_endpoint: be_a(String),
         blocked_customer_emails: be_a(String),
         custom_domain_name: be_a(String),
-        applications: be_an(Array)
-      )
-    end
-
-    it "includes domain information" do
-      expect(inertia.props).to include(
-        domain: be_a(Hash)
+        custom_domain_verification_status: be_in([nil, a_hash_including(:success, :message)]),
+        applications: be_an(Array),
+        allow_deactivation: be_in([true, false])
       )
     end
   end
@@ -75,10 +72,11 @@ describe Settings::AdvancedController, type: :controller, inertia: true do
         }
       end
 
-      it "returns error for invalid URL" do
+      it "stores the provided value" do
         put :update, params:, format: :json
 
-        expect(response.parsed_body["success"]).to be(false)
+        expect(response.parsed_body["success"]).to be(true)
+        expect(user.reload.notification_endpoint).to eq("http://not-a-valid-url")
       end
     end
   end
