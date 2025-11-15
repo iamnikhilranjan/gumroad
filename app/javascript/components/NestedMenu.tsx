@@ -323,12 +323,10 @@ const OverlayMenu = ({
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         aria-label={buttonLabel ?? "Open Menu"}
-        className="bg-filled"
         {...extraAriaAttrs}
       >
         <Icon name="filter" />
       </Button>
-
       <Sheet
         open={menuOpen}
         onOpenChange={setMenuOpen}
@@ -387,7 +385,6 @@ const ItemsList = ({
       className={classNames("overflow-hidden border-none! p-0! shadow-[unset]!", className)}
     >
       {footer}
-
       {isNestedView ? (
         <MenuItemLink
           key={`back${displayedItem.key}`}
