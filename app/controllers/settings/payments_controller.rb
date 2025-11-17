@@ -12,9 +12,7 @@ class Settings::PaymentsController < Settings::BaseController
   end
 
   def update
-    unless current_seller.email.present?
-      return redirect_to settings_payments_path, status: :see_other, alert: "You have to confirm your email address before you can do that."
-    end
+    return render(json: { success: false, error_message: "You have to confirm your email address before you can do that." }) unless current_seller.email.present?
     return unless current_seller.fetch_or_build_user_compliance_info.country.present?
 
     compliance_info = current_seller.fetch_or_build_user_compliance_info
@@ -23,19 +21,18 @@ class Settings::PaymentsController < Settings::BaseController
     if updated_country_code.present? && updated_country_code != compliance_info.legal_entity_country_code
       begin
         UpdateUserCountry.new(new_country_code: updated_country_code, user: current_seller).process
-        return redirect_to settings_payments_path, status: :see_other, notice: "Your country has been updated!"
+        flash[:notice] = "Your country has been updated!"
+        return render json: { success: true }
       rescue => e
         Bugsnag.notify("Update country failed for user #{current_seller.id} (from #{compliance_info.country_code} to #{updated_country_code}): #{e}")
-        return redirect_to settings_payments_path, status: :see_other, alert: "Country update failed"
+        return render json: { success: false, error_message: "Country update failed" }
       end
     end
 
     if Compliance::Countries::USA.common_name == compliance_info.legal_entity_country
       zip_code = params.dig(:user, :is_business) ? params.dig(:user, :business_zip_code).presence : params.dig(:user, :zip_code).presence
       if zip_code
-        unless UsZipCodes.identify_state_code(zip_code).present?
-          return redirect_to settings_payments_path, status: :see_other, alert: "You entered a ZIP Code that doesn't exist within your country."
-        end
+        return render(json: { success: false, error_message: "You entered a ZIP Code that doesn't exist within your country." }) unless UsZipCodes.identify_state_code(zip_code).present?
       end
     end
 
@@ -48,11 +45,9 @@ class Settings::PaymentsController < Settings::BaseController
     end
 
     if params.dig(:user, :country) == Compliance::Countries::ARE.alpha2 && !params.dig(:user, :is_business) && payout_type != "PayPal"
-      return redirect_to settings_payments_path, status: :see_other, alert: "Individual accounts from the UAE are not supported. Please use a business account."
+      return render(json: { success: false, error_message: "Individual accounts from the UAE are not supported. Please use a business account." })
     end
-    if current_seller.has_stripe_account_connected?
-      return redirect_to settings_payments_path, status: :see_other, alert: "You cannot change your payout method to #{payout_type} because you have a stripe account connected."
-    end
+    return render(json: { success: false, error_message: "You cannot change your payout method to #{payout_type} because you have a stripe account connected." }) if current_seller.has_stripe_account_connected?
 
     current_seller.tos_agreements.create!(ip: request.remote_ip)
 
@@ -60,14 +55,14 @@ class Settings::PaymentsController < Settings::BaseController
 
     return unless update_user_compliance_info
 
-    if params[:payout_threshold_cents].present? && params[:payout_threshold_cents].to_i < current_seller.minimum_payout_threshold_cents
-      return redirect_to settings_payments_path, status: :see_other, alert: "Your payout threshold must be greater than the minimum payout amount"
+    if params[:payout_threshold_cents].present? && params[:payout_threshold_cents] < current_seller.minimum_payout_threshold_cents
+      return render json: { success: false, error_message: "Your payout threshold must be greater than the minimum payout amount" }
     end
 
     unless current_seller.update(
       params.permit(:payouts_paused_by_user, :payout_threshold_cents, :payout_frequency)
     )
-      return redirect_to settings_payments_path, status: :see_other, alert: current_seller.errors.full_messages.first
+      return render json: { success: false, error_message: current_seller.errors.full_messages.first }
     end
 
     # Once the user has submitted all their information, and a bank account record was created for them,
@@ -76,7 +71,7 @@ class Settings::PaymentsController < Settings::BaseController
       begin
         StripeMerchantAccountManager.create_account(current_seller, passphrase: GlobalConfig.get("STRONGBOX_GENERAL_PASSWORD"))
       rescue => e
-        return redirect_to settings_payments_path, status: :see_other, alert: e.try(:message) || "Something went wrong."
+        return render json: { success: false, error_message: e.try(:message) || "Something went wrong." }
       end
     end
 
@@ -84,7 +79,7 @@ class Settings::PaymentsController < Settings::BaseController
       flash[:notice] = "Thanks! You're all set."
     end
 
-    redirect_to settings_payments_path, status: :see_other
+    render json: { success: true }
   end
 
   def set_country

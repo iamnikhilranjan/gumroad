@@ -1,4 +1,3 @@
-import { useForm } from "@inertiajs/react";
 import { StripeCardElement } from "@stripe/stripe-js";
 import cx from "classnames";
 import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js";
@@ -10,6 +9,7 @@ import { SavedCreditCard } from "$app/parsers/card";
 import { SettingPage } from "$app/parsers/settings";
 import { formatPriceCentsWithCurrencySymbol, formatPriceCentsWithoutCurrencySymbol } from "$app/utils/currency";
 import { asyncVoid } from "$app/utils/promise";
+import { request, assertResponseError } from "$app/utils/request";
 
 import { Button } from "$app/components/Button";
 import { ConfirmBalanceForfeitOnPayoutMethodChangeModal } from "$app/components/ConfirmBalanceForfeitOnPayoutMethodChangeModal";
@@ -17,6 +17,7 @@ import { CountrySelectionModal } from "$app/components/CountrySelectionModal";
 import { Icon } from "$app/components/Icons";
 import { StripeConnectEmbeddedNotificationBanner } from "$app/components/PayoutPage/StripeConnectEmbeddedNotificationBanner";
 import { PriceInput } from "$app/components/PriceInput";
+import { showAlert } from "$app/components/server-components/Alert";
 import { CreditCardForm } from "$app/components/Settings/AdvancedPage/CreditCardForm";
 import { Layout } from "$app/components/Settings/Layout";
 import AccountDetailsSection from "$app/components/Settings/PaymentsPage/AccountDetailsSection";
@@ -210,14 +211,7 @@ export type ErrorMessageInfo = {
 
 const PaymentsPage = (props: PaymentsPageProps) => {
   const userAgentInfo = useUserAgentInfo();
-
-  const form = useForm({
-    user: props.compliance_info,
-    payouts_paused_by_user: props.payouts_paused_by_user,
-    payout_threshold_cents: props.payout_threshold_cents,
-    payout_frequency: props.payout_frequency,
-  });
-
+  const [isSaving, setIsSaving] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<ErrorMessageInfo | null>(null);
   const formRef = React.useRef<HTMLDivElement & HTMLFormElement>(null);
   const [errorFieldNames, setErrorFieldNames] = React.useState(() => new Set<FormFieldName>());
@@ -248,17 +242,14 @@ const PaymentsPage = (props: PaymentsPageProps) => {
     }
   };
 
-  const payoutsPausedByUser = form.data.payouts_paused_by_user;
-  const setPayoutsPausedByUser = (value: boolean) => form.setData("payouts_paused_by_user", value);
+  const [payoutsPausedByUser, setPayoutsPausedByUser] = React.useState(props.payouts_paused_by_user);
 
   const [payoutThresholdCents, setPayoutThresholdCents] = React.useState<{ value: number | null; error?: boolean }>({
     value: props.payout_threshold_cents,
   });
+  const [payoutFrequency, setPayoutFrequency] = React.useState<PayoutFrequency>(props.payout_frequency);
 
-  const payoutFrequency = form.data.payout_frequency;
-  const setPayoutFrequency = (value: PayoutFrequency) => form.setData("payout_frequency", value);
-
-  const complianceInfo = form.data.user;
+  const [complianceInfo, setComplianceInfo] = React.useState(props.compliance_info);
   const updateComplianceInfo = (newComplianceInfo: Partial<ComplianceInfo>) => {
     if (
       props.user.country_code &&
@@ -269,7 +260,7 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       setIsUpdateCountryConfirmed(false);
       setShowUpdateCountryConfirmationModal(true);
     }
-    form.setData("user", { ...form.data.user, ...newComplianceInfo });
+    setComplianceInfo((prevComplianceInfo) => ({ ...prevComplianceInfo, ...newComplianceInfo }));
     setErrorFieldNames(new Set());
   };
 
@@ -722,6 +713,7 @@ const PaymentsPage = (props: PaymentsPageProps) => {
   const handleSave = asyncVoid(async () => {
     if (!validateForm()) return;
 
+    setIsSaving(true);
     setErrorMessage(null);
 
     let cardData;
@@ -743,34 +735,48 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       !isPayoutMethodChangeConfirmed
     ) {
       setShowPayoutMethodChangeConfirmationModal(true);
+      setIsSaving(false);
       return;
     }
 
-    const baseData = {
-      ...form.data,
-      payout_threshold_cents: payoutThresholdCents.value || 0,
+    let data = {
+      user: complianceInfo,
+      payouts_paused_by_user: payoutsPausedByUser,
+      payout_threshold_cents: payoutThresholdCents.value,
+      payout_frequency: payoutFrequency,
     };
 
     if (selectedPayoutMethod === "bank") {
-      // @ts-expect-error - Adding bank_account which is not in initial form shape
-      baseData.bank_account = bankAccount;
+      data = { ...data, ...{ bank_account: bankAccount } };
     } else if (selectedPayoutMethod === "card") {
-      // @ts-expect-error - Adding card which is not in initial form shape
-      baseData.card = cardData;
+      data = { ...data, ...{ card: cardData } };
     } else if (selectedPayoutMethod === "paypal") {
-      // @ts-expect-error - Adding payment_address which is not in initial form shape
-      baseData.payment_address = paypalEmailAddress;
+      data = { ...data, ...{ payment_address: paypalEmailAddress } };
     }
 
-    form.setData(baseData);
+    try {
+      const response = await request({
+        method: "PUT",
+        url: Routes.settings_payments_path(),
+        accept: "json",
+        data,
+      });
 
-    form.put(Routes.settings_payments_path(), {
-      preserveScroll: true,
-      onError: (errors: Record<string, string>) => {
-        const error = errors.error_message || Object.values(errors).join(", ");
-        setErrorMessage({ message: error, code: errors.error_code ?? null });
-      },
-    });
+      const parsedResponse = cast<
+        { success: true } | { success: false; error_message: string; error_code?: string | null }
+      >(await response.json());
+      if (parsedResponse.success) {
+        showAlert("Thanks! You're all set.", "success");
+        window.location.reload();
+      } else {
+        setErrorMessage({ message: parsedResponse.error_message, code: parsedResponse.error_code ?? null });
+      }
+    } catch (e) {
+      assertResponseError(e);
+      showAlert("Sorry, something went wrong. Please try again.", "error");
+    }
+
+    setIsSaving(false);
   });
 
   const [showUpdateCountryConfirmationModal, setShowUpdateCountryConfirmationModal] = React.useState(false);
@@ -829,7 +835,7 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       currentPage="payments"
       pages={props.settings_pages}
       onSave={handleSave}
-      canUpdate={!props.is_form_disabled && !form.processing && !payoutThresholdCents.error}
+      canUpdate={!props.is_form_disabled && !isSaving && !payoutThresholdCents.error}
     >
       {props.should_show_country_modal ? (
         <CountrySelectionModal country={props.ip_country_code} countries={props.countries} />
