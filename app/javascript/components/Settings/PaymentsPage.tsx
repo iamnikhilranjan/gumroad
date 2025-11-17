@@ -772,7 +772,6 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       preserveScroll: true,
       onSuccess: () => {
         showAlert("Thanks! You're all set.", "success");
-        window.location.reload();
       },
       onError: (errors: Record<string, string>) => {
         const error = errors.error_message || Object.values(errors).join(", ");

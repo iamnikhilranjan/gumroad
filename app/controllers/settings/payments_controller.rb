@@ -12,7 +12,15 @@ class Settings::PaymentsController < Settings::BaseController
   end
 
   def update
-    return render(json: { success: false, error_message: "You have to confirm your email address before you can do that." }) unless current_seller.email.present?
+    unless current_seller.email.present?
+      message = "You have to confirm your email address before you can do that."
+      return redirect_to(
+        settings_payments_path,
+        inertia: { errors: { error_message: message } },
+        alert: message,
+        status: :see_other
+      )
+    end
     return unless current_seller.fetch_or_build_user_compliance_info.country.present?
 
     compliance_info = current_seller.fetch_or_build_user_compliance_info
@@ -22,17 +30,31 @@ class Settings::PaymentsController < Settings::BaseController
       begin
         UpdateUserCountry.new(new_country_code: updated_country_code, user: current_seller).process
         flash[:notice] = "Your country has been updated!"
-        return render json: { success: true }
+        return render inertia: "Settings/Payments", props: settings_presenter.payments_props(remote_ip: request.remote_ip), status: :ok
       rescue => e
         Bugsnag.notify("Update country failed for user #{current_seller.id} (from #{compliance_info.country_code} to #{updated_country_code}): #{e}")
-        return render json: { success: false, error_message: "Country update failed" }
+        message = "Country update failed"
+        return redirect_to(
+          settings_payments_path,
+          inertia: { errors: { error_message: message } },
+          alert: message,
+          status: :see_other
+        )
       end
     end
 
     if Compliance::Countries::USA.common_name == compliance_info.legal_entity_country
       zip_code = params.dig(:user, :is_business) ? params.dig(:user, :business_zip_code).presence : params.dig(:user, :zip_code).presence
       if zip_code
-        return render(json: { success: false, error_message: "You entered a ZIP Code that doesn't exist within your country." }) unless UsZipCodes.identify_state_code(zip_code).present?
+        unless UsZipCodes.identify_state_code(zip_code).present?
+          message = "You entered a ZIP Code that doesn't exist within your country."
+          return redirect_to(
+            settings_payments_path,
+            inertia: { errors: { error_message: message } },
+            alert: message,
+            status: :see_other
+          )
+        end
       end
     end
 
@@ -45,9 +67,23 @@ class Settings::PaymentsController < Settings::BaseController
     end
 
     if params.dig(:user, :country) == Compliance::Countries::ARE.alpha2 && !params.dig(:user, :is_business) && payout_type != "PayPal"
-      return render(json: { success: false, error_message: "Individual accounts from the UAE are not supported. Please use a business account." })
+      message = "Individual accounts from the UAE are not supported. Please use a business account."
+      return redirect_to(
+        settings_payments_path,
+        inertia: { errors: { error_message: message } },
+        alert: message,
+        status: :see_other
+      )
     end
-    return render(json: { success: false, error_message: "You cannot change your payout method to #{payout_type} because you have a stripe account connected." }) if current_seller.has_stripe_account_connected?
+    if current_seller.has_stripe_account_connected?
+      message = "You cannot change your payout method to #{payout_type} because you have a stripe account connected."
+      return redirect_to(
+        settings_payments_path,
+        inertia: { errors: { error_message: message } },
+        alert: message,
+        status: :see_other
+      )
+    end
 
     current_seller.tos_agreements.create!(ip: request.remote_ip)
 
@@ -56,13 +92,25 @@ class Settings::PaymentsController < Settings::BaseController
     return unless update_user_compliance_info
 
     if params[:payout_threshold_cents].present? && params[:payout_threshold_cents] < current_seller.minimum_payout_threshold_cents
-      return render json: { success: false, error_message: "Your payout threshold must be greater than the minimum payout amount" }
+      message = "Your payout threshold must be greater than the minimum payout amount"
+      return redirect_to(
+        settings_payments_path,
+        inertia: { errors: { error_message: message } },
+        alert: message,
+        status: :see_other
+      )
     end
 
     unless current_seller.update(
       params.permit(:payouts_paused_by_user, :payout_threshold_cents, :payout_frequency)
     )
-      return render json: { success: false, error_message: current_seller.errors.full_messages.first }
+      message = current_seller.errors.full_messages.first
+      return redirect_to(
+        settings_payments_path,
+        inertia: { errors: { error_message: message } },
+        alert: message,
+        status: :see_other
+      )
     end
 
     # Once the user has submitted all their information, and a bank account record was created for them,
@@ -71,7 +119,13 @@ class Settings::PaymentsController < Settings::BaseController
       begin
         StripeMerchantAccountManager.create_account(current_seller, passphrase: GlobalConfig.get("STRONGBOX_GENERAL_PASSWORD"))
       rescue => e
-        return render json: { success: false, error_message: e.try(:message) || "Something went wrong." }
+        message = e.try(:message) || "Something went wrong."
+        return redirect_to(
+          settings_payments_path,
+          inertia: { errors: { error_message: message } },
+          alert: message,
+          status: :see_other
+        )
       end
     end
 
@@ -79,7 +133,7 @@ class Settings::PaymentsController < Settings::BaseController
       flash[:notice] = "Thanks! You're all set."
     end
 
-    render json: { success: true }
+    render inertia: "Settings/Payments", props: settings_presenter.payments_props(remote_ip: request.remote_ip), status: :ok
   end
 
   def set_country
@@ -175,22 +229,29 @@ class Settings::PaymentsController < Settings::BaseController
 
       return true if result[:success]
 
-      case result[:error]
+      message = case result[:error]
       when :check_card_information_prompt
-        render json: { success: false, error_message: "Please check your card information, we couldn't verify it." }
+        "Please check your card information, we couldn't verify it."
       when :credit_card_error
-        render json: { success: false, error_message: strip_tags(result[:data]) }
+        strip_tags(result[:data])
       when :bank_account_error
-        render json: { success: false, error_message: strip_tags(result[:data]) }
+        strip_tags(result[:data])
       when :account_number_does_not_match
-        render json: { success: false, error_message: "The account numbers do not match." }
+        "The account numbers do not match."
       when :provide_valid_email_prompt
-        render json: { success: false, error_message: "Please provide a valid email address." }
+        "Please provide a valid email address."
       when :provide_ascii_only_email_prompt
-        render json: { success: false, error_message: "Email address cannot contain non-ASCII characters" }
+        "Email address cannot contain non-ASCII characters"
       when :paypal_payouts_not_supported
-        render json: { success: false, error_message: "PayPal payouts are not supported in your country." }
+        "PayPal payouts are not supported in your country."
       end
+
+      redirect_to(
+        settings_payments_path,
+        inertia: { errors: { error_message: message } },
+        alert: message,
+        status: :see_other
+      )
 
       false
     end
@@ -206,7 +267,12 @@ class Settings::PaymentsController < Settings::BaseController
           comment_type: :note,
           content: result[:error_message]
         )
-        render json: { success: false, error_message: result[:error_message], error_code: result[:error_code] }
+        redirect_to(
+          settings_payments_path,
+          inertia: { errors: { error_message: result[:error_message], error_code: result[:error_code] } },
+          alert: result[:error_message],
+          status: :see_other
+        )
         false
       end
     end
