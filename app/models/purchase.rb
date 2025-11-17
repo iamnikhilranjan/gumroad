@@ -817,8 +817,7 @@ class Purchase < ApplicationRecord
       "refunded_by" => refunding_users.map { |u| { id: u.id, email: u.email } },
       "error_code" => error_code,
       "purchase_state" => purchase_state,
-      "gumroad_responsible_for_tax" => gumroad_responsible_for_tax?,
-      "buyer_blocked" => buyer_blocked?
+      "gumroad_responsible_for_tax" => gumroad_responsible_for_tax?
     }
   end
 

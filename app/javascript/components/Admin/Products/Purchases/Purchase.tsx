@@ -15,7 +15,6 @@ export type ProductPurchase = {
   error_code: string | null;
   purchase_state: string;
   gumroad_responsible_for_tax: boolean;
-  buyer_blocked: boolean;
 };
 
 type AdminProductPurchaseProps = {
@@ -39,7 +38,6 @@ const AdminProductPurchase = ({ purchase, isSelected, onToggleSelection }: Admin
     is_chargeback_reversed,
     email,
     created,
-    buyer_blocked,
   } = purchase;
 
   const isSelectable = stripe_refunded !== true;
@@ -77,7 +75,6 @@ const AdminProductPurchase = ({ purchase, isSelected, onToggleSelection }: Admin
                   )
                 </li>
               ) : null}
-              {buyer_blocked ? <li>(buyer blocked)</li> : null}
               {is_chargedback ? <li>(chargeback)</li> : null}
               {is_chargeback_reversed ? <li>(chargeback_reversed)</li> : null}
             </ul>
