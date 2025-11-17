@@ -91,7 +91,7 @@ class Settings::PaymentsController < Settings::BaseController
 
     return unless update_user_compliance_info
 
-    if params[:payout_threshold_cents].present? && params[:payout_threshold_cents] < current_seller.minimum_payout_threshold_cents
+    if params[:payout_threshold_cents].present? && params[:payout_threshold_cents].to_i < current_seller.minimum_payout_threshold_cents
       message = "Your payout threshold must be greater than the minimum payout amount"
       return redirect_to(
         settings_payments_path,
@@ -101,9 +101,9 @@ class Settings::PaymentsController < Settings::BaseController
       )
     end
 
-    unless current_seller.update(
-      params.permit(:payouts_paused_by_user, :payout_threshold_cents, :payout_frequency)
-    )
+    update_params = params.permit(:payouts_paused_by_user, :payout_threshold_cents, :payout_frequency)
+    update_params[:payout_threshold_cents] = update_params[:payout_threshold_cents].to_i if update_params[:payout_threshold_cents].present?
+    unless current_seller.update(update_params)
       message = current_seller.errors.full_messages.first
       return redirect_to(
         settings_payments_path,
