@@ -12,22 +12,6 @@ import { type ProductPurchase } from "./Purchase";
 type MassRefundResponse = {
   success: boolean;
   message?: string | null;
-  batch_id: number;
-};
-
-type BatchStatusResponse = {
-  id: number;
-  status: "pending" | "processing" | "completed" | "failed";
-  total_count: number;
-  processed_count: number;
-  refunded_count: number;
-  blocked_count: number;
-  failed_count: number;
-  errors_by_purchase_id: Record<string, string>;
-  error_message?: string | null;
-  started_at?: string | null;
-  completed_at?: string | null;
-  created_at: string;
 };
 
 type AdminProductPurchasesProps = {
@@ -40,8 +24,6 @@ const AdminProductPurchases = ({ productId, isAffiliateUser = false, userId }: A
   const [open, setOpen] = React.useState(false);
   const [selectedPurchaseIds, setSelectedPurchaseIds] = React.useState<Set<number>>(() => new Set());
   const [isMassRefunding, setIsMassRefunding] = React.useState(false);
-  const [currentBatchId, setCurrentBatchId] = React.useState<number | null>(null);
-  const [batchStatus, setBatchStatus] = React.useState<BatchStatusResponse | null>(null);
 
   const url =
     userId && isAffiliateUser
@@ -50,7 +32,6 @@ const AdminProductPurchases = ({ productId, isAffiliateUser = false, userId }: A
 
   const {
     data: purchases,
-    setData,
     isLoading,
     fetchNextPage,
     hasMore,
@@ -67,8 +48,6 @@ const AdminProductPurchases = ({ productId, isAffiliateUser = false, userId }: A
   React.useEffect(() => {
     if (!open) {
       setSelectedPurchaseIds(new Set());
-      setCurrentBatchId(null);
-      setBatchStatus(null);
     }
   }, [open]);
 
@@ -82,48 +61,6 @@ const AdminProductPurchases = ({ productId, isAffiliateUser = false, userId }: A
       return next.size === prev.size ? prev : next;
     });
   }, [purchases]);
-
-  React.useEffect(() => {
-    if (!currentBatchId) return;
-
-    const pollBatchStatus = async () => {
-      try {
-        const response = await request({
-          method: "GET",
-          accept: "json",
-          url: Routes.mass_refund_batch_admin_product_purchases_path(productId, currentBatchId, { format: "json" }),
-        });
-
-        const status = cast<BatchStatusResponse>(await response.json());
-        setBatchStatus(status);
-
-        if (status.status === "completed" || status.status === "failed") {
-          // Final status reached, stop polling
-          if (status.status === "completed") {
-            showAlert(
-              `Mass refund completed. Refunded & blocked: ${status.refunded_count}. Blocked only: ${status.blocked_count}. Failed: ${status.failed_count}.`,
-              "success",
-            );
-          } else {
-            showAlert(`Mass refund failed: ${status.error_message}`, "error");
-          }
-
-          // Refresh purchases to reflect changes
-          setCurrentBatchId(null);
-          setBatchStatus(null);
-        }
-      } catch (error) {
-        assertResponseError(error);
-        showAlert("Failed to check batch status", "error");
-      }
-    };
-
-    // Poll immediately and then every 2 seconds
-    void pollBatchStatus();
-    const interval = setInterval(() => void pollBatchStatus(), 2000);
-
-    return () => clearInterval(interval);
-  }, [currentBatchId, productId, setData]);
 
   const togglePurchaseSelection = React.useCallback((purchaseId: number, selected: boolean) => {
     setSelectedPurchaseIds((prev) => {
@@ -172,8 +109,6 @@ const AdminProductPurchases = ({ productId, isAffiliateUser = false, userId }: A
       }
 
       showAlert(body.message ?? "Mass refund started.", "success");
-
-      setCurrentBatchId(body.batch_id);
       setSelectedPurchaseIds(new Set());
     } catch (error) {
       assertResponseError(error);
@@ -202,7 +137,6 @@ const AdminProductPurchases = ({ productId, isAffiliateUser = false, userId }: A
           }}
           onClearSelection={clearSelection}
           isMassRefunding={isMassRefunding}
-          batchStatus={batchStatus}
         />
       </details>
     </>

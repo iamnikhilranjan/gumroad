@@ -34,37 +34,11 @@ class Admin::Products::PurchasesController < Admin::Products::BaseController
       return
     end
 
-    batch = MassRefundBatch.create!(
-      product: @product,
-      admin_user: current_user,
-      purchase_ids: purchase_ids
-    )
-
-    MassRefundPurchasesWorker.perform_async(batch.id)
+    MassRefundPurchasesWorker.perform_async(@product.id, purchase_ids, current_user.id)
 
     render json: {
       success: true,
-      message: "Mass refund started. Processing #{purchase_ids.size} purchases...",
-      batch_id: batch.id
-    }
-  end
-
-  def mass_refund_batch
-    batch = @product.mass_refund_batches.find(params[:id])
-
-    render json: {
-      id: batch.id,
-      status: batch.status,
-      total_count: batch.total_count,
-      processed_count: batch.processed_count,
-      refunded_count: batch.refunded_count,
-      blocked_count: batch.blocked_count,
-      failed_count: batch.failed_count,
-      errors_by_purchase_id: batch.errors_by_purchase_id,
-      error_message: batch.error_message,
-      started_at: batch.started_at,
-      completed_at: batch.completed_at,
-      created_at: batch.created_at
+      message: "Processing #{purchase_ids.size} refunds..."
     }
   end
 

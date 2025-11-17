@@ -108,7 +108,6 @@ namespace :admin do
       resources :purchases, only: [:index] do
         collection do
           post :mass_refund
-          get "mass_refund_batches/:id", action: :mass_refund_batch, as: :mass_refund_batch
         end
       end
     end

@@ -2,21 +2,29 @@
 
 class MassRefundPurchasesWorker
   include Sidekiq::Job
-  sidekiq_options retry: 5, queue: :default, lock: :until_executed
+  sidekiq_options retry: 1, queue: :default, lock: :until_executed
 
-  def perform(batch_id)
-    batch = MassRefundBatch.find(batch_id)
-    return if batch.completed?
+  def perform(product_id, purchase_ids, admin_user_id)
+    results = { success: 0, failed: 0, errors: {} }
 
-    batch.update!(status: :processing, started_at: Time.current)
+    purchase_ids.each do |purchase_id|
+      purchase = Purchase.find_by(id: purchase_id, link_id: product_id)
+      unless purchase
+        results[:failed] += 1
+        results[:errors][purchase_id] = "Purchase not found"
+        next
+      end
 
-    # Enqueue individual refund workers for each purchase
-    batch.purchase_ids.each do |purchase_id|
-      RefundPurchaseWorker.perform_async(purchase_id, batch.admin_user_id, Refund::FRAUD, batch.id)
+      begin
+        purchase.refund_for_fraud_and_block_buyer!(admin_user_id)
+        results[:success] += 1
+      rescue StandardError => e
+        results[:failed] += 1
+        results[:errors][purchase_id] = e.message
+        Rails.logger.error("Mass refund failed for purchase #{purchase_id}: #{e.class}: #{e.message}")
+      end
     end
-  rescue StandardError => e
-    Rails.logger.error("MassRefundPurchasesWorker failed for batch #{batch_id}: #{e.class}: #{e.message}")
-    batch&.update!(status: :failed, error_message: e.message, completed_at: Time.current)
-    raise
+
+    Rails.logger.info("Mass refund completed for product #{product_id}: #{results[:success]} succeeded, #{results[:failed]} failed")
   end
 end

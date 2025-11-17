@@ -5,21 +5,6 @@ import { LoadingSpinner } from "$app/components/LoadingSpinner";
 
 import AdminProductPurchase, { ProductPurchase } from "./Purchase";
 
-type BatchStatus = {
-  id: number;
-  status: "pending" | "processing" | "completed" | "failed";
-  total_count: number;
-  processed_count: number;
-  refunded_count: number;
-  blocked_count: number;
-  failed_count: number;
-  errors_by_purchase_id: Record<string, string>;
-  error_message?: string | null;
-  started_at?: string | null;
-  completed_at?: string | null;
-  created_at: string;
-};
-
 type AdminProductPurchasesContentProps = {
   purchases: ProductPurchase[];
   isLoading: boolean;
@@ -30,7 +15,6 @@ type AdminProductPurchasesContentProps = {
   onMassRefund: () => void;
   onClearSelection: () => void;
   isMassRefunding: boolean;
-  batchStatus: BatchStatus | null;
 };
 
 const AdminProductPurchasesContent = ({
@@ -43,7 +27,6 @@ const AdminProductPurchasesContent = ({
   onMassRefund,
   onClearSelection,
   isMassRefunding,
-  batchStatus,
 }: AdminProductPurchasesContentProps) => {
   if (purchases.length === 0 && !isLoading)
     return (
@@ -53,7 +36,6 @@ const AdminProductPurchasesContent = ({
     );
 
   const selectedCount = selectedPurchaseIds.size;
-  const isProcessingBatch = batchStatus && batchStatus.status === "processing";
 
   return (
     <div className="paragraphs">
@@ -68,38 +50,18 @@ const AdminProductPurchasesContent = ({
         }}
       >
         <div>
-          {batchStatus ? (
-            <div>
-              <div>Mass Refund - {batchStatus.status}</div>
-              <div style={{ fontSize: "0.875rem", color: "#666" }}>
-                {batchStatus.processed_count} of {batchStatus.total_count} processed
-                {batchStatus.status === "completed" && (
-                  <span>
-                    {" "}
-                    • {batchStatus.refunded_count} refunded (and blocked), {batchStatus.blocked_count} blocked only,{" "}
-                    {batchStatus.failed_count} failed
-                  </span>
-                )}
-              </div>
-            </div>
-          ) : selectedCount > 0 ? (
-            `${selectedCount} ${selectedCount === 1 ? "purchase selected" : "purchases selected"}`
-          ) : (
-            "Select purchases to mass refund"
-          )}
+          {selectedCount > 0
+            ? `${selectedCount} ${selectedCount === 1 ? "purchase selected" : "purchases selected"}`
+            : "Select purchases to mass refund"}
         </div>
         <div className="button-group">
           {selectedCount > 0 ? (
-            <Button small outline onClick={onClearSelection} disabled={Boolean(isMassRefunding || isProcessingBatch)}>
+            <Button small outline onClick={onClearSelection} disabled={isMassRefunding}>
               Clear selection
             </Button>
           ) : null}
-          <Button
-            small
-            onClick={onMassRefund}
-            disabled={selectedCount === 0 || Boolean(isMassRefunding || isProcessingBatch)}
-          >
-            {isMassRefunding ? "Starting..." : isProcessingBatch ? "Processing..." : "Refund"}
+          <Button small onClick={onMassRefund} disabled={selectedCount === 0 || isMassRefunding}>
+            {isMassRefunding ? "Starting..." : "Mass Refund"}
           </Button>
         </div>
       </div>

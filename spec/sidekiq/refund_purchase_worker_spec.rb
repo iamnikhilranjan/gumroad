@@ -27,18 +27,5 @@ describe RefundPurchaseWorker do
         described_class.new.perform(purchase_id, admin_user.id)
       end
     end
-
-    context "when batch_id is provided" do
-      let(:batch_id) { 123 }
-      before do
-        allow(purchase_double).to receive(:refund_for_fraud_and_block_buyer!).with(admin_user.id)
-      end
-
-      it "delegates batch progress updates to MassRefundBatchProgress" do
-        expect(MassRefundBatchProgress).to receive(:update).with(batch_id:, purchase: purchase_double)
-
-        described_class.new.perform(purchase_id, admin_user.id, Refund::FRAUD, batch_id)
-      end
-    end
   end
 end
