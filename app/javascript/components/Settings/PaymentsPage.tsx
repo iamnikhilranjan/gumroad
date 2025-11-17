@@ -284,12 +284,10 @@ const PaymentsPage = (props: PaymentsPageProps) => {
     if (errorMessage) formRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [errorMessage]);
 
-  // Update errorMessage when props change (when page is re-rendered with errors from server)
   React.useEffect(() => {
     if (props.error_message) {
       setErrorMessage({ message: props.error_message, code: props.error_code ?? null });
     } else if (props.error_message === null) {
-      // Explicitly clear error if prop is null (not just undefined)
       setErrorMessage(null);
     }
   }, [props.error_message, props.error_code]);
