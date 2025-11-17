@@ -16,7 +16,7 @@ describe RefundPurchaseWorker do
       it "calls #refund_for_fraud_and_block_buyer! on the purchase" do
         expect(purchase_double).to receive(:refund_for_fraud_and_block_buyer!).with(admin_user.id)
 
-        described_class.new.perform(purchaseid, admin_user.id, Refund::FRAUD)
+        described_class.new.perform(purchase.id, admin_user.id, Refund::FRAUD)
       end
     end
 
