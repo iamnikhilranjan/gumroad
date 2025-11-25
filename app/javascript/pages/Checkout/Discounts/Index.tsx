@@ -5,8 +5,15 @@ import { cast } from "ts-safe-cast";
 import { default as DiscountsPage, DiscountsPageProps } from "$app/components/CheckoutDashboard/DiscountsPage";
 
 function Discounts() {
-  const { offer_codes, pages, products, pagination, show_black_friday_banner, black_friday_code } =
-    cast<DiscountsPageProps>(usePage().props);
+  const {
+    offer_codes,
+    pages,
+    products,
+    pagination,
+    show_black_friday_banner,
+    black_friday_code,
+    black_friday_code_name,
+  } = cast<DiscountsPageProps>(usePage().props);
 
   return (
     <DiscountsPage
@@ -16,6 +23,7 @@ function Discounts() {
       pagination={pagination}
       show_black_friday_banner={show_black_friday_banner}
       black_friday_code={black_friday_code}
+      black_friday_code_name={black_friday_code_name}
     />
   );
 }

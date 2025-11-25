@@ -955,14 +955,13 @@ describe("Checkout discounts page", type: :system, js: true) do
       expect(page).to have_field("Discount code", with: "BLACKFRIDAY2025", readonly: true)
       expect(page).to have_text("By using this discount, your product will be featured in Black Friday Deals on Discover.")
 
-      fill_in "Name", with: "Black Friday Sale"
       check "All products"
       fill_in "Percentage", with: "25"
 
       click_on "Add discount"
 
       expect(page).to have_alert(text: "Successfully created discount!")
-      within find(:table_row, { "Discount" => "Black Friday Sale" }) do
+      within find(:table_row, { "Discount" => "Black Friday 2025" }) do
         expect(page).to have_text("25% off of all products")
         expect(page).to have_selector("[aria-label='Offer code']", text: "BLACKFRIDAY2025")
       end
@@ -970,7 +969,7 @@ describe("Checkout discounts page", type: :system, js: true) do
       expect(page).not_to have_text("Black Friday is here!")
 
       offer_code = OfferCode.last
-      expect(offer_code.name).to eq("Black Friday Sale")
+      expect(offer_code.name).to eq("Black Friday 2025")
       expect(offer_code.code).to eq("BLACKFRIDAY2025")
       expect(offer_code.amount_percentage).to eq(25)
       expect(offer_code.universal).to eq(true)

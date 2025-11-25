@@ -132,6 +132,7 @@ export type DiscountsPageProps = {
   pagination: PaginationProps;
   show_black_friday_banner: boolean;
   black_friday_code: string;
+  black_friday_code_name: string;
 };
 
 const DiscountsPage = ({
@@ -141,6 +142,7 @@ const DiscountsPage = ({
   pagination: initialPagination,
   show_black_friday_banner,
   black_friday_code,
+  black_friday_code_name,
 }: DiscountsPageProps) => {
   const loggedInUser = useLoggedInUser();
   const [{ offerCodes, pagination }, setState] = React.useState<{
@@ -632,6 +634,7 @@ const DiscountsPage = ({
   ) : view === "edit" ? (
     <Form
       black_friday_code={black_friday_code}
+      black_friday_code_name={black_friday_code_name}
       title="Edit discount"
       submitLabel={isLoading ? "Saving changes..." : "Save changes"}
       readOnlyCode
@@ -672,6 +675,7 @@ const DiscountsPage = ({
   ) : (
     <Form
       black_friday_code={black_friday_code}
+      black_friday_code_name={black_friday_code_name}
       title="Create discount"
       submitLabel={isLoading ? "Adding discount..." : "Add discount"}
       offerCode={selectedOfferCode ? { ...selectedOfferCode, code: "" } : undefined}
@@ -726,6 +730,7 @@ const Form = ({
   products,
   isLoading,
   black_friday_code,
+  black_friday_code_name,
   isBlackFridayMode = false,
 }: {
   title: string;
@@ -737,9 +742,11 @@ const Form = ({
   products: Product[];
   isLoading: boolean;
   black_friday_code: string;
+  black_friday_code_name: string;
   isBlackFridayMode?: boolean;
 }) => {
-  const [name, setName] = React.useState<{ value: string; error?: boolean }>({ value: offerCode?.name ?? "" });
+  const [name, setName] = React.useState<{ value: string; error?: boolean }>({
+    value: isBlackFridayMode ? black_friday_code_name : offerCode?.name ?? "" });
   const [code, setCode] = React.useState<{ value: string; error?: boolean }>({
     value: isBlackFridayMode ? black_friday_code : offerCode?.code || generateCode(),
   });

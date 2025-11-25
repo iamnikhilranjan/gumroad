@@ -3,6 +3,8 @@
 class Checkout::DiscountsPresenter
   include CheckoutDashboardHelper
 
+  BLACK_FRIDAY_CODE_NAME = "Black Friday 2025"
+
   attr_reader :pundit_user, :offer_codes, :pagination
 
   def initialize(pundit_user:, offer_codes: [], pagination: nil)
@@ -28,6 +30,7 @@ class Checkout::DiscountsPresenter
       end,
       show_black_friday_banner: Feature.active?(:black_friday_seller_banner),
       black_friday_code: SearchProducts::BLACK_FRIDAY_CODE,
+      black_friday_code_name: BLACK_FRIDAY_CODE_NAME
     }
   end
 
