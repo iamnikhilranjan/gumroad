@@ -78,4 +78,3 @@ describe BlackFridayStatsService do
     end
   end
 end
-

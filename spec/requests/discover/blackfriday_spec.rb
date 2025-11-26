@@ -21,10 +21,10 @@ describe("Black Friday 2025", js: true, type: :system) do
 
       # Stub the stats service to return the expected values
       allow(BlackFridayStatsService).to receive(:fetch_stats).and_return({
-        active_deals_count: 1,
-        revenue_cents: 3750, # 5 purchases * 750 cents = $37.50
-        average_discount_percentage: 25
-      })
+                                                                           active_deals_count: 1,
+                                                                           revenue_cents: 3750, # 5 purchases * 750 cents = $37.50
+                                                                           average_discount_percentage: 25
+                                                                         })
     end
 
     after do

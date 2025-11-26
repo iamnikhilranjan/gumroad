@@ -22,4 +22,3 @@ class BlackFridayStatsService
     end
   end
 end
-
