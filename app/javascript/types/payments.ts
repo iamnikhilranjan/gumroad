@@ -1,3 +1,5 @@
+import { StripeCardElement } from "@stripe/stripe-js";
+
 export type User = {
   country_supports_native_payouts: boolean;
   country_supports_iban: boolean;
@@ -103,3 +105,5 @@ export type FormFieldName =
   | "account_number"
   | "account_number_confirmation"
   | "paypal_email_address";
+
+export type PayoutDebitCardData = { type: "saved" } | { type: "new"; element: StripeCardElement } | undefined;

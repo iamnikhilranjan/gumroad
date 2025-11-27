@@ -7,7 +7,7 @@ import { cast } from "ts-safe-cast";
 import { CardPayoutError, prepareCardTokenForPayouts } from "$app/data/card_payout_data";
 import { SavedCreditCard } from "$app/parsers/card";
 import { SettingPage } from "$app/parsers/settings";
-import type { ComplianceInfo, PayoutMethod, FormFieldName, User } from "$app/types/payments";
+import type { ComplianceInfo, PayoutMethod, FormFieldName, User, PayoutDebitCardData } from "$app/types/payments";
 import { formatPriceCentsWithCurrencySymbol, formatPriceCentsWithoutCurrencySymbol } from "$app/utils/currency";
 import { asyncVoid } from "$app/utils/promise";
 
@@ -25,7 +25,7 @@ import BankAccountSection, {
   BankAccountDetails,
   type BankAccount,
 } from "$app/components/Settings/PaymentsPage/BankAccountSection";
-import DebitCardSection, { type PayoutDebitCardData } from "$app/components/Settings/PaymentsPage/DebitCardSection";
+import DebitCardSection from "$app/components/Settings/PaymentsPage/DebitCardSection";
 import PayPalConnectSection, { PayPalConnect } from "$app/components/Settings/PaymentsPage/PayPalConnectSection";
 import PayPalEmailSection from "$app/components/Settings/PaymentsPage/PayPalEmailSection";
 import StripeConnectSection, { StripeConnect } from "$app/components/Settings/PaymentsPage/StripeConnectSection";

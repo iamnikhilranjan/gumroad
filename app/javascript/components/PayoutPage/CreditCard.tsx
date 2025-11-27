@@ -2,9 +2,9 @@ import { StripeCardElement } from "@stripe/stripe-js";
 import * as React from "react";
 
 import { SavedCreditCard } from "$app/parsers/card";
+import type { PayoutDebitCardData } from "$app/types/payments";
 
 import { CreditCardInput } from "$app/components/Checkout/CreditCardInput";
-import { type PayoutDebitCardData } from "$app/components/Settings/PaymentsPage/DebitCardSection";
 
 export const PayoutCreditCard = ({
   saved_card,

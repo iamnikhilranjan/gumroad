@@ -1,11 +1,9 @@
-import { StripeCardElement } from "@stripe/stripe-js";
 import * as React from "react";
 
 import { SavedCreditCard } from "$app/parsers/card";
+import type { PayoutDebitCardData } from "$app/types/payments";
 
 import { PayoutCreditCard } from "$app/components/PayoutPage/CreditCard";
-
-export type PayoutDebitCardData = { type: "saved" } | { type: "new"; element: StripeCardElement } | undefined;
 
 const DebitCardSection = ({
   isFormDisabled,
