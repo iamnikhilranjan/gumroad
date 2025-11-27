@@ -7,7 +7,7 @@ class Settings::PasswordController < Settings::BaseController
   def show
     @title = "Settings"
 
-    render inertia: "Settings/Password", props: settings_presenter.password_props
+    render inertia: "Settings/Password/Show", props: settings_presenter.password_props
   end
 
   def update
@@ -15,16 +15,16 @@ class Settings::PasswordController < Settings::BaseController
 
     if @user.provider.present?
       unless @user.confirmed?
-        return redirect_to settings_password_path, status: :see_other, alert: "You have to confirm your email address before you can do that."
+        return redirect_to settings_password_path, alert: "You have to confirm your email address before you can do that."
       end
 
       @user.password = params["user"]["new_password"]
       @user.provider = nil
-      true
+      added_password = true
     else
       if params["user"].blank? || params["user"]["password"].blank? ||
          !@user.valid_password?(params["user"]["password"])
-        return redirect_to settings_password_path, status: :see_other, alert: "Incorrect password."
+        return redirect_to settings_password_path, alert: "Incorrect password."
       end
 
       @user.password = params["user"]["new_password"]
@@ -36,7 +36,7 @@ class Settings::PasswordController < Settings::BaseController
       bypass_sign_in(@user)
       redirect_to settings_password_path, status: :see_other, notice: "You have successfully changed your password."
     else
-      redirect_to settings_password_path, status: :see_other, alert: "New password #{@user.errors[:password].to_sentence}"
+      redirect_to settings_password_path, alert: "New password #{@user.errors[:password].to_sentence}"
     end
   end
 

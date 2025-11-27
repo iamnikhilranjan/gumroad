@@ -18,10 +18,11 @@ describe Settings::ThirdPartyAnalyticsController, type: :controller, inertia: tr
     it "returns http success and renders Inertia component" do
       get :show
       expect(response).to be_successful
-      expect(inertia.component).to eq("Settings/ThirdPartyAnalytics")
+      expect(inertia.component).to eq("Settings/ThirdPartyAnalytics/Show")
       expect(inertia.props).to be_present
       expect(inertia.props[:third_party_analytics]).to be_present
-      expect(inertia.props[:settings_pages]).to be_present
+      expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:products]).to be_an(Array)
     end
   end
 

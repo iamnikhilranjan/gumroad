@@ -1,5 +1,4 @@
-import { router } from "@inertiajs/react";
-import { StripeCardElement } from "@stripe/stripe-js";
+import { router, usePage } from "@inertiajs/react";
 import cx from "classnames";
 import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js";
 import * as React from "react";
@@ -8,6 +7,7 @@ import { cast } from "ts-safe-cast";
 import { CardPayoutError, prepareCardTokenForPayouts } from "$app/data/card_payout_data";
 import { SavedCreditCard } from "$app/parsers/card";
 import { SettingPage } from "$app/parsers/settings";
+import type { ComplianceInfo, PayoutMethod, FormFieldName, User } from "$app/types/payments";
 import { formatPriceCentsWithCurrencySymbol, formatPriceCentsWithoutCurrencySymbol } from "$app/utils/currency";
 import { asyncVoid } from "$app/utils/promise";
 
@@ -22,10 +22,10 @@ import { Layout } from "$app/components/Settings/Layout";
 import AccountDetailsSection from "$app/components/Settings/PaymentsPage/AccountDetailsSection";
 import AusBackTaxesSection from "$app/components/Settings/PaymentsPage/AusBackTaxesSection";
 import BankAccountSection, {
-  BankAccount,
   BankAccountDetails,
+  type BankAccount,
 } from "$app/components/Settings/PaymentsPage/BankAccountSection";
-import DebitCardSection from "$app/components/Settings/PaymentsPage/DebitCardSection";
+import DebitCardSection, { type PayoutDebitCardData } from "$app/components/Settings/PaymentsPage/DebitCardSection";
 import PayPalConnectSection, { PayPalConnect } from "$app/components/Settings/PaymentsPage/PayPalConnectSection";
 import PayPalEmailSection from "$app/components/Settings/PaymentsPage/PayPalEmailSection";
 import StripeConnectSection, { StripeConnect } from "$app/components/Settings/PaymentsPage/StripeConnectSection";
@@ -37,68 +37,10 @@ import { WithTooltip } from "$app/components/WithTooltip";
 
 import logo from "$assets/images/logo-g.svg";
 
-export type PayoutDebitCardData = { type: "saved" } | { type: "new"; element: StripeCardElement } | undefined;
-
-export type User = {
-  country_supports_native_payouts: boolean;
-  country_supports_iban: boolean;
-  need_full_ssn: boolean;
-  country_code: string | null;
-  payout_currency: string | null;
-  is_from_europe: boolean;
-  individual_tax_id_needed_countries: string[];
-  individual_tax_id_entered: boolean;
-  business_tax_id_entered: boolean;
-  requires_credit_card: boolean;
-  can_connect_stripe: boolean;
-  is_charged_paypal_payout_fee: boolean;
-  joined_at: string;
-};
-
 const PAYOUT_FREQUENCIES = ["daily", "weekly", "monthly", "quarterly"] as const;
 type PayoutFrequency = (typeof PAYOUT_FREQUENCIES)[number];
 
-export type ComplianceInfo = {
-  is_business: boolean;
-  business_name: string | null;
-  business_type: string | null;
-  business_street_address: string | null;
-  business_city: string | null;
-  business_state: string | null;
-  business_country: string | null;
-  business_zip_code: string | null;
-  business_phone: string | null;
-  job_title: string | null;
-  business_tax_id?: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  street_address: string | null;
-  city: string | null;
-  state: string | null;
-  country: string | null;
-  zip_code: string | null;
-  phone: string | null;
-  nationality: string | null;
-  dob_month: number;
-  dob_day: number;
-  dob_year: number;
-  individual_tax_id?: string | null;
-  updated_country_code?: string | null;
-  first_name_kanji?: string | null;
-  last_name_kanji?: string | null;
-  first_name_kana?: string | null;
-  last_name_kana?: string | null;
-  business_name_kanji?: string | null;
-  business_name_kana?: string | null;
-  building_number?: string | null;
-  street_address_kanji?: string | null;
-  street_address_kana?: string | null;
-  business_building_number?: string | null;
-  business_street_address_kanji?: string | null;
-  business_street_address_kana?: string | null;
-};
-
-export type PaymentsPageProps = {
+type PaymentsPageProps = {
   settings_pages: SettingPage[];
   is_form_disabled: boolean;
   should_show_country_modal: boolean;
@@ -149,71 +91,27 @@ export type PaymentsPageProps = {
   payouts_paused_by_user: boolean;
   payout_threshold_cents: number;
   minimum_payout_threshold_cents: number;
-  payout_frequency: PayoutFrequency;
+  payout_frequency: "daily" | "weekly" | "monthly" | "quarterly";
   payout_frequency_daily_supported: boolean;
-  error_message?: string | null;
-  error_code?: string | null;
+  errors?: {
+    base?: string[];
+    error_code?: string[];
+  };
 };
 
-export type PayoutMethod = "bank" | "card" | "paypal" | "stripe";
-export type FormFieldName =
-  | "first_name"
-  | "last_name"
-  | "first_name_kanji"
-  | "last_name_kanji"
-  | "first_name_kana"
-  | "last_name_kana"
-  | "building_number"
-  | "street_address_kanji"
-  | "street_address_kana"
-  | "street_address"
-  | "city"
-  | "state"
-  | "zip_code"
-  | "dob_year"
-  | "dob_month"
-  | "dob_day"
-  | "phone"
-  | "nationality"
-  | "individual_tax_id"
-  | "business_type"
-  | "business_name"
-  | "business_name_kanji"
-  | "business_name_kana"
-  | "business_street_address"
-  | "business_building_number"
-  | "business_street_address_kanji"
-  | "business_street_address_kana"
-  | "business_city"
-  | "business_state"
-  | "business_zip_code"
-  | "business_phone"
-  | "job_title"
-  | "business_tax_id"
-  | "routing_number"
-  | "transit_number"
-  | "institution_number"
-  | "bsb_number"
-  | "bank_code"
-  | "branch_code"
-  | "clearing_code"
-  | "sort_code"
-  | "ifsc"
-  | "account_type"
-  | "account_holder_full_name"
-  | "account_number"
-  | "account_number_confirmation"
-  | "paypal_email_address";
-
-export type ErrorMessageInfo = {
+type ErrorMessageInfo = {
   message: string;
   code?: string | null;
 };
 
-const PaymentsPage = (props: PaymentsPageProps) => {
+export default function PaymentsPage() {
+  const page = usePage();
+  const props = cast<PaymentsPageProps>(page.props);
+  const errors = cast<{ base?: string[]; error_code?: string[] } | undefined>(page.props.errors);
+
   const userAgentInfo = useUserAgentInfo();
   const [isSaving, setIsSaving] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState<ErrorMessageInfo | null>(null);
+  const [clientErrorMessage, setClientErrorMessage] = React.useState<ErrorMessageInfo | null>(null);
   const formRef = React.useRef<HTMLDivElement & HTMLFormElement>(null);
   const [errorFieldNames, setErrorFieldNames] = React.useState(() => new Set<FormFieldName>());
   const markFieldInvalid = (fieldName: FormFieldName) => setErrorFieldNames(new Set(errorFieldNames.add(fieldName)));
@@ -257,7 +155,6 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       newComplianceInfo.updated_country_code &&
       props.user.country_code !== newComplianceInfo.updated_country_code
     ) {
-      setErrorMessage(null);
       setIsUpdateCountryConfirmed(false);
       setShowUpdateCountryConfirmationModal(true);
     }
@@ -275,17 +172,12 @@ const PaymentsPage = (props: PaymentsPageProps) => {
   const [debitCard, setDebitCard] = React.useState<PayoutDebitCardData | null>(null);
   const [showNewBankAccount, setShowNewBankAccount] = React.useState(!props.bank_account_details.account_number_visual);
 
+  // Scroll to form when errors appear
   React.useEffect(() => {
-    if (errorMessage) formRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [errorMessage]);
-
-  React.useEffect(() => {
-    if (props.error_message) {
-      setErrorMessage({ message: props.error_message, code: props.error_code ?? null });
-    } else if (props.error_message === null) {
-      setErrorMessage(null);
+    if ((errors?.base && errors.base.length > 0) || clientErrorMessage) {
+      formRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [props.error_message, props.error_code]);
+  }, [errors, clientErrorMessage]);
 
   const isStreetAddressPOBox = (input: string) => {
     const countryCode: CountryCode = cast(props.user.country_code);
@@ -596,7 +488,7 @@ const PaymentsPage = (props: PaymentsPageProps) => {
     ) {
       markFieldInvalid("street_address");
       if (complianceInfo.street_address) {
-        setErrorMessage({
+        setClientErrorMessage({
           message: "We require a valid physical US address. We cannot accept a P.O. Box as a valid address.",
         });
       }
@@ -610,14 +502,16 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       !complianceInfo.state
     ) {
       markFieldInvalid("state");
-      setErrorMessage({ message: "Please select a valid state or province." });
+      setClientErrorMessage({ message: "Please select a valid state or province." });
     }
     if (!complianceInfo.zip_code && complianceInfo.country !== "BW") {
       markFieldInvalid("zip_code");
     }
     if (!validatePhoneNumber(complianceInfo.phone, complianceInfo.country)) {
       markFieldInvalid("phone");
-      setErrorMessage({ message: 'Please enter your full phone number, starting with a "+" and your country code.' });
+      setClientErrorMessage({
+        message: 'Please enter your full phone number, starting with a "+" and your country code.',
+      });
     }
     if (complianceInfo.dob_day === 0) {
       markFieldInvalid("dob_day");
@@ -670,7 +564,7 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       ) {
         markFieldInvalid("business_street_address");
         if (complianceInfo.business_street_address) {
-          setErrorMessage({
+          setClientErrorMessage({
             message: "We require a valid physical US address. We cannot accept a P.O. Box as a valid address.",
           });
         }
@@ -684,14 +578,16 @@ const PaymentsPage = (props: PaymentsPageProps) => {
         !complianceInfo.business_state
       ) {
         markFieldInvalid("business_state");
-        setErrorMessage({ message: "Please select a valid state or province." });
+        setClientErrorMessage({ message: "Please select a valid state or province." });
       }
       if (!complianceInfo.business_zip_code && props.user.country_code !== "BW") {
         markFieldInvalid("business_zip_code");
       }
       if (!validatePhoneNumber(complianceInfo.business_phone, complianceInfo.business_country)) {
         markFieldInvalid("business_phone");
-        setErrorMessage({ message: 'Please enter your full phone number, starting with a "+" and your country code.' });
+        setClientErrorMessage({
+          message: 'Please enter your full phone number, starting with a "+" and your country code.',
+        });
       }
       if (
         (props.user.country_supports_native_payouts || complianceInfo.business_country === "AE") &&
@@ -723,7 +619,7 @@ const PaymentsPage = (props: PaymentsPageProps) => {
     if (!validateForm()) return;
 
     setIsSaving(true);
-    setErrorMessage(null);
+    setClientErrorMessage(null);
 
     let cardData;
     if (selectedPayoutMethod === "card") {
@@ -765,9 +661,6 @@ const PaymentsPage = (props: PaymentsPageProps) => {
 
     router.put(Routes.settings_payments_path(), data, {
       preserveScroll: true,
-      onSuccess: () => {
-        setErrorMessage(null);
-      },
       onFinish: () => {
         setIsSaving(false);
       },
@@ -917,14 +810,18 @@ const PaymentsPage = (props: PaymentsPageProps) => {
           />
         ) : null}
 
-        {errorMessage ? (
+        {(errors?.base && errors.base.length > 0) || clientErrorMessage ? (
           <div className="mb-12 px-8">
             <div role="status" className="danger">
-              {errorMessage.code === "stripe_error" ? (
-                <div>Your account could not be updated due to an error with Stripe.</div>
-              ) : (
-                errorMessage.message
-              )}
+              {errors?.base && errors.base.length > 0 ? (
+                errors.error_code?.[0] === "stripe_error" ? (
+                  <div>Your account could not be updated due to an error with Stripe.</div>
+                ) : (
+                  errors.base[0]
+                )
+              ) : clientErrorMessage ? (
+                clientErrorMessage.message
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -1160,6 +1057,4 @@ const PaymentsPage = (props: PaymentsPageProps) => {
       </form>
     </Layout>
   );
-};
-
-export default PaymentsPage;
+}

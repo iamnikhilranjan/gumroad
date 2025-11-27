@@ -6,7 +6,7 @@ class Settings::BaseController < Sellers::BaseController
   inertia_share do
     {
       settings: {
-        pages: SettingsPresenter.new(pundit_user:).pages
+        pages: settings_presenter.pages
       }
     }
   end

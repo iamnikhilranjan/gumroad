@@ -7,7 +7,7 @@ class Settings::MainController < Settings::BaseController
 
   def show
     @title = "Settings"
-    render inertia: "Settings/Main", props: settings_presenter.main_props
+    render inertia: "Settings/Main/Show", props: settings_presenter.main_props
   end
 
   def update
@@ -32,9 +32,7 @@ class Settings::MainController < Settings::BaseController
     Bugsnag.notify(e)
     error_message = current_seller.errors.full_messages.to_sentence.presence ||
       "Something broke. We're looking into what happened. Sorry about this!"
-    redirect_to settings_main_path,
-                alert: error_message,
-                status: :see_other
+    redirect_to settings_main_path, alert: error_message
   end
 
   def resend_confirmation_email
@@ -42,9 +40,7 @@ class Settings::MainController < Settings::BaseController
       current_seller.send_confirmation_instructions
       return redirect_to settings_main_path, status: :see_other, notice: "Confirmation email resent!"
     end
-    redirect_to settings_main_path,
-                status: :see_other,
-                alert: "Sorry, something went wrong. Please try again."
+    redirect_to settings_main_path, alert: "Sorry, something went wrong. Please try again."
   end
 
   private

@@ -1,5 +1,6 @@
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
 import { SettingPage } from "$app/parsers/settings";
 
@@ -11,12 +12,13 @@ import { Layout as SettingsLayout } from "$app/components/Settings/Layout";
 const MIN_PASSWORD_LENGTH = 4;
 const MAX_PASSWORD_LENGTH = 128;
 
-export type PasswordPageProps = {
+type PasswordPageProps = {
   settings_pages: SettingPage[];
   require_old_password: boolean;
 };
 
-const PasswordPage = (props: PasswordPageProps) => {
+export default function PasswordPage() {
+  const props = cast<PasswordPageProps>(usePage().props);
   const uid = React.useId();
   const [requireOldPassword, setRequireOldPassword] = React.useState(props.require_old_password);
 
@@ -93,6 +95,4 @@ const PasswordPage = (props: PasswordPageProps) => {
       </form>
     </SettingsLayout>
   );
-};
-
-export default PasswordPage;
+}

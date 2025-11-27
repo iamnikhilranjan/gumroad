@@ -21,8 +21,13 @@ describe Settings::AdvancedController, :vcr, type: :controller, inertia: true do
       get :show
 
       expect(response).to be_successful
-      expect(inertia.component).to eq("Settings/Advanced")
+      expect(inertia.component).to eq("Settings/Advanced/Show")
       expect(inertia.props).to be_present
+      expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:user_id]).to be_present
+      expect(inertia.props[:notification_endpoint]).to be_a(String)
+      expect(inertia.props[:applications]).to be_an(Array)
+      expect(inertia.props[:allow_deactivation]).to be_in([true, false])
     end
   end
 

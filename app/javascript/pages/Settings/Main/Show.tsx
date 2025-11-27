@@ -1,6 +1,7 @@
-import { useForm, router } from "@inertiajs/react";
+import { useForm, router, usePage } from "@inertiajs/react";
 import cx from "classnames";
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
 import { SettingPage } from "$app/parsers/settings";
 import { asyncVoid } from "$app/utils/promise";
@@ -21,7 +22,7 @@ type ProductLevelSupportEmail = {
   product_ids: string[];
 };
 
-export type MainPageProps = {
+type MainPageProps = {
   settings_pages: SettingPage[];
   is_form_disabled: boolean;
   invalidate_active_sessions: boolean;
@@ -64,7 +65,8 @@ export type MainPageProps = {
   };
 };
 
-const MainPage = (props: MainPageProps) => {
+export default function MainPage() {
+  const props = cast<MainPageProps>(usePage().props);
   const uid = React.useId();
 
   const form = useForm({
@@ -77,6 +79,8 @@ const MainPage = (props: MainPageProps) => {
       product_level_support_emails: props.user.product_level_support_emails ?? [],
     },
   });
+
+  const isFormDisabled = props.is_form_disabled || form.processing;
 
   const updateUserSettings = (settings: Partial<typeof form.data.user>) =>
     form.setData("user", { ...form.data.user, ...settings });
@@ -115,12 +119,7 @@ const MainPage = (props: MainPageProps) => {
   };
 
   return (
-    <Layout
-      currentPage="main"
-      pages={props.settings_pages}
-      onSave={onSave}
-      canUpdate={!props.is_form_disabled && !form.processing}
-    >
+    <Layout currentPage="main" pages={props.settings_pages} onSave={onSave} canUpdate={!isFormDisabled}>
       <form ref={formRef}>
         <section className="p-4! md:p-8!">
           <header>
@@ -134,7 +133,7 @@ const MainPage = (props: MainPageProps) => {
               type="email"
               id={`${uid}-email`}
               value={form.data.user.email}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               required
               onChange={(e) => updateUserSettings({ email: e.target.value })}
             />
@@ -188,14 +187,14 @@ const MainPage = (props: MainPageProps) => {
                     <Toggle
                       value={form.data.user.enable_payment_email}
                       onChange={(value) => updateUserSettings({ enable_payment_email: value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                   <td data-label="Mobile">
                     <Toggle
                       value={form.data.user.enable_payment_push_notification}
                       onChange={(value) => updateUserSettings({ enable_payment_push_notification: value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                 </tr>
@@ -205,7 +204,7 @@ const MainPage = (props: MainPageProps) => {
                     <Toggle
                       value={form.data.user.enable_recurring_subscription_charge_email}
                       onChange={(value) => updateUserSettings({ enable_recurring_subscription_charge_email: value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                   <td data-label="Mobile">
@@ -216,7 +215,7 @@ const MainPage = (props: MainPageProps) => {
                           enable_recurring_subscription_charge_push_notification: value,
                         })
                       }
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                 </tr>
@@ -226,14 +225,14 @@ const MainPage = (props: MainPageProps) => {
                     <Toggle
                       value={form.data.user.enable_free_downloads_email}
                       onChange={(value) => updateUserSettings({ enable_free_downloads_email: value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                   <td data-label="Mobile">
                     <Toggle
                       value={form.data.user.enable_free_downloads_push_notification}
                       onChange={(value) => updateUserSettings({ enable_free_downloads_push_notification: value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                 </tr>
@@ -243,7 +242,7 @@ const MainPage = (props: MainPageProps) => {
                     <Toggle
                       value={form.data.user.announcement_notification_enabled}
                       onChange={(value) => updateUserSettings({ announcement_notification_enabled: value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                   <td data-label="Mobile"></td>
@@ -254,7 +253,7 @@ const MainPage = (props: MainPageProps) => {
                     <Toggle
                       value={!form.data.user.disable_comments_email}
                       onChange={(value) => updateUserSettings({ disable_comments_email: !value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                     />
                   </td>
                   <td data-label="Mobile"></td>
@@ -265,7 +264,7 @@ const MainPage = (props: MainPageProps) => {
                     <Toggle
                       value={!form.data.user.disable_reviews_email}
                       onChange={(value) => updateUserSettings({ disable_reviews_email: !value })}
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                       ariaLabel="Reviews"
                     />
                   </td>
@@ -288,7 +287,7 @@ const MainPage = (props: MainPageProps) => {
               id={`${uid}-support-email`}
               value={form.data.user.support_email}
               placeholder={props.user.email ?? ""}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               onChange={(e) => updateUserSettings({ support_email: e.target.value })}
             />
             <small>This email is listed on the receipt of every sale.</small>
@@ -297,7 +296,7 @@ const MainPage = (props: MainPageProps) => {
             <ProductLevelSupportEmailsForm
               productLevelSupportEmails={form.data.user.product_level_support_emails}
               products={props.user.products}
-              isDisabled={props.is_form_disabled}
+              isDisabled={isFormDisabled}
               onChange={handleProductLevelSupportEmailsChange}
             />
           )}
@@ -315,7 +314,7 @@ const MainPage = (props: MainPageProps) => {
               <select
                 id="max-refund-period-in-days"
                 value={form.data.user.seller_refund_policy.max_refund_period_in_days}
-                disabled={props.is_form_disabled || form.processing}
+                disabled={isFormDisabled}
                 onChange={(e) =>
                   updateUserSettings({
                     seller_refund_policy: {
@@ -347,7 +346,7 @@ const MainPage = (props: MainPageProps) => {
                     },
                   })
                 }
-                disabled={props.is_form_disabled || form.data.user.seller_refund_policy.max_refund_period_in_days === 0}
+                disabled={isFormDisabled || form.data.user.seller_refund_policy.max_refund_period_in_days === 0}
                 label="Add a fine print to your refund policy"
                 dropdown={
                   <fieldset>
@@ -360,7 +359,7 @@ const MainPage = (props: MainPageProps) => {
                       rows={10}
                       value={form.data.user.seller_refund_policy.fine_print || ""}
                       placeholder="Describe your refund policy"
-                      disabled={props.is_form_disabled || form.processing}
+                      disabled={isFormDisabled}
                       onChange={(e) =>
                         updateUserSettings({
                           seller_refund_policy: {
@@ -386,7 +385,7 @@ const MainPage = (props: MainPageProps) => {
             </legend>
             <select
               id={`${uid}-timezone`}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               value={form.data.user.timezone}
               onChange={(e) => updateUserSettings({ timezone: e.target.value })}
             >
@@ -403,7 +402,7 @@ const MainPage = (props: MainPageProps) => {
             </legend>
             <select
               id={`${uid}-local-currency`}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               value={form.data.user.currency_type}
               onChange={(e) => updateUserSettings({ currency_type: e.target.value })}
             >
@@ -423,7 +422,7 @@ const MainPage = (props: MainPageProps) => {
             <ToggleSettingRow
               value={form.data.user.purchasing_power_parity_enabled}
               onChange={(value) => updateUserSettings({ purchasing_power_parity_enabled: value })}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               label="Enable purchasing power parity"
               dropdown={
                 <div className="flex flex-col gap-4">
@@ -445,7 +444,7 @@ const MainPage = (props: MainPageProps) => {
                             id={`${uid}-ppp-discount-percentage`}
                             type="text"
                             placeholder="60"
-                            disabled={props.is_form_disabled || form.processing}
+                            disabled={isFormDisabled}
                             aria-label="Percentage"
                             {...inputProps}
                           />
@@ -456,7 +455,7 @@ const MainPage = (props: MainPageProps) => {
                   </fieldset>
                   <Toggle
                     value={!form.data.user.purchasing_power_parity_payment_verification_disabled}
-                    disabled={props.is_form_disabled || form.processing}
+                    disabled={isFormDisabled}
                     onChange={(newValue) =>
                       updateUserSettings({ purchasing_power_parity_payment_verification_disabled: !newValue })
                     }
@@ -472,7 +471,7 @@ const MainPage = (props: MainPageProps) => {
                       inputId={`${uid}-ppp-exclude-products`}
                       tagIds={form.data.user.purchasing_power_parity_excluded_product_ids}
                       tagList={props.user.products.map(({ id, name }) => ({ id, label: name }))}
-                      isDisabled={props.is_form_disabled}
+                      isDisabled={isFormDisabled}
                       onChangeTagIds={(productIds) =>
                         updateUserSettings({ purchasing_power_parity_excluded_product_ids: productIds })
                       }
@@ -481,7 +480,7 @@ const MainPage = (props: MainPageProps) => {
                     <label>
                       <input
                         type="checkbox"
-                        disabled={props.is_form_disabled || form.processing}
+                        disabled={isFormDisabled}
                         checked={
                           form.data.user.purchasing_power_parity_excluded_product_ids.length ===
                           props.user.products.length
@@ -516,7 +515,7 @@ const MainPage = (props: MainPageProps) => {
             <ToggleSettingRow
               value={form.data.user.show_nsfw_products}
               onChange={(value) => updateUserSettings({ show_nsfw_products: value })}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               label="Show adult content in recommendations and search results"
             />
           </fieldset>
@@ -529,7 +528,7 @@ const MainPage = (props: MainPageProps) => {
             <ToggleSettingRow
               value={form.data.user.disable_affiliate_requests}
               onChange={(value) => updateUserSettings({ disable_affiliate_requests: value })}
-              disabled={props.is_form_disabled || form.processing}
+              disabled={isFormDisabled}
               label="Prevent others from adding me as an affiliate"
             />
             <small>When enabled, other users cannot add you as an affiliate or request to become your affiliate.</small>
@@ -539,7 +538,7 @@ const MainPage = (props: MainPageProps) => {
       </form>
     </Layout>
   );
-};
+}
 
 const InvalidateActiveSessionsSection = () => {
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = React.useState(false);
@@ -592,5 +591,3 @@ const InvalidateActiveSessionsSection = () => {
     </section>
   );
 };
-
-export default MainPage;

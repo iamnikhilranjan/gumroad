@@ -21,10 +21,11 @@ describe Settings::TeamController, type: :controller, inertia: true do
       get :show
 
       expect(response).to be_successful
-      expect(inertia.component).to eq("Settings/Team")
+      expect(inertia.component).to eq("Settings/Team/Show")
       expect(inertia.props).to be_present
-      expect(inertia.props[:member_infos]).to be_present
-      expect(inertia.props[:settings_pages]).to be_present
+      expect(inertia.props[:member_infos]).to be_an(Array)
+      expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:can_invite_member]).to be_in([true, false])
     end
 
     context "when user does not have an email" do

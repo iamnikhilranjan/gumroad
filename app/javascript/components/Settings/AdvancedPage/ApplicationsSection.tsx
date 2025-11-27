@@ -6,8 +6,13 @@ import { assertResponseError, request, ResponseError } from "$app/utils/request"
 
 import { Button, NavigationButton } from "$app/components/Button";
 import { showAlert } from "$app/components/server-components/Alert";
-import { Application } from "$app/components/Settings/AdvancedPage";
 import ApplicationForm from "$app/components/Settings/AdvancedPage/ApplicationForm";
+
+export type Application = {
+  id: string;
+  name: string;
+  icon_url: string | null;
+};
 
 const CreateApplication = () => (
   <>

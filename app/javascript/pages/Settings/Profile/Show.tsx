@@ -1,5 +1,6 @@
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
 import { unlinkTwitter } from "$app/data/profile_settings";
 import { CreatorProfile, ProfileSettings } from "$app/parsers/profile";
@@ -20,7 +21,7 @@ import { showAlert } from "$app/components/server-components/Alert";
 import { Layout as SettingsLayout } from "$app/components/Settings/Layout";
 import { SocialAuthButton } from "$app/components/SocialAuthButton";
 
-export type ProfilePageProps = {
+type ProfilePageProps = {
   profile_settings: ProfileSettings;
   settings_pages: SettingPage[];
 } & ProfileProps;
@@ -34,14 +35,15 @@ const FONT_DESCRIPTIONS: Record<string, string> = {
   "Roboto Slab": "Personable and fun serif",
 };
 
-const SettingsPage = ({ creator_profile, profile_settings, settings_pages, ...profileProps }: ProfilePageProps) => {
+export default function ProfileSettingsPage() {
+  const props = cast<ProfilePageProps>(usePage().props);
   const { rootDomain, scheme } = useDomains();
   const loggedInUser = useLoggedInUser();
-  const [creatorProfile, setCreatorProfile] = React.useState(creator_profile);
+  const [creatorProfile, setCreatorProfile] = React.useState(props.creator_profile);
   const updateCreatorProfile = (newProfile: Partial<CreatorProfile>) =>
     setCreatorProfile((prevProfile) => ({ ...prevProfile, ...newProfile }));
 
-  const form = useForm(profile_settings);
+  const form = useForm(props.profile_settings);
 
   const profileSettings = form.data;
   const updateProfileSettings = (newSettings: Partial<ProfileSettings>) =>
@@ -81,7 +83,7 @@ const SettingsPage = ({ creator_profile, profile_settings, settings_pages, ...pr
     `${parseInt(hex.slice(1, 3), 16)} ${parseInt(hex.slice(3, 5), 16)} ${parseInt(hex.slice(5), 16)}`;
 
   return (
-    <SettingsLayout currentPage="profile" pages={settings_pages} onSave={handleSave} canUpdate={canUpdate}>
+    <SettingsLayout currentPage="profile" pages={props.settings_pages} onSave={handleSave} canUpdate={canUpdate}>
       <WithPreviewSidebar>
         <form>
           <section className="p-4! md:p-8!">
@@ -250,12 +252,17 @@ const SettingsPage = ({ creator_profile, profile_settings, settings_pages, ...pr
               color: "rgb(var(--color))",
             }}
           >
-            <Profile creator_profile={creatorProfile} {...profileProps} bio={profileSettings.bio} />
+            <Profile
+              creator_profile={creatorProfile}
+              {...(() => {
+                const { creator_profile, ...rest } = props;
+                return rest;
+              })()}
+              bio={profileSettings.bio}
+            />
           </Preview>
         </PreviewSidebar>
       </WithPreviewSidebar>
     </SettingsLayout>
   );
-};
-
-export default SettingsPage;
+}

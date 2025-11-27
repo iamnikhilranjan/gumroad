@@ -4,7 +4,7 @@ import * as React from "react";
 import { SavedCreditCard } from "$app/parsers/card";
 
 import { CreditCardInput } from "$app/components/Checkout/CreditCardInput";
-import { PayoutDebitCardData } from "$app/components/Settings/PaymentsPage";
+import { type PayoutDebitCardData } from "$app/components/Settings/PaymentsPage/DebitCardSection";
 
 export const PayoutCreditCard = ({
   saved_card,

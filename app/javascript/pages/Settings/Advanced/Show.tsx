@@ -1,22 +1,17 @@
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
-import { SettingPage } from "$app/parsers/settings";
+import { type SettingPage } from "$app/parsers/settings";
 
 import AccountDeletionSection from "$app/components/Settings/AdvancedPage/AccountDeletionSection";
-import ApplicationsSection from "$app/components/Settings/AdvancedPage/ApplicationsSection";
+import ApplicationsSection, { type Application } from "$app/components/Settings/AdvancedPage/ApplicationsSection";
 import BlockEmailsSection from "$app/components/Settings/AdvancedPage/BlockEmailsSection";
 import CustomDomainSection from "$app/components/Settings/AdvancedPage/CustomDomainSection";
 import NotificationEndpointSection from "$app/components/Settings/AdvancedPage/NotificationEndpointSection";
 import { Layout } from "$app/components/Settings/Layout";
 
-export type Application = {
-  id: string;
-  name: string;
-  icon_url: string | null;
-};
-
-export type AdvancedPageProps = {
+type AdvancedPageProps = {
   settings_pages: SettingPage[];
   user_id: string;
   notification_endpoint: string;
@@ -28,7 +23,8 @@ export type AdvancedPageProps = {
   formatted_balance_to_forfeit_on_account_deletion: string | null;
 };
 
-const AdvancedPage = (props: AdvancedPageProps) => {
+export default function AdvancedPage() {
+  const props = cast<AdvancedPageProps>(usePage().props);
   const form = useForm({
     domain: props.custom_domain_name,
     blocked_customer_emails: props.blocked_customer_emails,
@@ -38,13 +34,14 @@ const AdvancedPage = (props: AdvancedPageProps) => {
   });
 
   const handleSave = () => {
-    form.setData({
-      ...form.data,
-      domain: form.data.domain.trim(),
+    form.transform((data) => ({
+      ...data,
+      domain: data.domain.trim(),
       user: {
-        notification_endpoint: form.data.user.notification_endpoint.trim(),
+        ...data.user,
+        notification_endpoint: data.user.notification_endpoint.trim(),
       },
-    });
+    }));
 
     form.put(Routes.settings_advanced_path(), {
       preserveScroll: true,
@@ -81,6 +78,4 @@ const AdvancedPage = (props: AdvancedPageProps) => {
       </form>
     </Layout>
   );
-};
-
-export default AdvancedPage;
+}

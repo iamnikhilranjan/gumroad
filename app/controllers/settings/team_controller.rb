@@ -8,7 +8,7 @@ class Settings::TeamController < Settings::BaseController
     @title = "Team"
     team_presenter = Settings::TeamPresenter.new(pundit_user:)
 
-    render inertia: "Settings/Team", props: {
+    render inertia: "Settings/Team/Show", props: {
       member_infos: team_presenter.member_infos,
       can_invite_member: policy([:settings, :team, TeamInvitation]).create?,
       settings_pages: settings_presenter.pages,
@@ -23,6 +23,6 @@ class Settings::TeamController < Settings::BaseController
     def check_email_presence
       return if current_seller.email.present?
 
-      redirect_to settings_main_path, status: :see_other, alert: "Your Gumroad account doesn't have an email associated. Please assign and verify your email, and try again."
+      redirect_to settings_main_path, alert: "Your Gumroad account doesn't have an email associated. Please assign and verify your email, and try again."
     end
 end

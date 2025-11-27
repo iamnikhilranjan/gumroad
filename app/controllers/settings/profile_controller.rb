@@ -7,16 +7,16 @@ class Settings::ProfileController < Settings::BaseController
     @title = "Settings"
     profile_presenter = ProfilePresenter.new(pundit_user:, seller: current_seller)
 
-    render inertia: "Settings/Profile", props: settings_presenter.profile_props.merge(
+    render inertia: "Settings/Profile/Show", props: settings_presenter.profile_props.merge(
       profile_presenter.profile_settings_props(request:)
     )
   end
 
   def update
-    return redirect_to settings_profile_path, status: :see_other, alert: "You have to confirm your email address before you can do that." unless current_seller.confirmed?
+    return redirect_to settings_profile_path, alert: "You have to confirm your email address before you can do that." unless current_seller.confirmed?
 
     if permitted_params[:profile_picture_blob_id].present?
-      redirect_to settings_profile_path, status: :see_other, alert: "The logo is already removed. Please refresh the page and try again." if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]).nil?
+      redirect_to settings_profile_path, alert: "The logo is already removed. Please refresh the page and try again." if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]).nil?
       current_seller.avatar.attach permitted_params[:profile_picture_blob_id]
     elsif permitted_params.has_key?(:profile_picture_blob_id) && current_seller.avatar.attached?
       current_seller.avatar.purge
@@ -42,7 +42,7 @@ class Settings::ProfileController < Settings::BaseController
         redirect_to settings_profile_path, status: :see_other, notice: "Changes saved!"
       end
     rescue ActiveRecord::RecordInvalid => e
-      redirect_to settings_profile_path, status: :see_other, alert: e.record.errors.full_messages.to_sentence
+      redirect_to settings_profile_path, alert: e.record.errors.full_messages.to_sentence
     end
   end
 

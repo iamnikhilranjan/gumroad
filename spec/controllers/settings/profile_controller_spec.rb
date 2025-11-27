@@ -19,8 +19,10 @@ describe Settings::ProfileController, :vcr, type: :controller, inertia: true do
       get :show
 
       expect(response).to be_successful
-      expect(inertia.component).to eq("Settings/Profile")
+      expect(inertia.component).to eq("Settings/Profile/Show")
       expect(inertia.props).to be_present
+      expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:profile_settings]).to be_present
     end
   end
 

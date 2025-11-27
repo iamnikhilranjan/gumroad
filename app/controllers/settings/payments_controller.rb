@@ -8,7 +8,7 @@ class Settings::PaymentsController < Settings::BaseController
   def show
     @title = "Settings"
 
-    render inertia: "Settings/Payments", props: settings_presenter.payments_props(remote_ip: request.remote_ip)
+    render inertia: "Settings/Payments/Show", props: settings_presenter.payments_props(remote_ip: request.remote_ip)
   end
 
   def update
@@ -219,11 +219,9 @@ class Settings::PaymentsController < Settings::BaseController
     end
 
     def re_render_with_error(error_message, error_code: nil)
-      @title = "Settings"
-      render inertia: "Settings/Payments", props: settings_presenter.payments_props(remote_ip: request.remote_ip).merge(
-        error_message: error_message,
-        error_code: error_code
-      ), status: :unprocessable_entity
+      errors_hash = { base: [error_message] }
+      errors_hash[:error_code] = [error_code] if error_code.present?
+      redirect_to settings_payments_path, inertia: { errors: errors_hash }
     end
 
     def authorize

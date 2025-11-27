@@ -39,9 +39,12 @@ describe Settings::PaymentsController, :vcr, type: :controller, inertia: true do
       get :show
 
       expect(response).to be_successful
-      expect(inertia.component).to eq("Settings/Payments")
+      expect(inertia.component).to eq("Settings/Payments/Show")
       expect(inertia.props).to be_present
+      expect(inertia.props[:settings_pages]).to be_an(Array)
+      expect(inertia.props[:user]).to be_present
       expect(inertia.props[:user][:country_code]).to eq("US")
+      expect(inertia.props[:is_form_disabled]).to be_in([true, false])
     end
   end
 
