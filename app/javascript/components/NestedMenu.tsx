@@ -127,8 +127,9 @@ const Menubar = ({ moreLabel, ...extraAriaAttrs }: { moreLabel?: string | undefi
     <div
       ref={parentRef}
       role="menubar"
-      aria-busy={itemsUnderMore === null}
-      className={classNames("grid auto-cols-max grid-flow-col items-center aria-busy:overflow-x-hidden")}
+      className={classNames("grid auto-cols-max grid-flow-col items-center", {
+        "overflow-x-hidden": itemsUnderMore === null,
+      })}
       {...extraAriaAttrs}
     >
       {menubarItems.map((menuItem) => (
@@ -329,7 +330,7 @@ const OverlayMenu = ({
         open={menuOpen}
         onOpenChange={setMenuOpen}
         modal
-        className="w-80 max-w-[calc(100vw-3.25rem)] p-0 md:w-80 md:border-l-0"
+        className="right-auto! left-0! max-w-80 border-l-0! p-0 md:border-r"
       >
         <ItemsList
           menuId={overlayMenuUID}
@@ -424,26 +425,20 @@ const ItemsList = ({
 };
 
 const MenuItemLink = ({
-  href,
-  onClick,
   className,
   children,
   ...props
 }: {
-  href?: string | undefined;
-  onClick?: ((e: React.MouseEvent<HTMLAnchorElement>) => void) | undefined;
-  className?: string | undefined;
   children: React.ReactNode;
-} & React.AriaAttributes) => (
+} & React.ComponentProps<"a">) => (
   <a
-    href={href ?? "#"}
-    onClick={onClick}
+    {...props}
+    href={props.href ?? "#"}
     className={classNames(
       "shrink-0 justify-between gap-2 overflow-visible! p-4! whitespace-normal! hover:bg-foreground! hover:text-background!",
       className,
     )}
     role="menuitem"
-    {...props}
   >
     {children}
   </a>
