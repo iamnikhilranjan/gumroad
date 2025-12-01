@@ -297,6 +297,12 @@ export const Product = ({
       if (selection.price.value === null) {
         configurationSelectorRef?.current?.focusRequiredInput();
         showAlert("You must input an amount", "warning");
+      } else if (selection.price.value < discountedPriceCents) {
+        const formattedMinPrice = formatPriceCentsWithCurrencySymbol(product.currency_code, discountedPriceCents, {
+          symbolFormat: "short",
+        });
+        configurationSelectorRef?.current?.focusRequiredInput();
+        showAlert(`Minimum price for this product is ${formattedMinPrice}, you cannot offer price below that.`, "error");
       }
       return false;
     }
