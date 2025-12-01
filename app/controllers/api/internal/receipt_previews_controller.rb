@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class Api::Internal::ReceiptPreviewController < Api::Internal::BaseController
+class Api::Internal::ReceiptPreviewsController < Api::Internal::BaseController
   include FetchProductByUniquePermalink
 
   before_action :authenticate_user!
   before_action :fetch_product_by_unique_permalink
 
-  def index
+  def show
     e404 if @product.nil? || @product.user != current_seller
 
     @product.custom_receipt_text = params[:custom_receipt_text]
