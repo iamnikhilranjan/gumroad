@@ -25,12 +25,11 @@ export const Layout = ({ className, creatorProfile, hideFollowForm, children }: 
 
   return (
     <div className={cx("profile", className)}>
-      <header className="relative z-20 bg-background">
+      <header className="z-20 bg-background">
         <section>
           {(loggedInUser?.isGumroadAdmin || loggedInUser?.isImpersonating) &&
           creatorProfile.external_id !== loggedInUser.id ? (
             <NavigationButton
-              style={{ position: "absolute", left: "var(--spacer-3)" }}
               color="filled"
               href={Routes.admin_impersonate_url({ user_identifier: creatorProfile.external_id })}
             >
