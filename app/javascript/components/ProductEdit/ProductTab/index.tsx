@@ -87,8 +87,8 @@ export const ProductTab = () => {
         <form>
           <section className="p-4! md:p-8!">
             {showAiNotification ? (
-              <Alert role="status" className="grid grid-cols-[auto_1fr_auto] gap-4" variant="pink">
-                <AlertIcon className="self-center text-lg">
+              <Alert role="status" className="grid grid-cols-[auto_1fr_auto] gap-4" variant="accent">
+                <AlertIcon asChild className="self-center text-lg">
                   <Icon name="sparkle" />
                 </AlertIcon>
                 <div>

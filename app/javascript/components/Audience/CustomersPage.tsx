@@ -1889,16 +1889,14 @@ const UtmLinkStack = ({ link, showHeader }: { link: Customer["utm_link"]; showHe
             <h3>UTM link</h3>
           </section>
           <div>
-            <Alert asChild role="status" variant="info">
-              <small>
-                <span>
-                  This sale was driven by a{" "}
-                  <a href={link.utm_url} target="_blank" rel="noreferrer">
-                    UTM link
-                  </a>
-                  .
-                </span>
-              </small>
+            <Alert className="flex-1 text-sm" role="status" variant="info">
+              <span>
+                This sale was driven by a{" "}
+                <a href={link.utm_url} target="_blank" rel="noreferrer">
+                  UTM link
+                </a>
+                .
+              </span>
             </Alert>
           </div>
         </>

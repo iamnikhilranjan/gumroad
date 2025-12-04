@@ -861,7 +861,7 @@ const PaymentsPage = (props: Props) => {
       ) : null}
       <form ref={formRef}>
         {props.payouts_paused_by !== null ? (
-          <Alert role="status" variant="warning" className="mx-8 mb-12">
+          <Alert className="m-4 md:m-8" role="status" variant="warning">
             <p>
               {props.payouts_paused_by === "stripe" ? (
                 <strong>

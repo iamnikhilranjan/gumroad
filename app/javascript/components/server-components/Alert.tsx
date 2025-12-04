@@ -42,23 +42,22 @@ const ToastAlert = ({ initial }: { initial: AlertPayload | null }) => {
   });
 
   return (
-    <Alert
-      asChild
+    <div
       className={classNames(
-        "fixed top-4 left-1/2 z-100 w-max max-w-[calc(100vw-2rem)] bg-blend-overlay md:max-w-sm",
+        "fixed top-4 left-1/2 z-100 w-max max-w-[calc(100vw-2rem)] bg-background md:max-w-sm",
         isVisible ? "visible" : "invisible",
       )}
       style={{
-        backgroundImage: `linear-gradient(rgb(var(--filled)), rgb(var(--filled)))`,
         transform: `translateX(-50%) translateY(${isVisible ? 0 : "calc(-100% - var(--spacer-4))"})`,
         transition: "all 0.3s ease-out 0.5s",
       }}
-      variant={alert?.status}
     >
-      <div dangerouslySetInnerHTML={alert?.html ? { __html: alert.message } : undefined}>
-        {!alert?.html ? alert?.message : null}
-      </div>
-    </Alert>
+      <Alert variant={alert?.status}>
+        <div dangerouslySetInnerHTML={alert?.html ? { __html: alert.message } : undefined}>
+          {!alert?.html ? alert?.message : null}
+        </div>
+      </Alert>
+    </div>
   );
 };
 

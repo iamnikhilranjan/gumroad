@@ -1,4 +1,4 @@
-import { Slot, Slottable } from "@radix-ui/react-slot";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
@@ -13,17 +13,16 @@ const alertVariants = cva("grid items-start gap-2 rounded border border-border p
       danger: "border-danger bg-danger/20",
       warning: "border-warning bg-warning/20",
       info: "border-info bg-info/20",
-      pink: "border-pink bg-pink/20",
+      accent: "border-accent bg-accent/20",
     },
   },
 });
 
-const iconNames: Record<NonNullable<VariantProps<typeof alertVariants>["variant"]>, IconName> = {
+const iconNames: Record<Exclude<NonNullable<VariantProps<typeof alertVariants>["variant"]>, "accent">, IconName> = {
   success: "solid-check-circle",
   danger: "x-circle-fill",
   warning: "solid-shield-exclamation",
   info: "info-circle-fill",
-  pink: "info-circle-fill",
 };
 
 const iconColorVariants = cva("tailwind-override-icons size-[1lh]", {
@@ -33,39 +32,29 @@ const iconColorVariants = cva("tailwind-override-icons size-[1lh]", {
       danger: "text-danger",
       warning: "text-warning",
       info: "text-info",
-      pink: "text-pink",
     },
   },
 });
 
-const AlertContext = React.createContext<Exclude<VariantProps<typeof alertVariants>["variant"], null>>(undefined);
-
-export interface AlertProps
-  extends React.HTMLProps<HTMLDivElement>,
-    Omit<VariantProps<typeof alertVariants>, "variant"> {
+export interface AlertProps extends React.HTMLProps<HTMLDivElement> {
   asChild?: boolean;
   children: React.ReactNode;
-  role?: "alert" | "status";
   variant?: Exclude<VariantProps<typeof alertVariants>["variant"], null>;
 }
 
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ asChild, className, children, role = "alert", variant, ...props }, ref) => {
+  ({ className, children, role = "alert", variant, ...props }, ref) => {
     const hasIcon = React.Children.toArray(children).some(
       (child) => React.isValidElement(child) && child.type === AlertIcon,
     );
 
-    const Component = asChild ? Slot : "div";
-
     return (
-      <AlertContext.Provider value={variant}>
-        <Component ref={ref} role={role} className={classNames(alertVariants({ variant }), className)} {...props}>
-          {!hasIcon && variant ? (
-            <Icon name={iconNames[variant]} className={iconColorVariants({ variant })} aria-hidden="true" />
-          ) : null}
-          {asChild ? <Slottable>{children}</Slottable> : children}
-        </Component>
-      </AlertContext.Provider>
+      <div ref={ref} role={role} className={classNames(alertVariants({ variant }), className)} {...props}>
+        {!hasIcon && variant && variant !== "accent" ? (
+          <Icon name={iconNames[variant]} className={iconColorVariants({ variant })} aria-hidden="true" />
+        ) : null}
+        {children}
+      </div>
     );
   },
 );
@@ -78,27 +67,12 @@ export interface AlertIconProps extends React.HTMLProps<HTMLSpanElement> {
 
 export const AlertIcon = React.forwardRef<HTMLSpanElement, AlertIconProps>(
   ({ children, asChild, className, ...props }, ref) => {
-    const variant = React.useContext(AlertContext);
     const Component = asChild ? Slot : "span";
 
-    if (children) {
-      return (
-        <Component ref={ref} className={classNames(className)} {...props}>
-          {children}
-        </Component>
-      );
-    }
-
-    if (!variant) {
-      return null;
-    }
-
     return (
-      <Icon
-        name={iconNames[variant]}
-        className={classNames(iconColorVariants({ variant }), className)}
-        aria-hidden="true"
-      />
+      <Component ref={ref} className={classNames(className)} {...props}>
+        {children}
+      </Component>
     );
   },
 );
