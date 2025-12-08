@@ -7,10 +7,6 @@ import Layout from "../inertia/layout.tsx";
 
 // Configure Inertia to send CSRF token with all requests
 router.on("before", (event) => {
-  if (!event?.detail?.visit) {
-    return;
-  }
-
   const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
   if (token) {
     event.detail.visit.headers = {
