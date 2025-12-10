@@ -22,6 +22,9 @@ import {
   CartItemTitle,
   CartItemList,
   CartItemEnd,
+  CartItemQuantity,
+  CartItemActions,
+  CartActionButton,
 } from "$app/components/CartItemList";
 import { PaymentForm } from "$app/components/Checkout/PaymentForm";
 import { Popover } from "$app/components/Popover";
@@ -467,15 +470,17 @@ const CartItemComponent = ({
             <CartItemList>
               {item.product.bundle_products.map((bundleProduct) => (
                 <CartItem key={bundleProduct.product_id}>
-                  <CartItemMedia>
-                    <Thumbnail url={bundleProduct.thumbnail_url} nativeType={bundleProduct.native_type} />
-                  </CartItemMedia>
+                  <div className="relative inline-flex">
+                    <CartItemMedia>
+                      <a href={item.product.url}>
+                        <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
+                      </a>
+                    </CartItemMedia>
+                    <CartItemQuantity>{item.quantity}</CartItemQuantity>
+                  </div>
                   <CartItemMain>
                     <CartItemTitle>{bundleProduct.name}</CartItemTitle>
                     <CartItemFooter>
-                      <span>
-                        <strong>Qty:</strong> {bundleProduct.quantity}
-                      </span>
                       {bundleProduct.variant ? (
                         <span>
                           <strong>{variantLabel(bundleProduct.native_type)}:</strong> {bundleProduct.variant.name}
@@ -490,22 +495,25 @@ const CartItemComponent = ({
         ) : null
       }
     >
-      <CartItemMedia>
-        <a href={item.product.url}>
-          <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
-        </a>
-      </CartItemMedia>
+      <div className="relative inline-flex">
+        <CartItemMedia>
+          <a href={item.product.url}>
+            <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
+          </a>
+        </CartItemMedia>
+        <CartItemQuantity>{item.quantity}</CartItemQuantity>
+      </div>
+
       <CartItemMain>
         <CartItemTitle>
-          <a href={item.product.url}>{item.product.name}</a>
+          <a href={item.product.url} className="no-underline">
+            {item.product.name}
+          </a>
         </CartItemTitle>
-        <a href={item.product.creator.profile_url} className="line-clamp-2">
+        <a href={item.product.creator.profile_url} className="line-clamp-2 text-sm leading-[1.3]">
           {item.product.creator.name}
         </a>
         <CartItemFooter>
-          <span>
-            <strong>{item.product.is_multiseat_license ? "Seats:" : "Qty:"}</strong> {item.quantity}
-          </span>
           {option?.name ? (
             <span>
               <strong>{variantLabel(item.product.native_type)}:</strong> {option.name}
@@ -521,10 +529,64 @@ const CartItemComponent = ({
               <strong>Time:</strong> {formatCallDate(new Date(item.call_start_time), { date: { hideYear: true } })}
             </span>
           ) : null}
+          <CartItemActions>
+            {(item.product.rental && !item.product.rental.rent_only) ||
+            item.product.is_quantity_enabled ||
+            item.product.recurrences ||
+            item.product.options.length > 0 ||
+            item.product.installment_plan ||
+            isPWYW ? (
+              <Popover
+                trigger={<CartActionButton>Edit</CartActionButton>}
+                open={editPopoverOpen}
+                onToggle={setEditPopoverOpen}
+              >
+                <div className="flex w-96 flex-col gap-4">
+                  <ConfigurationSelector
+                    selection={selection}
+                    setSelection={(selection) => {
+                      setError(null);
+                      setSelection(selection);
+                    }}
+                    product={item.product}
+                    discount={discount.discount && discount.discount.type !== "ppp" ? discount.discount.value : null}
+                    showInstallmentPlan
+                  />
+                  {error ? (
+                    <div role="alert" className="danger">
+                      {error}
+                    </div>
+                  ) : null}
+                  <Button color="accent" onClick={saveChanges}>
+                    Save changes
+                  </Button>
+                </div>
+              </Popover>
+            ) : null}
+            <CartActionButton
+              onClick={() => {
+                const newItems = cart.items.filter((i) => i !== item);
+                updateCart({
+                  discountCodes: cart.discountCodes.filter(({ products }) =>
+                    Object.keys(products).some((permalink) =>
+                      newItems.some((item) => item.product.permalink === permalink),
+                    ),
+                  ),
+                  items: newItems.map(({ accepted_offer, ...rest }) => ({
+                    ...rest,
+                    accepted_offer:
+                      accepted_offer?.original_product_id === item.product.id ? null : (accepted_offer ?? null),
+                  })),
+                });
+              }}
+            >
+              Remove
+            </CartActionButton>
+          </CartItemActions>
         </CartItemFooter>
       </CartItemMain>
       <CartItemEnd>
-        <span className="current-price" aria-label="Price">
+        <span className="current-price text-base leading-[1.4] font-bold sm:text-lg" aria-label="Price">
           {formatPrice(convertToUSD(item, price))}
         </span>
         {hasFreeTrial(item, isGift) && item.product.free_trial ? (
@@ -550,67 +612,6 @@ const CartItemComponent = ({
             recurrenceNames[item.recurrence]
           )
         ) : null}
-        <footer className="mt-auto">
-          <ul className="grid list-none gap-x-4 gap-y-1 md:flex md:flex-wrap">
-            {(item.product.rental && !item.product.rental.rent_only) ||
-            item.product.is_quantity_enabled ||
-            item.product.recurrences ||
-            item.product.options.length > 0 ||
-            item.product.installment_plan ||
-            isPWYW ? (
-              <li>
-                <Popover
-                  trigger={<span className="link">Configure</span>}
-                  open={editPopoverOpen}
-                  onToggle={setEditPopoverOpen}
-                >
-                  <div className="flex w-96 flex-col gap-4">
-                    <ConfigurationSelector
-                      selection={selection}
-                      setSelection={(selection) => {
-                        setError(null);
-                        setSelection(selection);
-                      }}
-                      product={item.product}
-                      discount={discount.discount && discount.discount.type !== "ppp" ? discount.discount.value : null}
-                      showInstallmentPlan
-                    />
-                    {error ? (
-                      <div role="alert" className="danger">
-                        {error}
-                      </div>
-                    ) : null}
-                    <Button color="accent" onClick={saveChanges}>
-                      Save changes
-                    </Button>
-                  </div>
-                </Popover>
-              </li>
-            ) : null}
-            <li>
-              <button
-                className="underline"
-                onClick={() => {
-                  const newItems = cart.items.filter((i) => i !== item);
-                  updateCart({
-                    discountCodes: cart.discountCodes.filter(({ products }) =>
-                      Object.keys(products).some((permalink) =>
-                        newItems.some((item) => item.product.permalink === permalink),
-                      ),
-                    ),
-                    items: newItems.map(({ accepted_offer, ...rest }) => ({
-                      ...rest,
-                      accepted_offer:
-                        accepted_offer?.original_product_id === item.product.id ? null : (accepted_offer ?? null),
-                    })),
-                  });
-                }}
-              >
-                Remove
-              </button>
-            </li>
-          </ul>
-        </footer>
       </CartItemEnd>
     </CartItem>
   );

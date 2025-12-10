@@ -25,7 +25,7 @@ export const CartItem = ({
   return (
     <Comp role="listitem" className={classNames("border-border not-first:border-t", className)} {...props}>
       <>
-        <section className="flex flex-row gap-4 p-4 sm:p-0 sm:pr-4">{children}</section>
+        <section className="flex flex-row gap-3 px-3 py-4 sm:gap-5 sm:p-5">{children}</section>
         {extra ? <section className="flex flex-col gap-4 border-border p-4 not-first:border-t">{extra}</section> : null}
       </>
     </Comp>
@@ -35,7 +35,7 @@ export const CartItem = ({
 export const CartItemMedia = ({ className, children, ...props }: BaseProps) => (
   <figure
     className={classNames(
-      "tailwind-override h-fit w-14 overflow-hidden rounded-sm border border-border sm:h-full sm:w-36 sm:rounded-none sm:border-y-0 sm:border-l-0 [[role=list]_>_:first-child_&]:rounded-tl-sm [[role=list]_>_:last-child_&]:rounded-bl-sm",
+      "tailwind-override relative aspect-square h-[66px] flex-none overflow-hidden rounded-sm border bg-[url('~images/placeholders/product-cover.png')] bg-cover bg-center sm:h-[120px]",
       className,
     )}
     {...props}
@@ -44,8 +44,20 @@ export const CartItemMedia = ({ className, children, ...props }: BaseProps) => (
   </figure>
 );
 
+export const CartItemQuantity = ({ className, children, ...props }: BaseProps) => (
+  <div
+    className={classNames(
+      "absolute top-0 right-0 flex h-5 w-5 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary-foreground bg-primary text-xs font-normal text-primary-foreground sm:h-6 sm:w-6",
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </div>
+);
+
 export const CartItemMain = ({ className, children, ...props }: BaseProps) => (
-  <section className={classNames("flex flex-1 flex-col gap-1 sm:py-4", className)} {...props}>
+  <section className={classNames("flex flex-1 flex-col gap-1", className)} {...props}>
     {children}
   </section>
 );
@@ -58,23 +70,47 @@ export const CartItemTitle = ({
 }: BaseProps & { asChild?: boolean }) => {
   const Comp = asChild ? Slot : "h4";
   return (
-    <Comp className={classNames("line-clamp-2 font-bold", className)} {...props}>
+    <Comp
+      className={classNames("line-clamp-2 text-base leading-[1.4] font-medium no-underline sm:text-lg", className)}
+      {...props}
+    >
       {children}
     </Comp>
   );
 };
 
 export const CartItemFooter = ({ className, children, ...props }: BaseProps) => (
-  <footer
-    className={classNames("mt-auto flex flex-col gap-x-4 gap-y-1 sm:flex-row sm:flex-wrap", className)}
-    {...props}
-  >
+  <footer className={classNames("mt-auto flex flex-col gap-x-4 gap-y-1 sm:flex-wrap", className)} {...props}>
     {children}
   </footer>
 );
 
+export const CartItemActions = ({ className, children, ...props }: BaseProps) => (
+  <div className={classNames("mt-2 flex flex-wrap items-stretch gap-3", className)} {...props}>
+    {children}
+  </div>
+);
+
+export const CartActionButton = ({ className, children, ...props }: BaseProps) => (
+  <button
+    className={classNames(
+      "tailwind-override inline-flex items-center justify-center gap-2 rounded-sm",
+      "border border-border bg-transparent text-xs leading-[1.2]",
+      "transition-transform duration-150 ease-out",
+      "hover:-translate-x-1 hover:-translate-y-1",
+      "hover:shadow-[4px_4px_0_var(--color-foreground)]",
+      "h-[30px] w-[60px] p-0",
+      "active:translate-x-0 active:translate-y-0 active:shadow-none",
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </button>
+);
+
 export const CartItemEnd = ({ className, children, ...props }: BaseProps) => (
-  <section className={classNames("ml-auto flex flex-col items-end gap-1 sm:py-4", className)} {...props}>
+  <section className={classNames("ml-auto flex flex-col items-end gap-1", className)} {...props}>
     {children}
   </section>
 );
