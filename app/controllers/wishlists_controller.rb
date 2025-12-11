@@ -45,17 +45,15 @@ class WishlistsController < ApplicationController
     @title = wishlist.name
     @show_user_favicon = true
 
-    wishlist_presenter = WishlistPresenter.new(wishlist:)
-    props = wishlist_presenter.public_props(request:, pundit_user:, recommended_by: params[:recommended_by])
+    props = WishlistPresenter.new(wishlist:).public_props(
+      request:,
+      pundit_user:,
+      recommended_by: params[:recommended_by],
+      layout: params[:layout],
+      taxonomies_for_nav:,
+    )
 
-    layout_param = params[:layout]
-    if layout_param == Product::Layout::PROFILE
-      props[:creator_profile] = ProfilePresenter.new(pundit_user:, seller: wishlist.user).creator_profile
-    elsif layout_param == Product::Layout::DISCOVER
-      props[:taxonomies_for_nav] = taxonomies_for_nav
-    end
-
-    render inertia: "Wishlists/Show", props: props.merge(layout: layout_param)
+    render inertia: "Wishlists/Show", props:
   end
 
   def update
