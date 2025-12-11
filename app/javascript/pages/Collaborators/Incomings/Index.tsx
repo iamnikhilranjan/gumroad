@@ -1,3 +1,4 @@
+import * as React from "react";
 import { usePage } from "@inertiajs/react";
 
 import { IncomingCollaborators as IncomingCollaboratorsList } from "$app/components/Collaborators/IncomingCollaborators";
