@@ -1,23 +1,15 @@
+import { router } from "@inertiajs/react";
 import cx from "classnames";
 import * as React from "react";
-import { Link, useNavigation, useNavigate, useLoaderData } from "react-router-dom";
-import { cast } from "ts-safe-cast";
 
-import {
-  addCollaborator,
-  updateCollaborator,
-  CollaboratorFormProduct,
-  CollaboratorFormData,
-} from "$app/data/collaborators";
 import { isValidEmail } from "$app/utils/email";
-import { asyncVoid } from "$app/utils/promise";
-import { assertResponseError } from "$app/utils/request";
 
 import { Button } from "$app/components/Button";
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { Modal } from "$app/components/Modal";
 import { NumberInput } from "$app/components/NumberInput";
+import { NavigationButton } from "$app/components/Button";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 import { WithTooltip } from "$app/components/WithTooltip";
@@ -32,18 +24,47 @@ const validCommission = (percentCommission: number | null) =>
   percentCommission >= MIN_PERCENT_COMMISSION &&
   percentCommission <= MAX_PERCENT_COMMISSION;
 
+export type CollaboratorFormProduct = {
+  id: string;
+  name: string;
+  has_another_collaborator: boolean;
+  has_affiliates: boolean;
+  published: boolean;
+  enabled: boolean;
+  percent_commission: number | null;
+  dont_show_as_co_creator: boolean;
+};
+
+type NewCollaboratorFormData = {
+  products: CollaboratorFormProduct[];
+  collaborators_disabled_reason: string | null;
+};
+
+type EditCollaboratorFormData = NewCollaboratorFormData & {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url: string;
+  apply_to_all_products: boolean;
+  dont_show_as_co_creator: boolean;
+  percent_commission: number | null;
+  setup_incomplete: boolean;
+};
+
+export type CollaboratorFormData = NewCollaboratorFormData | EditCollaboratorFormData;
+
 type CollaboratorProduct = CollaboratorFormProduct & {
   has_error: boolean;
 };
 
-const CollaboratorForm = () => {
-  const navigate = useNavigate();
-  const navigation = useNavigation();
+type Props = {
+  formData: CollaboratorFormData;
+};
 
+const CollaboratorForm = ({ formData }: Props) => {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = React.useState(false);
   const [isConfirmed, setIsConfirmed] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const formData = cast<CollaboratorFormData>(useLoaderData());
   const emailInputRef = React.useRef<HTMLInputElement>(null);
   const isEditing = "id" in formData;
 
@@ -113,7 +134,7 @@ const CollaboratorForm = () => {
     setProducts((prevProducts) => prevProducts.map((item) => ({ ...item, percent_commission, has_error: false })));
   };
 
-  const handleSubmit = asyncVoid(async () => {
+  const handleSubmit = () => {
     setProducts((prevProducts) =>
       prevProducts.map((product) => ({
         ...product,
@@ -163,32 +184,35 @@ const CollaboratorForm = () => {
       setIsConfirmationModalOpen(true);
       return;
     }
+
     setIsSaving(true);
     const data = {
-      apply_to_all_products: applyToAllProducts,
-      percent_commission: defaultPercentCommission.value,
-      products: enabledProducts,
-      dont_show_as_co_creator: dontShowAsCoCreator,
+      collaborator: {
+        apply_to_all_products: applyToAllProducts,
+        percent_commission: defaultPercentCommission.value,
+        products: enabledProducts,
+        dont_show_as_co_creator: dontShowAsCoCreator,
+        ...(!isEditing && { email: collaboratorEmail.value }),
+      },
     };
-    try {
-      await ("id" in formData
-        ? updateCollaborator({
-            ...data,
-            id: formData.id,
-          })
-        : addCollaborator({
-            ...data,
-            email: collaboratorEmail.value,
-          }));
-      showAlert("Changes saved!", "success");
-      navigate("/collaborators");
-    } catch (e) {
-      assertResponseError(e);
-      showAlert(e.message, "error");
-    } finally {
-      setIsSaving(false);
+
+    if (isEditing) {
+      router.patch(Routes.collaborator_path(formData.id), data, {
+        onError: (errors) => {
+          setIsSaving(false);
+          showAlert(errors.base?.[0] || "Failed to update collaborator", "error");
+        },
+      });
+    } else {
+      router.post(Routes.collaborators_path(), data, {
+        onError: (errors) => {
+          setIsSaving(false);
+          showAlert(errors.base?.[0] || "Failed to add collaborator", "error");
+        },
+      });
     }
-  });
+  };
+
   React.useEffect(() => {
     if (!isConfirmed) return;
     handleSubmit();
@@ -199,10 +223,10 @@ const CollaboratorForm = () => {
       title={isEditing ? formData.name : "New collaborator"}
       headerActions={
         <>
-          <Link to="/collaborators" className="button" inert={navigation.state !== "idle"}>
+          <NavigationButton href={Routes.collaborators_path()}>
             <Icon name="x-square" />
             Cancel
-          </Link>
+          </NavigationButton>
           <WithTooltip position="bottom" tip={formData.collaborators_disabled_reason}>
             <Button
               color="accent"

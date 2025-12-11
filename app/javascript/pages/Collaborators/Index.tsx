@@ -1,3 +1,8 @@
-import CollaboratorsPage from "$app/components/Collaborators";
+import { usePage } from "@inertiajs/react";
 
-export default CollaboratorsPage;
+import CollaboratorsPage, { CollaboratorsData } from "$app/components/Collaborators";
+
+export default function CollaboratorsIndex() {
+  const props = usePage<CollaboratorsData>().props;
+  return <CollaboratorsPage {...props} />;
+}

@@ -1,13 +1,10 @@
 import * as React from "react";
-import { Link, useLoaderData, useNavigation } from "react-router-dom";
-import { cast } from "ts-safe-cast";
 
 import {
   acceptCollaboratorInvitation,
   declineCollaboratorInvitation,
   removeCollaborator,
 } from "$app/data/collaborators";
-import { IncomingCollaborator, IncomingCollaboratorsData } from "$app/data/incoming_collaborators";
 import { classNames } from "$app/utils/classNames";
 import { assertResponseError } from "$app/utils/request";
 
@@ -15,6 +12,7 @@ import { Button } from "$app/components/Button";
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { LoadingSpinner } from "$app/components/LoadingSpinner";
+import { NavigationButton } from "$app/components/Button";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { showAlert } from "$app/components/server-components/Alert";
 import Placeholder from "$app/components/ui/Placeholder";
@@ -23,6 +21,29 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$
 import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/collaborators.png";
+
+export type IncomingCollaborator = {
+  id: string;
+  seller_email: string;
+  seller_name: string;
+  seller_avatar_url: string;
+  apply_to_all_products: boolean;
+  affiliate_percentage: number;
+  dont_show_as_co_creator: boolean;
+  invitation_accepted: boolean;
+  products: {
+    id: string;
+    url: string;
+    name: string;
+    affiliate_percentage: number;
+    dont_show_as_co_creator: boolean;
+  }[];
+};
+
+type Props = {
+  collaborators: IncomingCollaborator[];
+  collaborators_disabled_reason: string | null;
+};
 
 const formatProductNames = (incomingCollaborator: IncomingCollaborator) => {
   if (incomingCollaborator.products.length === 0) {
@@ -261,19 +282,17 @@ const pendingCollaboratorsFirst = (a: IncomingCollaborator, b: IncomingCollabora
   return 0;
 };
 
-export const IncomingCollaborators = () => {
+export const IncomingCollaborators = (props: Props) => {
   const loggedInUser = useLoggedInUser();
-  const navigation = useNavigation();
-
-  const { collaborators: initialCollaborators, collaborators_disabled_reason } =
-    cast<IncomingCollaboratorsData>(useLoaderData());
+  const { collaborators: initialCollaborators, collaborators_disabled_reason } = props;
 
   const [incomingCollaborators, setIncomingCollaborators] = React.useState<IncomingCollaborator[]>(
-    initialCollaborators.sort(pendingCollaboratorsFirst),
+    [...initialCollaborators].sort(pendingCollaboratorsFirst),
   );
   const [processing, setProcessing] = React.useState<Set<string>>(new Set());
   const [selected, setSelected] = React.useState<IncomingCollaborator | null>(null);
   const [loading, _] = React.useState(false);
+  const isDisabled = processing.size > 0;
 
   const startProcessing = (incomingCollaborator: IncomingCollaborator) => {
     setProcessing((prev) => {
@@ -354,17 +373,16 @@ export const IncomingCollaborators = () => {
       showTabs
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <Link
-            to="/collaborators/new"
-            className="button accent"
-            inert={
+          <NavigationButton
+            href={Routes.new_collaborator_path()}
+            color="accent"
+            disabled={
               !loggedInUser?.policies.collaborator.create ||
-              navigation.state !== "idle" ||
               collaborators_disabled_reason !== null
             }
           >
             Add collaborator
-          </Link>
+          </NavigationButton>
         </WithTooltip>
       }
     >
@@ -376,7 +394,7 @@ export const IncomingCollaborators = () => {
           selected={selected}
           processing={processing}
           loading={loading}
-          disabled={navigation.state !== "idle"}
+          disabled={isDisabled}
           onSelect={(collaborator) => setSelected(collaborator)}
           onAccept={(collaborator) => void acceptInvitation(collaborator)}
           onReject={(collaborator) => void declineInvitation(collaborator)}

@@ -1,34 +1,10 @@
+import { router } from "@inertiajs/react";
 import * as React from "react";
-import {
-  RouterProvider,
-  createBrowserRouter,
-  json,
-  Link,
-  redirect,
-  useNavigation,
-  useLoaderData,
-  useRevalidator,
-} from "react-router-dom";
-import { cast } from "ts-safe-cast";
-
-import {
-  getCollaborators,
-  getEditCollaborator,
-  getNewCollaborator,
-  Collaborator,
-  CollaboratorsData,
-  removeCollaborator,
-} from "$app/data/collaborators";
-import { getIncomingCollaborators } from "$app/data/incoming_collaborators";
-import { assertDefined } from "$app/utils/assert";
-import { asyncVoid } from "$app/utils/promise";
-import { assertResponseError } from "$app/utils/request";
 
 import { Button } from "$app/components/Button";
-import CollaboratorForm from "$app/components/Collaborators/Form";
-import { IncomingCollaborators } from "$app/components/Collaborators/IncomingCollaborators";
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
+import { NavigationButton } from "$app/components/Button";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { showAlert } from "$app/components/server-components/Alert";
 import Placeholder from "$app/components/ui/Placeholder";
@@ -37,6 +13,29 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$
 import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/collaborators.png";
+
+export type Collaborator = {
+  id: string;
+  email: string;
+  name: string | null;
+  avatar_url: string;
+  percent_commission: number | null;
+  setup_incomplete: boolean;
+  products: CollaboratorProduct[];
+  invitation_accepted: boolean;
+};
+
+type CollaboratorProduct = {
+  id: string;
+  name: string;
+  percent_commission: number | null;
+};
+
+export type CollaboratorsData = {
+  collaborators: Collaborator[];
+  collaborators_disabled_reason: string | null;
+  has_incoming_collaborators: boolean;
+};
 
 const formatProductNames = (collaborator: Collaborator) => {
   if (collaborator.products.length === 0) {
@@ -76,13 +75,14 @@ const CollaboratorDetails = ({
   selectedCollaborator,
   onClose,
   onRemove,
+  isRemoving,
 }: {
   selectedCollaborator: Collaborator;
   onClose: () => void;
   onRemove: (id: string) => void;
+  isRemoving: boolean;
 }) => {
   const loggedInUser = useLoggedInUser();
-  const navigation = useNavigation();
 
   return (
     <Sheet open onOpenChange={onClose}>
@@ -111,48 +111,51 @@ const CollaboratorDetails = ({
       </section>
 
       <section className="mt-auto flex gap-4">
-        <Link
-          to={`/collaborators/${selectedCollaborator.id}/edit`}
-          className="button flex-1"
+        <NavigationButton
+          href={Routes.edit_collaborator_path(selectedCollaborator.id)}
+          className="flex-1"
           aria-label="Edit"
-          inert={!loggedInUser?.policies.collaborator.update || navigation.state !== "idle"}
+          disabled={!loggedInUser?.policies.collaborator.update}
         >
           Edit
-        </Link>
+        </NavigationButton>
         <Button
           className="flex-1"
           color="danger"
           aria-label="Delete"
           onClick={() => onRemove(selectedCollaborator.id)}
-          disabled={!loggedInUser?.policies.collaborator.update || navigation.state !== "idle"}
+          disabled={!loggedInUser?.policies.collaborator.update || isRemoving}
         >
-          {navigation.state === "submitting" ? "Removing..." : "Remove"}
+          {isRemoving ? "Removing..." : "Remove"}
         </Button>
       </section>
     </Sheet>
   );
 };
 
-const Collaborators = () => {
+type Props = CollaboratorsData;
+
+const CollaboratorsPage = (props: Props) => {
   const loggedInUser = useLoggedInUser();
-  const navigation = useNavigation();
-  const revalidator = useRevalidator();
-
-  const { collaborators, collaborators_disabled_reason, has_incoming_collaborators } =
-    cast<CollaboratorsData>(useLoaderData());
+  const { collaborators, collaborators_disabled_reason, has_incoming_collaborators } = props;
   const [selectedCollaborator, setSelectedCollaborator] = React.useState<Collaborator | null>(null);
+  const [isRemoving, setIsRemoving] = React.useState(false);
 
-  const remove = asyncVoid(async (collaboratorId: string) => {
-    try {
-      await removeCollaborator(collaboratorId);
-      setSelectedCollaborator(null);
-      revalidator.revalidate();
-      showAlert("The collaborator was removed successfully.", "success");
-    } catch (e) {
-      assertResponseError(e);
-      showAlert("Failed to remove the collaborator.", "error");
-    }
-  });
+  const remove = (collaboratorId: string) => {
+    setIsRemoving(true);
+    router.delete(Routes.collaborator_path(collaboratorId), {
+      onSuccess: () => {
+        setSelectedCollaborator(null);
+        showAlert("The collaborator was removed successfully.", "success");
+      },
+      onError: () => {
+        showAlert("Failed to remove the collaborator.", "error");
+      },
+      onFinish: () => {
+        setIsRemoving(false);
+      },
+    });
+  };
 
   return (
     <Layout
@@ -161,17 +164,16 @@ const Collaborators = () => {
       showTabs={has_incoming_collaborators}
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <Link
-            to="/collaborators/new"
-            className="button accent"
-            inert={
+          <NavigationButton
+            href={Routes.new_collaborator_path()}
+            color="accent"
+            disabled={
               !loggedInUser?.policies.collaborator.create ||
-              navigation.state !== "idle" ||
               collaborators_disabled_reason !== null
             }
           >
             Add collaborator
-          </Link>
+          </NavigationButton>
         </WithTooltip>
       }
     >
@@ -228,21 +230,20 @@ const Collaborators = () => {
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-wrap gap-3 lg:justify-end">
-                        <Link
-                          to={`/collaborators/${collaborator.id}/edit`}
-                          className="button"
+                        <NavigationButton
+                          href={Routes.edit_collaborator_path(collaborator.id)}
                           aria-label="Edit"
-                          inert={!loggedInUser?.policies.collaborator.update || navigation.state !== "idle"}
+                          disabled={!loggedInUser?.policies.collaborator.update}
                         >
                           <Icon name="pencil" />
-                        </Link>
+                        </NavigationButton>
 
                         <Button
                           type="submit"
                           color="danger"
                           onClick={() => remove(collaborator.id)}
                           aria-label="Delete"
-                          disabled={!loggedInUser?.policies.collaborator.update || navigation.state !== "idle"}
+                          disabled={!loggedInUser?.policies.collaborator.update || isRemoving}
                         >
                           <Icon name="trash2" />
                         </Button>
@@ -258,6 +259,7 @@ const Collaborators = () => {
               selectedCollaborator={selectedCollaborator}
               onClose={() => setSelectedCollaborator(null)}
               onRemove={remove}
+              isRemoving={isRemoving}
             />
           ) : null}
         </>
@@ -277,39 +279,6 @@ const Collaborators = () => {
       )}
     </Layout>
   );
-};
-
-const CollaboratorsPage = () => {
-  const router = createBrowserRouter([
-    {
-      path: "/collaborators",
-      element: <Collaborators />,
-      loader: async () => json(await getCollaborators(), { status: 200 }),
-    },
-    {
-      path: "/collaborators/new",
-      element: <CollaboratorForm />,
-      loader: async () => json(await getNewCollaborator(), { status: 200 }),
-    },
-    {
-      path: "/collaborators/:collaboratorId/edit",
-      element: <CollaboratorForm />,
-      loader: async ({ params }) => {
-        const collaborator = await getEditCollaborator(
-          assertDefined(params.collaboratorId, "Collaborator ID is required"),
-        );
-        if (!collaborator) return redirect("/collaborators");
-        return json(collaborator, { status: 200 });
-      },
-    },
-    {
-      path: Routes.collaborators_incomings_path(),
-      element: <IncomingCollaborators />,
-      loader: async () => json(await getIncomingCollaborators(), { status: 200 }),
-    },
-  ]);
-
-  return <RouterProvider router={router} />;
 };
 
 export default CollaboratorsPage;
