@@ -47,7 +47,6 @@ export default function WishlistsPage() {
       onSuccess: () => {
         setWishlists(wishlists.filter((wishlist) => wishlist.id !== id));
         setConfirmingDeleteWishlist(null);
-        showAlert("Wishlist deleted!", "success");
       },
       onError: () => showAlert("Sorry, something went wrong. Please try again.", "error"),
       onFinish: () => setIsDeleting(false),
@@ -71,7 +70,6 @@ export default function WishlistsPage() {
           setWishlists(
             wishlists.map((wishlist) => (wishlist.id === id ? { ...wishlist, discover_opted_out: !optOut } : wishlist)),
           ),
-        onFinish: () => {},
       },
     );
   };
