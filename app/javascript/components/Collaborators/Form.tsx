@@ -9,7 +9,7 @@ import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { Modal } from "$app/components/Modal";
 import { NumberInput } from "$app/components/NumberInput";
-import { NavigationButton } from "$app/components/Button";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 import { WithTooltip } from "$app/components/WithTooltip";
@@ -223,10 +223,10 @@ const CollaboratorForm = ({ formData }: Props) => {
       title={isEditing ? formData.name : "New collaborator"}
       headerActions={
         <>
-          <NavigationButton href={Routes.collaborators_path()}>
+          <NavigationButtonInertia href={Routes.collaborators_path()}>
             <Icon name="x-square" />
             Cancel
-          </NavigationButton>
+          </NavigationButtonInertia>
           <WithTooltip position="bottom" tip={formData.collaborators_disabled_reason}>
             <Button
               color="accent"

@@ -4,7 +4,7 @@ import * as React from "react";
 import { Button } from "$app/components/Button";
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
-import { NavigationButton } from "$app/components/Button";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { showAlert } from "$app/components/server-components/Alert";
 import Placeholder from "$app/components/ui/Placeholder";
@@ -111,14 +111,14 @@ const CollaboratorDetails = ({
       </section>
 
       <section className="mt-auto flex gap-4">
-        <NavigationButton
+        <NavigationButtonInertia
           href={Routes.edit_collaborator_path(selectedCollaborator.id)}
           className="flex-1"
           aria-label="Edit"
           disabled={!loggedInUser?.policies.collaborator.update}
         >
           Edit
-        </NavigationButton>
+        </NavigationButtonInertia>
         <Button
           className="flex-1"
           color="danger"
@@ -164,7 +164,7 @@ const CollaboratorsPage = (props: Props) => {
       showTabs={has_incoming_collaborators}
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <NavigationButton
+          <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
             color="accent"
             disabled={
@@ -173,7 +173,7 @@ const CollaboratorsPage = (props: Props) => {
             }
           >
             Add collaborator
-          </NavigationButton>
+          </NavigationButtonInertia>
         </WithTooltip>
       }
     >
@@ -230,13 +230,13 @@ const CollaboratorsPage = (props: Props) => {
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-wrap gap-3 lg:justify-end">
-                        <NavigationButton
+                        <NavigationButtonInertia
                           href={Routes.edit_collaborator_path(collaborator.id)}
                           aria-label="Edit"
                           disabled={!loggedInUser?.policies.collaborator.update}
                         >
                           <Icon name="pencil" />
-                        </NavigationButton>
+                        </NavigationButtonInertia>
 
                         <Button
                           type="submit"

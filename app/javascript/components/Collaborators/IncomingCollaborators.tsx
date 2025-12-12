@@ -12,7 +12,7 @@ import { Button } from "$app/components/Button";
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { LoadingSpinner } from "$app/components/LoadingSpinner";
-import { NavigationButton } from "$app/components/Button";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { showAlert } from "$app/components/server-components/Alert";
 import Placeholder from "$app/components/ui/Placeholder";
@@ -373,7 +373,7 @@ export const IncomingCollaborators = (props: Props) => {
       showTabs
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <NavigationButton
+          <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
             color="accent"
             disabled={
@@ -382,7 +382,7 @@ export const IncomingCollaborators = (props: Props) => {
             }
           >
             Add collaborator
-          </NavigationButton>
+          </NavigationButtonInertia>
         </WithTooltip>
       }
     >
