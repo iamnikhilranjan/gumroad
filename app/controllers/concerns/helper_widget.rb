@@ -30,8 +30,8 @@ module HelperWidget
 
       OpenSSL::HMAC.hexdigest(
         "sha256",
-        "dummy",
+        GlobalConfig.get("HELPER_WIDGET_SECRET"),
         message
       )
     end
-end
+endß
