@@ -22,10 +22,14 @@ describe "Checkout bundles", :js, type: :system do
 
     within_cart_item "This bundle contains..." do
       within_cart_item "Product" do
-        expect(page).to have_text("Qty: 1")
+        within("[aria-label='Quantity']") do
+          expect(page).to have_text("1")
+        end
       end
       within_cart_item "Versioned product" do
-        expect(page).to have_text("Qty: 3")
+        within("[aria-label='Quantity']") do
+          expect(page).to have_text("3")
+        end
         expect(page).to have_text("Version: Untitled 1")
       end
     end

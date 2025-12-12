@@ -208,7 +208,9 @@ describe("Checkout form page", type: :system, js: true) do
         in_preview do
           within_cart_item "Product 1" do
             expect(page).to have_text("Seller")
-            expect(page).to have_text("Qty: 1")
+            within("[aria-label='Quantity']") do
+              expect(page).to have_text("1")
+            end
             expect(page).to have_text("US$1")
           end
         end
@@ -222,7 +224,9 @@ describe("Checkout form page", type: :system, js: true) do
         in_preview do
           within_cart_item "A Sample Product" do
             expect(page).to have_text("Gumroadian")
-            expect(page).to have_text("Qty: 1")
+            within("[aria-label='Quantity']") do
+              expect(page).to have_text("1")
+            end
             expect(page).to have_text("US$1")
           end
         end

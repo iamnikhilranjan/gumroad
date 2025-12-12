@@ -67,7 +67,9 @@ describe "Wishlist show page", :js, type: :system do
 
     within_cart_item(physical_product.name) do
       expect(page).to have_text("US$20")
-      expect(page).to have_text("Qty: 2")
+      within("[aria-label='Quantity']") do
+        expect(page).to have_text("2")
+      end
     end
 
     page.go_back
@@ -109,7 +111,9 @@ describe "Wishlist show page", :js, type: :system do
 
     within_cart_item(physical_product.name) do
       expect(page).to have_text("US$20")
-      expect(page).to have_text("Qty: 2")
+      within("[aria-label='Quantity']") do
+        expect(page).to have_text("2")
+      end
     end
 
     within_cart_item(pwyw_product.name) do

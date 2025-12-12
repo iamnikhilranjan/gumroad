@@ -169,7 +169,9 @@ describe("ProductShowScenario", type: :system, js: true) do
 
       within "[role='listitem']" do
         expect(page).to have_text(@membership.name)
-        expect(page).to have_text("Qty: 3")
+        within("[aria-label='Quantity']") do
+          expect(page).to have_text("3")
+        end
       end
     end
 
@@ -506,12 +508,12 @@ describe("ProductShowScenario", type: :system, js: true) do
             add_to_cart(product, pwyw_price: 0.99)
 
             within "[role='listitem']" do
-              select_disclosure "Configure" do
+              select_disclosure "Edit" do
                 fill_in "Name a fair price", with: "0.1"
                 click_on "Save"
               end
               expect(page).to have_text("$0.99")
-              select_disclosure "Configure" do
+              select_disclosure "Edit" do
                 fill_in "Name a fair price", with: "0"
                 click_on "Save"
               end

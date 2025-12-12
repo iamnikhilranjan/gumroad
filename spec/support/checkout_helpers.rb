@@ -48,7 +48,9 @@ module CheckoutHelpers
 
     within_cart_item(product.name) do
       expect(page).to have_text((pwyw_price.to_i * quantity / 100).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse) if pwyw_price.present?
-      expect(page).to have_text("Qty: #{quantity}")
+      within("[aria-label='Quantity']") do
+        expect(page).to have_text(quantity.to_s)
+      end
       expect(page).to have_text("#{variant_label(product)}: #{option == "Untitled" ? product.name : option}") if option.present?
       expect(page).to have_text("Membership: #{recurrence}") if recurrence.present?
       expect(page).to have_text("one #{product.free_trial_details[:duration][:unit]} free") if product.free_trial_enabled
