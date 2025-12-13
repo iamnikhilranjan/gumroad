@@ -22,9 +22,9 @@ const SuspendForFraud = ({ user }: SuspendForFraudProps) => {
             <h3>Suspend for fraud</h3>
           </summary>
           <Form
-            url={Routes.suspend_for_fraud_admin_user_path(user.id)}
+            url={Routes.suspend_for_fraud_admin_user_path(user.external_id)}
             method="POST"
-            confirmMessage={`Are you sure you want to suspend user ${user.id} for fraud?`}
+            confirmMessage={`Are you sure you want to suspend user ${user.external_id} for fraud?`}
             onSuccess={() => showAlert("Suspended.", "success")}
           >
             {(isLoading) => (
@@ -36,9 +36,9 @@ const SuspendForFraud = ({ user }: SuspendForFraudProps) => {
                     className="flex-1"
                     placeholder="Add suspension note (optional)"
                   />
-                  <Button type="submit" disabled={isLoading}>
+                  <button type="submit" className="button" disabled={isLoading}>
                     {isLoading ? "Submitting..." : "Submit"}
-                  </Button>
+                  </button>
                 </div>
               </fieldset>
             )}
