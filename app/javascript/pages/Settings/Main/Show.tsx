@@ -16,6 +16,7 @@ import { ProductLevelSupportEmailsForm } from "$app/components/Settings/Advanced
 import { Layout } from "$app/components/Settings/Layout";
 import { TagInput } from "$app/components/TagInput";
 import { Toggle } from "$app/components/Toggle";
+import { Pill } from "$app/components/ui/Pill";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 
 type ProductLevelSupportEmail = {
@@ -442,7 +443,7 @@ export default function MainPage() {
                           />
                         )}
                       </NumberInput>
-                      <div className="pill">%</div>
+                      <Pill className="-mr-2 shrink-0">%</Pill>
                     </div>
                   </fieldset>
                   <Toggle
