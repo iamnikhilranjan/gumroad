@@ -13,22 +13,11 @@ class Settings::ProfileController < Settings::BaseController
   end
 
   def update
-    is_inertia_request = request.headers["X-Inertia"].present?
-
-    unless current_seller.confirmed?
-      if is_inertia_request
-        return redirect_to settings_profile_path, alert: "You have to confirm your email address before you can do that."
-      end
-      return render json: { success: false, error_message: "You have to confirm your email address before you can do that." }
-    end
+    return respond_error("You have to confirm your email address before you can do that.") unless current_seller.confirmed?
 
     if permitted_params[:profile_picture_blob_id].present?
       if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]).nil?
-        if is_inertia_request
-          return redirect_to settings_profile_path,
-                            alert: "The logo is already removed. Please refresh the page and try again."
-        end
-        return render json: { success: false, error_message: "The logo is already removed. Please refresh the page and try again." }
+        return respond_error("The logo is already removed. Please refresh the page and try again.") if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]) .nil?
       end
       current_seller.avatar.attach permitted_params[:profile_picture_blob_id]
     elsif permitted_params.has_key?(:profile_picture_blob_id) && current_seller.avatar.attached?
@@ -50,20 +39,13 @@ class Settings::ProfileController < Settings::BaseController
         seller_profile.assign_attributes(permitted_params[:seller_profile]) if permitted_params[:seller_profile].present?
         seller_profile.save!
         current_seller.update!(permitted_params[:user]) if permitted_params[:user]
-
         current_seller.clear_products_cache if permitted_params[:profile_picture_blob_id].present?
       end
     rescue ActiveRecord::RecordInvalid => e
-      if is_inertia_request
-        return redirect_to settings_profile_path, alert: e.record.errors.full_messages.to_sentence
-      end
-      return render json: { success: false, error_message: e.record.errors.full_messages.to_sentence }
+      return respond_error(e.record.errors.full_messages.to_sentence)
     end
 
-    if is_inertia_request
-      return redirect_to settings_profile_path, status: :see_other, notice: "Changes saved!"
-    end
-    return render json: { success: true }
+    respond_success
   end
 
   private
@@ -77,5 +59,25 @@ class Settings::ProfileController < Settings::BaseController
 
     def profile_policy
       [:settings, :profile]
+    end
+
+    def inertia_request?
+      request.headers["X-Inertia"].present?
+    end
+
+    def respond_error(message)
+      if inertia_request?
+        redirect_to settings_profile_path, alert: message
+      else
+        render json: { success: false, error_message: message }
+      end
+    end
+
+    def respond_success
+      if inertia_request?
+        redirect_to settings_profile_path, status: :see_other, notice: "Changes saved!"
+      else
+        render json: { success: true }
+      end
     end
 end
