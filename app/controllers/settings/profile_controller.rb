@@ -16,9 +16,7 @@ class Settings::ProfileController < Settings::BaseController
     return respond_error("You have to confirm your email address before you can do that.") unless current_seller.confirmed?
 
     if permitted_params[:profile_picture_blob_id].present?
-      if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]).nil?
-        return respond_error("The logo is already removed. Please refresh the page and try again.") if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]) .nil?
-      end
+      return respond_error("The logo is already removed. Please refresh the page and try again.") if ActiveStorage::Blob.find_signed(permitted_params[:profile_picture_blob_id]) .nil?
       current_seller.avatar.attach permitted_params[:profile_picture_blob_id]
     elsif permitted_params.has_key?(:profile_picture_blob_id) && current_seller.avatar.attached?
       current_seller.avatar.purge
@@ -40,10 +38,10 @@ class Settings::ProfileController < Settings::BaseController
         seller_profile.save!
         current_seller.update!(permitted_params[:user]) if permitted_params[:user]
         current_seller.clear_products_cache if permitted_params[:profile_picture_blob_id].present?
-        return respond_success
       end
+      respond_success
     rescue ActiveRecord::RecordInvalid => e
-      return respond_error(e.record.errors.full_messages.to_sentence)
+      respond_error(e.record.errors.full_messages.to_sentence)
     end
   end
 
