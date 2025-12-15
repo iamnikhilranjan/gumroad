@@ -11,6 +11,7 @@ import { Modal } from "$app/components/Modal";
 import { NumberInput } from "$app/components/NumberInput";
 import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { showAlert } from "$app/components/server-components/Alert";
+import { Pill } from "$app/components/ui/Pill";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 import { WithTooltip } from "$app/components/WithTooltip";
 
@@ -315,7 +316,7 @@ const CollaboratorForm = ({ formData }: Props) => {
                               aria-label="Percentage"
                               {...inputProps}
                             />
-                            <div className="pill">%</div>
+                            <Pill className="-mr-2 shrink-0">%</Pill>
                           </div>
                         )}
                       </NumberInput>
@@ -380,7 +381,7 @@ const CollaboratorForm = ({ formData }: Props) => {
                                   aria-label="Percentage"
                                   {...inputProps}
                                 />
-                                <div className="pill">%</div>
+                                <Pill className="-mr-2 shrink-0">%</Pill>
                               </div>
                             )}
                           </NumberInput>
