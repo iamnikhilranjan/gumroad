@@ -682,7 +682,7 @@ const FileEmbedNodeView = ({ node, editor, getPos, updateAttributes }: NodeViewP
   );
 };
 
-export type FileEmbedConfig = { files: FileEntry[] };
+export type FileEmbedConfig = { files: FileEntry[]; filesById: Map<string, FileEntry> };
 
 export const FileEmbed = TiptapNode.create<{ getConfig?: () => FileEmbedConfig }>({
   name: "fileEmbed",
@@ -713,7 +713,7 @@ export const FileEmbed = TiptapNode.create<{ getConfig?: () => FileEmbedConfig }
             fragment.querySelectorAll("file-embed").forEach((node) => {
               const id = node.getAttribute("id");
               if (id) {
-                const file = config.files.find((file) => file.id === id);
+                const file = config.filesById.get(id);
                 if (file?.url) node.setAttribute("url", file.url);
               }
             });

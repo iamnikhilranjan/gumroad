@@ -213,7 +213,7 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
     files: product.files.map((file) => ({ ...file, url: getDownloadUrl(id, file) })),
     filesById,
   });
-  const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ files: product.files });
+  const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ files: product.files, filesById });
   const uploadFilesRef = useRefToLatest(uploadFiles);
   const contentEditorExtensions = extensions(id, [
     FileEmbedGroup.configure({ getConfig: () => fileEmbedGroupConfig.current }),
@@ -367,7 +367,7 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
       product.files = [
         ...product.files.filter((file) => !files.some(({ external_id }) => file.id === external_id)),
         ...files.map((file) => {
-          const existing = product.files.find(({ id }) => id === file.external_id);
+          const existing = filesById.get(file.external_id);
           const extension = FileUtils.getFileExtension(file.name).toUpperCase();
           return {
             display_name: existing?.display_name ?? FileUtils.getFileNameWithoutExtension(file.name),
