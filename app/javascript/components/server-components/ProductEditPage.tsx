@@ -112,6 +112,7 @@ const createContextValue = (props: Props) => ({
   cancellationDiscountsEnabled: props.cancellation_discounts_enabled,
   contentUpdates: null,
   setContentUpdates: () => {},
+  filesById: new Map(props.product.files.map((file) => [file.id, file])),
 });
 
 const pagesHaveSameContent = (pages1: Page[], pages2: Page[]): boolean => isEqual(pages1, pages2);
@@ -195,6 +196,7 @@ const ProductEditPage = (props: Props) => {
       saving,
       contentUpdates,
       setContentUpdates,
+      filesById: new Map(product.files.map((file) => [file.id, file])),
     }),
     [product, updateProduct, existingFiles, setExistingFiles],
   );
@@ -245,16 +247,19 @@ const ProductEditPage = (props: Props) => {
 
 const ProductEditRouter = async (global: GlobalProps) => {
   const { router, context } = await buildStaticRouter(global, routes);
-  const component = (props: Props) => (
-    <ProductEditContext.Provider
-      value={{
-        ...createContextValue(props),
-        setCurrencyType: (_currency) => {}, // no-op
-      }}
-    >
-      <StaticRouterProvider router={router} context={context} nonce={global.csp_nonce} />
-    </ProductEditContext.Provider>
-  );
+  const component = (props: Props) => {
+    const contextValue = createContextValue(props);
+    return (
+      <ProductEditContext.Provider
+        value={{
+          ...contextValue,
+          setCurrencyType: (_currency) => {}, // no-op
+        }}
+      >
+        <StaticRouterProvider router={router} context={context} nonce={global.csp_nonce} />
+      </ProductEditContext.Provider>
+    );
+  };
   component.displayName = "ProductEditRouter";
   return component;
 };

@@ -92,7 +92,7 @@ export const extensions = (productId: string, extraExtensions: TiptapNode[] = []
 ];
 
 const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | null }) => {
-  const { id, product, updateProduct, seller, save, existingFiles, setExistingFiles, uniquePermalink } =
+  const { id, product, updateProduct, seller, save, existingFiles, setExistingFiles, uniquePermalink, filesById } =
     useProductEditContext();
   const uid = React.useId();
   const isDesktop = useIsAboveBreakpoint("lg");
@@ -211,6 +211,7 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
     variantId: selectedVariantId,
     prepareDownload: save,
     files: product.files.map((file) => ({ ...file, url: getDownloadUrl(id, file) })),
+    filesById,
   });
   const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ files: product.files });
   const uploadFilesRef = useRefToLatest(uploadFiles);

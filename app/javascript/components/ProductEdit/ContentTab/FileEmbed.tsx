@@ -29,7 +29,6 @@ import {
   useFilesInGroup,
 } from "$app/components/ProductEdit/ContentTab/FileEmbedGroup";
 import { FileEntry, useProductEditContext } from "$app/components/ProductEdit/state";
-import { useFilesById } from "$app/components/ProductEdit/useFilesById";
 import { useS3UploadConfig } from "$app/components/S3UploadConfig";
 import { Separator } from "$app/components/Separator";
 import { showAlert } from "$app/components/server-components/Alert";
@@ -54,8 +53,7 @@ export const getDraggedFileEmbed = (editor: Editor) => {
 };
 
 const FileEmbedNodeView = ({ node, editor, getPos, updateAttributes }: NodeViewProps) => {
-  const { id, product, updateProduct } = useProductEditContext();
-  const filesById = useFilesById(product.files);
+  const { id, updateProduct, filesById } = useProductEditContext();
   const uid = React.useId();
   const ref = React.useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = React.useState(false);
@@ -165,15 +163,15 @@ const FileEmbedNodeView = ({ node, editor, getPos, updateAttributes }: NodeViewP
   );
 
   const isInGroup = parentNode?.type.name === FileEmbedGroup.name;
-  const { hasStreamable } = useFilesInGroup(parentNode, product.files, filesById);
+  const { hasStreamable } = useFilesInGroup(parentNode, filesById);
   const isConnectedRow = isInGroup && !hasStreamable;
   const isLastInGroup = node === parentNode?.content.lastChild;
 
   if (!fileExists) return;
   const updateFile = (data: Partial<FileEntry>) =>
-    updateProduct((product) => {
-      const existing = product.files.find((existing) => existing.id === file.id);
-      if (existing) Object.assign(existing, data);
+    updateProduct(() => {
+      // file is already a reference from product.files via filesById
+      if (file) Object.assign(file, data);
     });
   const isComplete = !(
     (file.status.type === "unsaved" && file.status.uploadStatus.type === "uploading") ||
