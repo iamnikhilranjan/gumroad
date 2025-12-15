@@ -6,14 +6,14 @@ import { Installment, InstallmentFormContext } from "$app/data/installments";
 import { EmailForm } from "$app/components/server-components/EmailsPage/EmailForm";
 import { EmailsLayout } from "$app/components/EmailsPage/Layout";
 
-function EmailsEdit() {
+export default function EmailsEdit() {
   const { installment, context } = cast<{ installment: Installment; context: InstallmentFormContext }>(
     usePage().props,
   );
 
-  return <EmailForm context={context} installment={installment} />;
+  return (
+    <EmailsLayout selectedTab="drafts" hideNewButton>
+      <EmailForm context={context} installment={installment} />
+    </EmailsLayout>
+  );
 }
-
-EmailsEdit.layout = (page: React.ReactNode) => <EmailsLayout selectedTab="drafts" hideNewButton>{page}</EmailsLayout>;
-
-export default EmailsEdit;
