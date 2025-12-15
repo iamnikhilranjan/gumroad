@@ -1123,7 +1123,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_24_133549) do
     t.string "native_type", default: "digital", null: false
     t.integer "discover_fee_per_thousand", default: 100, null: false
     t.string "support_email"
-    t.boolean "apply_discounts", default: false, null: false
     t.index ["banned_at"], name: "index_links_on_banned_at"
     t.index ["custom_permalink"], name: "index_links_on_custom_permalink", length: 191
     t.index ["deleted_at"], name: "index_links_on_deleted_at"
@@ -2453,6 +2452,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_24_133549) do
     t.text "json_data"
     t.integer "flags", default: 0, null: false
     t.index ["user_id", "state"], name: "index_user_compliance_info_requests_on_user_id_and_state"
+  end
+
+  create_table "user_tax_forms", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "tax_year", null: false
+    t.string "tax_form_type", null: false
+    t.text "json_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "tax_year", "tax_form_type"], name: "index_user_tax_forms_on_user_id_and_tax_year_and_tax_form_type", unique: true
+    t.index ["user_id"], name: "index_user_tax_forms_on_user_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
