@@ -830,6 +830,10 @@ Rails.application.routes.draw do
       resources :exports, only: [:create]
     end
 
+    # tax center
+    get "/payouts/taxes", to: "tax_center#index", as: :tax_center
+    get "/payouts/taxes/:year/:form_type/download", to: "tax_center#download", as: :download_tax_form
+
     # wishlists
     namespace :wishlists do
       resources :following, only: [:index]
@@ -968,6 +972,7 @@ Rails.application.routes.draw do
     get "/CHARGE" => redirect("/charge")
 
     # discover
+    get "/blackfriday", to: redirect("/discover?offer_code=BLACKFRIDAY2025"), as: :blackfriday
     get "/discover", to: "discover#index"
     get "/discover/categories",          to: "discover#categories"
     get "/discover_search_autocomplete", to: "discover/search_autocomplete#search"

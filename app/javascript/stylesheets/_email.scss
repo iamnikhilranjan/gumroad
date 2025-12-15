@@ -18,10 +18,34 @@ $accent-color: map-get($colors, "pink"); // [1]
     max-width: $main-stack-width;
 
     table {
-      // [5]
-      gap: 0;
-      tr:not(:last-child) {
-        margin-bottom: spacer(4);
+      &,
+      tbody,
+      tr,
+      td,
+      th {
+        display: block;
+      }
+
+      tr {
+        border: $border;
+        border-radius: border-radius(1);
+
+        &:not(:last-child) {
+          margin-bottom: spacer(4);
+        }
+      }
+
+      td,
+      th {
+        padding: spacer(4);
+
+        &:not(:last-child) {
+          border-bottom: $border;
+        }
+
+        h4 {
+          font-weight: bold;
+        }
       }
 
       &.reset {
@@ -674,5 +698,21 @@ $accent-color: map-get($colors, "pink"); // [1]
 
   .info-value {
     float: right;
+  }
+}
+
+.pill {
+  display: inline-block;
+  vertical-align: middle;
+  padding: spacer(2) spacer(3);
+  @include bg-color(filled);
+  border: $border;
+  border-radius: border-radius(3);
+  @include text-singleline;
+
+  &.small {
+    border-radius: border-radius(1);
+    padding: spacer(1);
+    @include font-size(1);
   }
 }
