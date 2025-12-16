@@ -4,7 +4,6 @@ class LoginsController < Devise::SessionsController
   include OauthApplicationConfig, ValidateRecaptcha, InertiaRendering
 
   skip_before_action :check_suspended, only: %i[create destroy]
-  # before_action :block_json_request, only: :new
   after_action :clear_dashboard_preference, only: :destroy
   before_action :reset_impersonated_user, only: :destroy
   before_action :set_noindex_header, only: :new, if: -> { params[:next]&.start_with?("/oauth/authorize") }
@@ -12,7 +11,6 @@ class LoginsController < Devise::SessionsController
   layout "inertia", only: [:new]
 
   def new
-    # @hide_layouts = true
     return redirect_to login_path(next: request.referrer) if params[:next].blank? && request_referrer_is_a_valid_after_login_path?
 
     auth_presenter = AuthPresenter.new(params:, application: @application)
