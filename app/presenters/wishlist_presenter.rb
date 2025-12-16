@@ -71,8 +71,9 @@ class WishlistPresenter
       can_edit: pundit_user&.user ? Pundit.policy!(pundit_user, wishlist).update? : false,
       discover_opted_out: pundit_user&.user && Pundit.policy!(pundit_user, wishlist).update? ? wishlist.discover_opted_out? : nil,
       checkout_enabled: wishlist.alive_wishlist_products.available_to_buy.any?,
-      layout:,
     }.merge(items_with_pagination)
+
+    props[:layout] = layout if layout.present?
 
     if layout == Product::Layout::PROFILE
       props[:creator_profile] = ProfilePresenter.new(pundit_user:, seller: wishlist.user).creator_profile
