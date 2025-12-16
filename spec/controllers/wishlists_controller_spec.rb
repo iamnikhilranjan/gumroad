@@ -54,20 +54,24 @@ describe WishlistsController do
       let(:record) { Wishlist }
     end
 
-    it "creates a wishlist with a default name" do
-      expect { post :create }.to change(Wishlist, :count).by(1)
+    it "creates a wishlist with the given name" do
+      expect { post :create, params: { wishlist: { name: "My Favorite Products" } } }
+        .to change(Wishlist, :count).by(1)
 
-      expect(Wishlist.last).to have_attributes(name: "Wishlist 1", user:)
+      expect(Wishlist.last).to have_attributes(name: "My Favorite Products", user:)
       expect(response.parsed_body).to eq(
         "wishlist" => {
           "id" => Wishlist.last.external_id,
-          "name" => "Wishlist 1"
+          "name" => "My Favorite Products"
         }
       )
+    end
 
-      expect { post :create }.to change(Wishlist, :count).by(1)
+    it "returns an error when name is blank" do
+      expect { post :create, params: { wishlist: { name: "" } } }
+        .not_to change(Wishlist, :count)
 
-      expect(Wishlist.last).to have_attributes(name: "Wishlist 2", user:)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 

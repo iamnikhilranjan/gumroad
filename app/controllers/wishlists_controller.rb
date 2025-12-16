@@ -25,9 +25,13 @@ class WishlistsController < ApplicationController
   def create
     authorize Wishlist
 
-    wishlist = current_seller.wishlists.create!
+    wishlist = current_seller.wishlists.new(params.require(:wishlist).permit(:name))
 
-    render json: { wishlist: WishlistPresenter.new(wishlist:).listing_props }, status: :created
+    if wishlist.save
+      render json: { wishlist: { id: wishlist.external_id, name: wishlist.name } }, status: :created
+    else
+      render json: { error: wishlist.errors.full_messages.first }, status: :unprocessable_entity
+    end
   end
 
   def show

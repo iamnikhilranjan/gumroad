@@ -34,6 +34,16 @@ export const ShareSection = ({
   const [saveState, setSaveState] = React.useState<
     { type: "initial" | "saving" } | ({ type: "success" } & SuccessState)
   >({ type: "initial" });
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isCreatingNew, setIsCreatingNew] = React.useState(false);
+  const [newWishlistName, setNewWishlistName] = React.useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const closeDropdown = () => {
+    setIsOpen(false);
+    setIsCreatingNew(false);
+    setNewWishlistName("");
+  };
 
   const isSelectionInWishlist = (wishlist: WishlistForProduct) =>
     wishlist.selections_in_wishlist.some(
@@ -46,6 +56,7 @@ export const ShareSection = ({
 
   const addProduct = async (resolveWishlist: Promise<SuccessState>) => {
     setSaveState({ type: "saving" });
+    closeDropdown();
 
     try {
       const { newlyCreated, wishlist } = await resolveWishlist;
@@ -81,7 +92,7 @@ export const ShareSection = ({
   };
 
   const newWishlist = async () => {
-    const { wishlist } = await createWishlist();
+    const { wishlist } = await createWishlist(newWishlistName);
     setWishlists([...wishlists, { ...wishlist, selections_in_wishlist: [] }]);
     return { newlyCreated: true, wishlist };
   };
@@ -118,12 +129,44 @@ export const ShareSection = ({
                   <Icon name="file-text" /> {wishlist.name}
                 </div>
               </div>
+            ) : isCreatingNew ? (
+              <form
+                role={props.role}
+                className="grid grid-cols-[1fr_auto] gap-2 p-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newWishlistName.trim()) {
+                    showAlert("Please enter a wishlist name", "error");
+                    return;
+                  }
+                  void addProduct(newWishlist());
+                }}
+                onMouseDown={(e) => {
+                  if (e.target !== e.currentTarget) e.preventDefault();
+                }}
+              >
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Wishlist name"
+                  value={newWishlistName}
+                  onChange={(e) => setNewWishlistName(e.target.value)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  className="input"
+                  aria-label="Wishlist name"
+                />
+                <Button type="submit" aria-label="Create wishlist" className="whitespace-nowrap">
+                  Create
+                </Button>
+              </form>
             ) : (
               <div
                 {...props}
-                onClick={(e) => {
-                  props.onClick?.(e);
-                  void addProduct(newWishlist());
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setIsCreatingNew(true);
+                  setTimeout(() => inputRef.current?.focus(), 0);
                 }}
               >
                 <div>
@@ -132,11 +175,14 @@ export const ShareSection = ({
               </div>
             )
           }
-          onClick={() => {
-            if (loggedInUser) return;
-            window.location.href = Routes.login_url({ host: appDomain, next: product.long_url });
+          open={loggedInUser ? isOpen : false}
+          onToggle={(open) => {
+            if (!loggedInUser) {
+              window.location.href = Routes.login_url({ host: appDomain, next: product.long_url });
+              return;
+            }
+            open ? setIsOpen(true) : closeDropdown();
           }}
-          open={loggedInUser ? undefined : false}
         />
 
         <Popover

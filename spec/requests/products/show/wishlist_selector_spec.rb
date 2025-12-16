@@ -6,9 +6,17 @@ describe "Product page wishlist selector", js: true, type: :system do
   let(:user) { create(:user) }
   let(:product) { create(:product, user:) }
 
-  def add_to_wishlist(option, expected_name: option)
+  def add_to_wishlist(option)
     select_combo_box_option option, from: "Add to wishlist"
-    expect(page).to have_combo_box("Add to wishlist", text: expected_name)
+    expect(page).to have_combo_box("Add to wishlist", text: option)
+  end
+
+  def create_new_wishlist(name)
+    find(:combo_box, "Add to wishlist").click
+    find(:list_box_option, "New wishlist").click
+    fill_in "Wishlist name", with: name
+    click_button "Create"
+    expect(page).to have_combo_box("Add to wishlist", text: name)
   end
 
   context "when not logged in" do
@@ -25,18 +33,27 @@ describe "Product page wishlist selector", js: true, type: :system do
     it "supports creating new wishlists" do
       visit product.long_url
 
-      expect { add_to_wishlist("New wishlist", expected_name: "Wishlist 1") }.to change(user.wishlists, :count).by(1)
+      expect { create_new_wishlist("Wishlist 1") }.to change(user.wishlists, :count).by(1)
       expect(page).to have_alert(text: "Wishlist created")
-      expect(user.wishlists.last.products).to contain_exactly(product)
-      expect(user.wishlists.last.name).to eq("Wishlist 1")
+      expect(user.wishlists.last).to have_attributes(name: "Wishlist 1", products: [product])
 
-      expect { add_to_wishlist("New wishlist", expected_name: "Wishlist 2") }.to change(user.wishlists, :count).by(1)
+      expect { create_new_wishlist("Wishlist 2") }.to change(user.wishlists, :count).by(1)
       expect(page).to have_alert(text: "Wishlist created")
-      expect(user.wishlists.last.products).to contain_exactly(product)
-      expect(user.wishlists.last.name).to eq("Wishlist 2")
+      expect(user.wishlists.last).to have_attributes(name: "Wishlist 2", products: [product])
 
       find(:combo_box, "Add to wishlist").click
       expect(page).to have_combo_box("Add to wishlist", with_disabled_options: ["Wishlist 1", "Wishlist 2"])
+    end
+
+    it "shows an error when creating a wishlist with empty name" do
+      visit product.long_url
+
+      find(:combo_box, "Add to wishlist").click
+      find(:list_box_option, "New wishlist").click
+      click_button "Create"
+
+      expect(page).to have_alert(text: "Please enter a wishlist name")
+      expect(user.wishlists.count).to eq(0)
     end
 
     context "with an existing wishlist" do
@@ -61,12 +78,11 @@ describe "Product page wishlist selector", js: true, type: :system do
       it "supports creating a new wishlist" do
         visit product.long_url
 
-        expect { add_to_wishlist("New wishlist", expected_name: "Wishlist 2") }.to change(user.wishlists, :count).by(1)
+        expect { create_new_wishlist("New Wishlist") }.to change(user.wishlists, :count).by(1)
         expect(page).to have_alert(text: "Wishlist created")
 
         expect(existing_wishlist.reload.products).to contain_exactly(existing_product)
-        expect(user.wishlists.last.products).to contain_exactly(product)
-        expect(user.wishlists.last.name).to eq("Wishlist 2")
+        expect(user.wishlists.last).to have_attributes(name: "New Wishlist", products: [product])
       end
     end
 
@@ -81,7 +97,7 @@ describe "Product page wishlist selector", js: true, type: :system do
       it "saves the tier and recurrence" do
         visit product.long_url
 
-        add_to_wishlist("New wishlist", expected_name: "Wishlist 1")
+        create_new_wishlist("Wishlist 1")
         expect(user.wishlists.last.wishlist_products.sole).to have_attributes(
           recurrence: "monthly",
           variant: product.tiers.first
@@ -117,7 +133,7 @@ describe "Product page wishlist selector", js: true, type: :system do
       it "saves the sku and quantity" do
         visit product.long_url
 
-        add_to_wishlist("New wishlist", expected_name: "Wishlist 1")
+        create_new_wishlist("Wishlist 1")
         expect(user.wishlists.last.wishlist_products.sole).to have_attributes(
           quantity: 1,
           variant: product.skus.not_is_default_sku.first
@@ -141,7 +157,7 @@ describe "Product page wishlist selector", js: true, type: :system do
       it "saves rental or non-rental without duplicating the wishlist item" do
         visit product.long_url
 
-        add_to_wishlist("New wishlist", expected_name: "Wishlist 1")
+        create_new_wishlist("Wishlist 1")
         expect(user.wishlists.last.wishlist_products.sole).to have_attributes(product:, rent: false)
 
         choose("Rent")
@@ -149,6 +165,21 @@ describe "Product page wishlist selector", js: true, type: :system do
 
         expect(user.wishlists.last.wishlist_products.sole).to have_attributes(product:, rent: true)
       end
+    end
+
+    it "resets form state after creating a wishlist" do
+      visit product.long_url
+
+      create_new_wishlist("First Wishlist")
+      expect(page).to have_alert(text: "Wishlist created")
+
+      # Reopen - should show "+ New wishlist" option, not the form
+      find(:combo_box, "Add to wishlist").click
+      expect(page).not_to have_field("Wishlist name")
+
+      # Expand form again - input should be empty
+      find(:list_box_option, "New wishlist").click
+      expect(find_field("Wishlist name").value).to eq("")
     end
   end
 end
