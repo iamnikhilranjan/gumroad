@@ -346,4 +346,3 @@ const EmptyStatePlaceholder = ({
     </p>
   </Placeholder>
 );
-

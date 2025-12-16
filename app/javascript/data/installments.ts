@@ -251,7 +251,7 @@ export async function createInstallment(payload: SaveInstallmentPayload) {
   const response = await request({
     method: "POST",
     accept: "json",
-    url: Routes.internal_installments_path(),
+    url: Routes.emails_path(),
     data: payload,
   });
   if (!response.ok) throw new ResponseError(cast<{ message: string }>(await response.json()).message);
@@ -262,7 +262,7 @@ export async function updateInstallment(externalId: string, payload: SaveInstall
   const response = await request({
     method: "PUT",
     accept: "json",
-    url: Routes.internal_installment_path(externalId),
+    url: Routes.edit_email_path(externalId),
     data: payload,
   });
   if (!response.ok) throw new ResponseError(cast<{ message: string }>(await response.json()).message);

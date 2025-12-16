@@ -9,6 +9,7 @@ import { assertResponseError } from "$app/utils/request";
 import { paramsToQueryString } from "$app/utils/url";
 
 import { Button, NavigationButton } from "$app/components/Button";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { CopyToClipboard } from "$app/components/CopyToClipboard";
 import { useCurrentSeller } from "$app/components/CurrentSeller";
 import { useDomains } from "$app/components/DomainSettings";
@@ -17,7 +18,6 @@ import { Preview } from "$app/components/Preview";
 import { PreviewSidebar, WithPreviewSidebar } from "$app/components/PreviewSidebar";
 import { useImageUploadSettings } from "$app/components/RichTextEditor";
 import { showAlert } from "$app/components/server-components/Alert";
-import { newEmailPath } from "$app/components/EmailsPage/Layout";
 import { SubtitleFile } from "$app/components/SubtitleList/Row";
 import { PageHeader } from "$app/components/ui/PageHeader";
 import { Tabs, Tab } from "$app/components/ui/Tabs";
@@ -97,9 +97,9 @@ const NotifyAboutProductUpdatesAlert = () => {
             <Button color="primary" outline onClick={() => close()}>
               Skip for now
             </Button>
-            <NavigationButton
+            <NavigationButtonInertia
               color="primary"
-              href={`${newEmailPath()}?${paramsToQueryString({
+              href={`${Routes.new_email_path()}?${paramsToQueryString({
                 template: "content_updates",
                 product: uniquePermalink,
                 bought: contentUpdates?.uniquePermalinkOrVariantIds ?? [],
@@ -112,7 +112,7 @@ const NotifyAboutProductUpdatesAlert = () => {
               target="_blank"
             >
               Send notification
-            </NavigationButton>
+            </NavigationButtonInertia>
           </div>
         </div>
       </div>

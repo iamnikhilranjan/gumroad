@@ -4,8 +4,7 @@ import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
 import { paramsToQueryString } from "$app/utils/url";
 
 import { computeStandalonePrice, useBundleEditContext } from "$app/components/BundleEdit/state";
-import { NavigationButton } from "$app/components/Button";
-import { newEmailPath } from "$app/components/EmailsPage/Layout";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 
 export const MarketingEmailStatus = () => {
   const { bundle, uniquePermalink, currencyType } = useBundleEditContext();
@@ -51,9 +50,9 @@ export const MarketingEmailStatus = () => {
             All customers
           </label>
         </fieldset>
-        <NavigationButton color="primary" href={`${newEmailPath()}?${paramsToQueryString(queryParams)}`} target="_blank">
+        <NavigationButtonInertia color="primary" href={`${Routes.new_email_path()}?${paramsToQueryString(queryParams)}`} target="_blank">
           Draft and send
-        </NavigationButton>
+        </NavigationButtonInertia>
       </div>
     </div>
   );

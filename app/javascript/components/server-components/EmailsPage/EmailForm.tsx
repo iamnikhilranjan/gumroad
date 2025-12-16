@@ -4,15 +4,13 @@ import cx from "classnames";
 import { addHours, format, startOfDay, startOfHour } from "date-fns";
 import React from "react";
 import { cast } from "ts-safe-cast";
-import { router as inertiaRouter, Link } from "@inertiajs/react";
+import { router, Link } from "@inertiajs/react";
 
 import {
   AudienceType,
   getRecipientCount,
   InstallmentFormContext,
   Installment,
-  createInstallment,
-  updateInstallment,
 } from "$app/data/installments";
 import { assertDefined } from "$app/utils/assert";
 import Countdown from "$app/utils/countdown";
@@ -41,7 +39,7 @@ import { ImageUploadSettingsContext, RichTextEditor } from "$app/components/Rich
 import { S3UploadConfigProvider } from "$app/components/S3UploadConfig";
 import { Separator } from "$app/components/Separator";
 import { showAlert } from "$app/components/server-components/Alert";
-import { editEmailPath, emailTabPath, newEmailPath } from "$app/components/EmailsPage/Layout";
+import { emailTabPath } from "$app/components/EmailsPage/Layout";
 import { InvalidNameForEmailDeliveryWarning } from "$app/components/server-components/InvalidNameForEmailDeliveryWarning";
 import { TagInput } from "$app/components/TagInput";
 import { UpsellCard } from "$app/components/TiptapExtensions/UpsellCard";
@@ -204,6 +202,16 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
   // Use browser APIs for URL params
   const searchParams = new URLSearchParams(window.location.search);
   const currentPathname = window.location.pathname;
+
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("preview_post") === "true" && installment?.full_url) {
+      window.open(installment.full_url, "_blank");
+      urlParams.delete("preview_post");
+      const newUrl = window.location.pathname + (urlParams.toString() ? `?${urlParams.toString()}` : "");
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, [installment]);
   const [bought, setBought] = React.useState<string[]>(() => {
     if (!installment) return [];
     return installment.installment_type === "variant" && installment.variant_external_id
@@ -316,7 +324,7 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
   );
 
   useRunOnce(() => {
-    if (currentPathname !== newEmailPath() || searchParams.size === 0) return;
+    if (currentPathname !== Routes.new_email_path() || searchParams.size === 0) return;
 
     const tier = searchParams.get("tier");
     const permalink = searchParams.get("product");
@@ -550,9 +558,6 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       });
     }
   };
-  const navigateTo = (path: string, options?: { replace?: boolean }) => {
-    inertiaRouter.visit(path, { replace: options?.replace ?? false });
-  };
   const [isSaving, setIsSaving] = React.useState(false);
   const save = asyncVoid(async (action: SaveAction = "save") => {
     if (!validate(action)) return;
@@ -583,44 +588,30 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       send_preview_email: action === "save_and_preview_email",
       to_be_published_at: action === "save_and_schedule" ? scheduleDate : null,
       publish: action === "save_and_publish",
+      save_action_name: action,
     };
 
-    try {
-      setIsSaving(true);
-      const response = installment?.external_id
-        ? await updateInstallment(installment.external_id, payload)
-        : await createInstallment(payload);
-      showAlert(
-        action === "save_and_preview_email"
-          ? "A preview has been sent to your email."
-          : action === "save_and_preview_post"
-            ? "Preview link opened."
-            : action === "save_and_schedule"
-              ? "Email successfully scheduled!"
-              : action === "save_and_publish"
-                ? `Email successfully ${channel.profile ? "published" : "sent"}!`
-                : installment?.external_id
-                  ? "Changes saved!"
-                  : "Email created!",
-        "success",
-      );
-      if (action === "save_and_preview_post") {
-        window.open(response.full_url, "_blank");
-      }
+    setIsSaving(true);
 
-      if (action === "save_and_schedule") {
-        navigateTo(emailTabPath("scheduled"));
-      } else if (action === "save_and_publish") {
-        navigateTo(emailTabPath("published"));
-      } else {
-        navigateTo(editEmailPath(response.installment_id), { replace: true });
-      }
-    } catch (e) {
-      assertResponseError(e);
-      showAlert(e.message, "error", { html: true });
-    } finally {
-      setIsSaving(false);
-    }
+    const url = installment?.external_id
+      ? `/emails/${installment.external_id}`
+      : Routes.emails_path();
+
+    const method = installment?.external_id ? "put" : "post";
+
+    router[method](url, payload, {
+      onSuccess: () => {
+        if (action === "save_and_preview_post") {
+        }
+      },
+      onError: (errors) => {
+        const errorMessage = errors.message || errors.base || "Something went wrong. Please try again.";
+        showAlert(errorMessage, "error", { html: true });
+      },
+      onFinish: () => {
+        setIsSaving(false);
+      },
+    });
   });
   const isBusy =
     isSaving ||

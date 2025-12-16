@@ -800,7 +800,7 @@ Rails.application.routes.draw do
     get "/communities(/:seller_id/:community_id)", to: "communities#index", as: :community
 
     # emails
-    resources :emails, only: [:index, :new, :edit] do
+    resources :emails, only: [:index, :new, :create, :edit, :update] do
       collection do
         get :published
         get :scheduled

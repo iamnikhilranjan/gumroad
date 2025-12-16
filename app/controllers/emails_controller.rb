@@ -3,13 +3,12 @@
 class EmailsController < Sellers::BaseController
   layout "inertia"
 
-  before_action :set_installment, only: %i[edit]
+  before_action :set_installment, only: %i[edit update]
 
   def index
     authorize Installment
 
-
-    if current_seller.installments.alive.ready_to_publish.exists?
+    if current_seller.installments.alive.not_workflow_installment.scheduled.exists?
       redirect_to scheduled_emails_path, status: :moved_permanently
     else
       redirect_to published_emails_path, status: :moved_permanently
@@ -54,6 +53,16 @@ class EmailsController < Sellers::BaseController
     render inertia: "Emails/Edit", props: presenter.edit_page_props
   end
 
+  def create
+    authorize Installment
+    save_installment
+  end
+
+  def update
+    authorize @installment
+    save_installment
+  end
+
   private
     def set_title
       @title = "Emails"
@@ -62,5 +71,28 @@ class EmailsController < Sellers::BaseController
     def set_installment
       @installment = current_seller.installments.alive.find_by_external_id(params[:id])
       e404 unless @installment
+    end
+
+    def save_installment
+      service = SaveInstallmentService.new(
+        seller: current_seller,
+        params:,
+        installment: @installment,
+        preview_email_recipient: impersonating_user || logged_in_user
+      )
+
+      if service.process
+        if params[:save_action_name] == "save_and_preview_post"
+          redirect_to edit_email_path(service.installment.external_id, preview_post: true), notice: "Email saved successfully."
+        else
+          redirect_to emails_path, notice: "Email saved successfully."
+        end
+      else
+        if @installment
+          redirect_to edit_email_path(@installment.external_id), alert: service.error
+        else
+          redirect_to new_email_path, alert: service.error
+        end
+      end
     end
 end

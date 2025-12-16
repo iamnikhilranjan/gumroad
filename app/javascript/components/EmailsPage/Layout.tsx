@@ -23,8 +23,6 @@ export const emailTabPath = (tab: (typeof TABS)[number]) => {
       return Routes.followers_path();
   }
 };
-export const newEmailPath = () => Routes.new_email_path();
-export const editEmailPath = (id: string) => Routes.edit_email_path(id);
 
 type LayoutProps = {
   selectedTab: EmailTab;
