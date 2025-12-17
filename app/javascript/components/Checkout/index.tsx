@@ -24,6 +24,7 @@ import {
   CartItemEnd,
   CartItemQuantity,
   CartItemActions,
+  CartActionButton,
 } from "$app/components/CartItemList";
 import { PaymentForm } from "$app/components/Checkout/PaymentForm";
 import { Icon } from "$app/components/Icons";
@@ -483,14 +484,12 @@ const CartItemComponent = ({
             <CartItemList>
               {item.product.bundle_products.map((bundleProduct) => (
                 <CartItem key={bundleProduct.product_id}>
-                  <div className="relative inline-flex">
-                    <CartItemMedia>
-                      <a href={item.product.url}>
-                        <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
-                      </a>
-                    </CartItemMedia>
+                  <CartItemMedia>
+                    <a href={item.product.url}>
+                      <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
+                    </a>
                     <CartItemQuantity>{bundleProduct.quantity || item.quantity}</CartItemQuantity>
-                  </div>
+                  </CartItemMedia>
                   <CartItemMain>
                     <CartItemTitle>{bundleProduct.name}</CartItemTitle>
                     <CartItemFooter>
@@ -508,14 +507,12 @@ const CartItemComponent = ({
         ) : null
       }
     >
-      <div className="relative inline-flex">
-        <CartItemMedia>
-          <a href={item.product.url}>
-            <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
-          </a>
-        </CartItemMedia>
+      <CartItemMedia>
+        <a href={item.product.url}>
+          <Thumbnail url={item.product.thumbnail_url} nativeType={item.product.native_type} />
+        </a>
         <CartItemQuantity>{item.quantity}</CartItemQuantity>
-      </div>
+      </CartItemMedia>
 
       <CartItemMain>
         <CartItemTitle>
@@ -544,7 +541,11 @@ const CartItemComponent = ({
             item.product.options.length > 0 ||
             item.product.installment_plan ||
             isPWYW ? (
-              <Popover trigger={<Button xs>Edit</Button>} open={editPopoverOpen} onToggle={setEditPopoverOpen}>
+              <Popover
+                trigger={<CartActionButton>Edit</CartActionButton>}
+                open={editPopoverOpen}
+                onToggle={setEditPopoverOpen}
+              >
                 <div className="flex w-96 flex-col gap-4">
                   <ConfigurationSelector
                     selection={selection}
@@ -567,8 +568,7 @@ const CartItemComponent = ({
                 </div>
               </Popover>
             ) : null}
-            <Button
-              xs
+            <CartActionButton
               onClick={() => {
                 const newItems = cart.items.filter((i) => i !== item);
                 updateCart({
@@ -586,7 +586,7 @@ const CartItemComponent = ({
               }}
             >
               Remove
-            </Button>
+            </CartActionButton>
           </CartItemActions>
         </CartItemFooter>
       </CartItemMain>

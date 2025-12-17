@@ -33,14 +33,10 @@ export const CartItem = ({
 };
 
 export const CartItemMedia = ({ className, children, ...props }: BaseProps) => (
-  <figure
-    className={classNames(
-      "tailwind-override relative aspect-square h-16 flex-none overflow-hidden rounded-sm border bg-[url('~images/placeholders/product-cover.png')] bg-cover bg-center sm:h-30",
-      className,
-    )}
-    {...props}
-  >
-    {children}
+  <figure className={classNames("tailwind-override relative h-16 w-16 sm:h-30 sm:w-30", className)} {...props}>
+    <div className="aspect-square h-full w-full overflow-hidden rounded-sm border bg-(image:--product-cover-placeholder) bg-cover bg-center">
+      {children}
+    </div>
   </figure>
 );
 
@@ -53,7 +49,7 @@ export const CartItemQuantity = ({ className, children, ...props }: BaseProps & 
     {...props}
   >
     <span className="sr-only">Qty: {children}</span>
-    <span aria-hidden>{children}</span>
+    {children}
   </div>
 );
 
@@ -87,6 +83,25 @@ export const CartItemActions = ({ className, children, ...props }: BaseProps) =>
   <div className={classNames("flex flex-wrap items-stretch gap-3 pt-2", className)} {...props}>
     {children}
   </div>
+);
+
+export const CartActionButton = ({ className, children, ...props }: BaseProps) => (
+  <button
+    className={classNames(
+      "tailwind-override inline-flex items-center justify-center gap-2 rounded-sm",
+      "border border-border bg-transparent text-xs",
+      "transition-transform duration-150 ease-out",
+      "hover:-translate-x-1 hover:-translate-y-1",
+      "hover:shadow-[4px_4px_0_var(--color-foreground)]",
+      "h-8 w-15 p-0",
+      "active:translate-x-0 active:translate-y-0 active:shadow-none",
+      className,
+    )}
+    type="button"
+    {...props}
+  >
+    {children}
+  </button>
 );
 
 export const CartItemEnd = ({ className, children, ...props }: BaseProps) => (
