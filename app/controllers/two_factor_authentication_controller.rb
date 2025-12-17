@@ -13,7 +13,7 @@ class TwoFactorAuthenticationController < ApplicationController
 
   # Get /two-factor
   def new
-    render inertia: "Auth/TwoFactorAuthentication", props: {
+    render inertia: "TwoFactorAuthentication/New", props: {
       user_id: @user.encrypted_external_id,
       email: @user.email,
       token: (User::DEFAULT_AUTH_TOKEN unless Rails.env.production?)
@@ -33,7 +33,7 @@ class TwoFactorAuthenticationController < ApplicationController
   def resend_authentication_token
     @user.send_authentication_token!
 
-    head :no_content
+    redirect_to two_factor_authentication_path, notice: "Resent the authentication token, please check your inbox.", status: :see_other
   end
 
   private
@@ -47,7 +47,7 @@ class TwoFactorAuthenticationController < ApplicationController
 
         flash[:notice] = "Successfully logged in!"
 
-        inertia_location login_path_for(@user)
+        redirect_to login_path_for(@user), allow_other_host: true, status: :see_other
       else
         redirect_to two_factor_authentication_path, warning: "Invalid token, please try again.", status: :see_other
       end

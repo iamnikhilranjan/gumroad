@@ -173,7 +173,7 @@ class Rack::Attack
                      throttle_params: Proc.new { |req| req.params["user_id"] }
 
   # Initial: 10rpm, Max: 60 requests/3 days (per user)
-  throttle_by_params path: "/two-factor/resend_authentication_token.json",
+  throttle_by_params path: "/two-factor/resend_authentication_token",
                      requests: 10,
                      method: :post,
                      period: 60.seconds,

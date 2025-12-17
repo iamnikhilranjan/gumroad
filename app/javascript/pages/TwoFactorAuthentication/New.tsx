@@ -1,12 +1,8 @@
 import { useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
 
-import { resendTwoFactorToken } from "$app/data/login";
-import { assertResponseError } from "$app/utils/request";
-
 import { Layout } from "$app/components/Authentication/Layout";
 import { Button } from "$app/components/Button";
-import { showAlert } from "$app/components/server-components/Alert";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
 import { useFlashError } from "$app/components/useFlashError";
 
@@ -17,36 +13,28 @@ type PageProps = {
 };
 
 function TwoFactorAuthentication() {
-  const { user_id, email, token: initialToken  } = usePage<PageProps>().props;
+  const { user_id, email, token: initialToken } = usePage<PageProps>().props;
   const next = new URL(useOriginalLocation()).searchParams.get("next");
   const uid = React.useId();
-
-  const [resending, setResending] = React.useState(false);
 
   const form = useForm({
     token: initialToken ?? "",
     next,
-    user_id,
   });
+
+  const resendForm = useForm({});
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Post to /two-factor with user_id in body for Rack::Attack throttling
-    form.post("/two-factor");
+    // Post to /two-factor with user_id in query string for Rack::Attack throttling
+    form.post(Routes.two_factor_authentication_path({ user_id }));
   };
 
-  const resendToken = async () => {
-    setResending(true);
-    try {
-      await resendTwoFactorToken(user_id);
-      showAlert("Resent the authentication token, please check your inbox.", "success");
-    } catch (e) {
-      assertResponseError(e);
-      showAlert(e.message, "error");
-    }
-    setResending(false);
+  const resendToken = () => {
+    resendForm.post(Routes.resend_authentication_token_path({ user_id }), {
+      preserveScroll: true,
+    });
   };
-
 
   return (
     <Layout
@@ -78,7 +66,7 @@ function TwoFactorAuthentication() {
           <Button color="primary" type="submit" disabled={form.processing}>
             {form.processing ? "Logging in..." : "Login"}
           </Button>
-          <Button disabled={resending} onClick={() => void resendToken()}>
+          <Button disabled={resendForm.processing} onClick={() => void resendToken()}>
             Resend Authentication Token
           </Button>
         </section>

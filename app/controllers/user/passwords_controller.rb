@@ -2,7 +2,6 @@
 
 class User::PasswordsController < Devise::PasswordsController
   include InertiaRendering
-
   layout "inertia", only: [:edit]
 
   def new
@@ -28,7 +27,7 @@ class User::PasswordsController < Devise::PasswordsController
     end
 
     @title = "Reset your password"
-    render inertia: "Auth/PasswordReset", props: {
+    render inertia: "PasswordReset/Edit", props: {
       reset_password_token: @reset_password_token
     }
   end
@@ -50,7 +49,7 @@ class User::PasswordsController < Devise::PasswordsController
       flash[:notice] = "Your password has been reset, and you're now logged in."
       @user.invalidate_active_sessions!
       sign_in @user unless @user.deleted?
-      redirect_to login_path_for(@user), status: :see_other
+      redirect_to login_path_for(@user), status: :see_other, allow_other_host: true
     end
   end
 

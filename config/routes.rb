@@ -538,11 +538,7 @@ Rails.application.routes.draw do
     get "/two-factor", to: "two_factor_authentication#new", as: :two_factor_authentication
     post "/two-factor", to: "two_factor_authentication#create", as: :two_factor
     get "/two-factor/verify", to: "two_factor_authentication#verify", as: :verify_two_factor_authentication
-
-    # Enforce stricter formats to restrict people from bypassing Rack::Attack by using different formats in URL.
-    scope format: true, constraints: { format: :json } do
-      post "/two-factor/resend_authentication_token", to: "two_factor_authentication#resend_authentication_token", as: :resend_authentication_token
-    end
+    post "/two-factor/resend_authentication_token", to: "two_factor_authentication#resend_authentication_token", as: :resend_authentication_token
 
     # library
     get "/library", to: "library#index", as: :library

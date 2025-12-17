@@ -51,12 +51,13 @@ describe User::PasswordsController do
 
   describe "#update" do
     it "logs in after successful pw reset" do
-      post :update, params: { user: { password: "password_new", password_confirmation: "password_new", reset_password_token: @user.send_reset_password_instructions } }
+      token = @user.send_reset_password_instructions
+      post :update, params: { user: { password: "password_new", password_confirmation: "password_new", reset_password_token: token } }
 
       expect(@user.reload.valid_password?("password_new")).to be(true)
 
       expect(flash[:notice]).to eq "Your password has been reset, and you're now logged in."
-      expect(response).to be_successful
+      expect(response).to redirect_to(controller.send(:login_path_for, @user))
     end
 
     it "invalidates all active sessions after successful password reset" do
@@ -69,20 +70,23 @@ describe User::PasswordsController do
       let(:old_password) { @user.password }
 
       it "shows error after unsuccessful pw reset" do
-        @user.send_reset_password_instructions
-        post :update, params: { user: { password: "password_new", password_confirmation: "password_no", reset_password_token: @user.send_reset_password_instructions } }
+        token = @user.send_reset_password_instructions
+        post :update, params: { user: { password: "password_new", password_confirmation: "password_no", reset_password_token: token } }
 
-        expect(@user.password).to eq old_password
-        expect(response.parsed_body).to eq({ error_message: "Those two passwords didn't match." }.as_json)
+        expect(@user.reload.valid_password?(old_password)).to be(true)
+        expect(flash[:warning]).to eq "Those two passwords didn't match."
+        expect(response).to redirect_to(edit_user_password_path(reset_password_token: token))
       end
 
       context "when specifying a compromised password", :vcr do
         it "fails with an error" do
+          token = @user.send_reset_password_instructions
           with_real_pwned_password_check do
-            post :update, params: { user: { password: "password", password_confirmation: "password", reset_password_token: @user.send_reset_password_instructions } }
+            post :update, params: { user: { password: "password", password_confirmation: "password", reset_password_token: token } }
           end
 
-          expect(response.parsed_body).to eq({ error_message: "Password has previously appeared in a data breach as per haveibeenpwned.com and should never be used. Please choose something harder to guess." }.as_json)
+          expect(flash[:warning]).to eq "Password has previously appeared in a data breach as per haveibeenpwned.com and should never be used. Please choose something harder to guess."
+          expect(response).to redirect_to(edit_user_password_path(reset_password_token: token))
         end
       end
     end
