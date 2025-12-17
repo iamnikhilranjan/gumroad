@@ -3,7 +3,7 @@ import React from "react";
 export type ProductPurchase = {
   email: string;
   created: string;
-  id: number;
+  external_id: string;
   amount: number;
   displayed_price: string;
   formatted_gumroad_tax_amount: string;
@@ -25,7 +25,7 @@ type AdminProductPurchaseProps = {
 
 const AdminProductPurchase = ({ purchase, isSelected, onToggleSelection }: AdminProductPurchaseProps) => {
   const {
-    id,
+    external_id,
     displayed_price,
     gumroad_responsible_for_tax,
     formatted_gumroad_tax_amount,
@@ -55,7 +55,7 @@ const AdminProductPurchase = ({ purchase, isSelected, onToggleSelection }: Admin
         />
         <div>
           <h5>
-            <a href={Routes.admin_purchase_path(id)}>{displayed_price}</a>
+            <a href={Routes.admin_purchase_path(external_id)}>{displayed_price}</a>
             {gumroad_responsible_for_tax ? ` + ${formatted_gumroad_tax_amount} VAT` : null}
           </h5>
           <small>

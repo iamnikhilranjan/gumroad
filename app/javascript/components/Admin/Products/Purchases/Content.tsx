@@ -78,7 +78,7 @@ const AdminProductPurchasesContent = ({
       <div className="stack">
         {purchases.map((purchase) => (
           <AdminProductPurchase
-            key={purchase.id}
+            key={purchase.external_id}
             purchase={purchase}
             isSelected={selectedPurchaseIds.includes(purchase.id)}
             onToggleSelection={onToggleSelection}
