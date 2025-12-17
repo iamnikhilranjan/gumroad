@@ -73,11 +73,9 @@ export const ShareTab = () => {
             </header>
             {isListedOnDiscover ? (
               <Alert role="status" variant="success">
-                <div className="grid grid-cols-[1fr_auto]">
+                <div className="flex flex-col justify-between sm:flex-row">
                   {product.name} is listed on Gumroad Discover.
-                  <a className="col-start-1 sm:col-start-2" href={discoverLink.toString()}>
-                    View
-                  </a>
+                  <a href={discoverLink.toString()}>View</a>
                 </div>
               </Alert>
             ) : null}

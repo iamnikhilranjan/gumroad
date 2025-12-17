@@ -57,7 +57,7 @@ const FailedLineItemResultEntry = ({ name, result }: { name: string; result: Err
       </div>
       <div>
         <Alert variant="warning">
-          <div dangerouslySetInnerHTML={{ __html: `<div>${message}</div>` }} />
+          <div dangerouslySetInnerHTML={{ __html: message }} />
         </Alert>
       </div>
     </>

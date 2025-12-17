@@ -269,10 +269,10 @@ const TeamMembersSection = ({
       </header>
       {deletedMember ? (
         <Alert variant="success">
-          <div className="grid grid-cols-[1fr_auto]">
+          <div className="flex flex-col justify-between sm:flex-row">
             {deletedMember.name !== "" ? deletedMember.name : deletedMember.email} was removed from team members
             <button
-              className="col-start-1 underline sm:col-start-2"
+              className="underline"
               type="button"
               onClick={asyncVoid(async () => {
                 try {
