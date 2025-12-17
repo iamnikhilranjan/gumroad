@@ -89,7 +89,7 @@ const PostsNodeView = ({ editor, selected }: NodeViewProps) => {
               ) : (
                 <>
                   <h4 className="text-muted">Posts (emails) sent to customers of this product will appear here</h4>
-                  <Link href={`${Routes.new_email_path()}?product=${productPermalink}`} target="_blank" rel="noreferrer">
+                  <Link href={Routes.new_email_path({ product: productPermalink })}>
                     Create an email
                   </Link>
                 </>

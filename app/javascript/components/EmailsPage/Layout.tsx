@@ -97,7 +97,7 @@ export const EmailsLayout = ({ selectedTab, children, hasPosts, query, onQueryCh
 };
 
 export const NewEmailButton = ({ copyFrom }: { copyFrom?: string } = {}) => {
-  const href = copyFrom ? `${Routes.new_email_path()}?copy_from=${copyFrom}` : Routes.new_email_path();
+  const href = copyFrom ? Routes.new_email_path({ copy_from: copyFrom }) : Routes.new_email_path();
 
   return (
     <Link className={copyFrom ? "button" : "button accent"} href={href}>
@@ -105,7 +105,6 @@ export const NewEmailButton = ({ copyFrom }: { copyFrom?: string } = {}) => {
     </Link>
   );
 };
-
 export const EditEmailButton = ({ id }: { id: string }) => {
   return (
     <Link className="button" href={Routes.edit_email_path(id)}>
@@ -113,4 +112,3 @@ export const EditEmailButton = ({ id }: { id: string }) => {
     </Link>
   );
 };
-

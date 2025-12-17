@@ -4,7 +4,7 @@ import cx from "classnames";
 import { addHours, format, startOfDay, startOfHour } from "date-fns";
 import React from "react";
 import { cast } from "ts-safe-cast";
-import { router, Link } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 
 import {
   AudienceType,
@@ -558,7 +558,12 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       });
     }
   };
+
+  const form = useForm({} as any);
+
+  // Keep isSaving for countdown feature (separate from form submission)
   const [isSaving, setIsSaving] = React.useState(false);
+
   const save = asyncVoid(async (action: SaveAction = "save") => {
     if (!validate(action)) return;
 
@@ -591,30 +596,22 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       save_action_name: action,
     };
 
-    setIsSaving(true);
-
-    const url = installment?.external_id
-      ? `/emails/${installment.external_id}`
-      : Routes.emails_path();
-
-    const method = installment?.external_id ? "put" : "post";
-
-    router[method](url, payload, {
-      onSuccess: () => {
-        if (action === "save_and_preview_post") {
-        }
-      },
-      onError: (errors) => {
+    const formOptions = {
+      onError: (errors: any) => {
         const errorMessage = errors.message || errors.base || "Something went wrong. Please try again.";
         showAlert(errorMessage, "error", { html: true });
       },
-      onFinish: () => {
-        setIsSaving(false);
-      },
-    });
+    };
+
+    form.setData(payload as any);
+    if (installment?.external_id) {
+      form.put(Routes.email_path(installment.external_id), formOptions);
+    } else {
+      form.post(Routes.emails_path(), formOptions);
+    }
   });
   const isBusy =
-    isSaving ||
+    form.processing ||
     imagesUploading.size > 0 ||
     files.some((file) => isFileUploading(file) || file.subtitle_files.some(isFileUploading));
 

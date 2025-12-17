@@ -214,61 +214,6 @@ export async function getNewInstallment(copy_from: string | null = null) {
   );
 }
 
-type SaveInstallmentPayload = {
-  installment: {
-    name: string;
-    message: string;
-    files: {
-      external_id: string;
-      position: number;
-      url: string;
-      stream_only: boolean;
-      subtitle_files: { language: string; url: string }[];
-    }[];
-    link_id: string | null;
-    paid_more_than_cents: number | null;
-    paid_less_than_cents: number | null;
-    bought_from: string | null;
-    installment_type: string;
-    created_after: string;
-    created_before: string;
-    bought_products: string[] | null;
-    bought_variants: string[] | null;
-    not_bought_products: string[] | null;
-    not_bought_variants: string[] | null;
-    affiliate_products: string[] | null;
-    send_emails: boolean;
-    shown_on_profile: boolean;
-    allow_comments: boolean;
-    shown_in_profile_sections: string[];
-  };
-  variant_external_id: string | null;
-  send_preview_email: boolean;
-  to_be_published_at: Date | null;
-  publish: boolean;
-};
-export async function createInstallment(payload: SaveInstallmentPayload) {
-  const response = await request({
-    method: "POST",
-    accept: "json",
-    url: Routes.emails_path(),
-    data: payload,
-  });
-  if (!response.ok) throw new ResponseError(cast<{ message: string }>(await response.json()).message);
-  return cast<{ installment_id: string; full_url: string }>(await response.json());
-}
-
-export async function updateInstallment(externalId: string, payload: SaveInstallmentPayload) {
-  const response = await request({
-    method: "PUT",
-    accept: "json",
-    url: Routes.edit_email_path(externalId),
-    data: payload,
-  });
-  if (!response.ok) throw new ResponseError(cast<{ message: string }>(await response.json()).message);
-  return cast<{ installment_id: string; full_url: string }>(await response.json());
-}
-
 export async function getEditInstallment(externalId: string) {
   const response = await request({
     method: "GET",

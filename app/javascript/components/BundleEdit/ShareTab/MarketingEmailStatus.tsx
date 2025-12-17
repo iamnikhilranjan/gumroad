@@ -50,7 +50,7 @@ export const MarketingEmailStatus = () => {
             All customers
           </label>
         </fieldset>
-        <NavigationButtonInertia color="primary" href={`${Routes.new_email_path()}?${paramsToQueryString(queryParams)}`} target="_blank">
+        <NavigationButtonInertia color="primary" href={Routes.new_email_path(queryParams)}>
           Draft and send
         </NavigationButtonInertia>
       </div>

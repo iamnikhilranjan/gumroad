@@ -6,7 +6,6 @@ import { saveProduct } from "$app/data/product_edit";
 import { setProductPublished } from "$app/data/publish_product";
 import { classNames } from "$app/utils/classNames";
 import { assertResponseError } from "$app/utils/request";
-import { paramsToQueryString } from "$app/utils/url";
 
 import { Button, NavigationButton } from "$app/components/Button";
 import { NavigationButtonInertia } from "$app/components/NavigationButton";
@@ -99,11 +98,11 @@ const NotifyAboutProductUpdatesAlert = () => {
             </Button>
             <NavigationButtonInertia
               color="primary"
-              href={`${Routes.new_email_path()}?${paramsToQueryString({
+              href={Routes.new_email_path({
                 template: "content_updates",
                 product: uniquePermalink,
                 bought: contentUpdates?.uniquePermalinkOrVariantIds ?? [],
-              })}`}
+              })}
               onClick={() => {
                 // NOTE: this is a workaround to make sure the alert closes after the tab is opened
                 // with correct URL params. Otherwise `bought` won't be set correctly.
