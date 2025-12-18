@@ -1,6 +1,7 @@
 import { useForm, usePage } from "@inertiajs/react";
 import cx from "classnames";
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
 import { isUrlValid } from "$app/utils/url";
 
@@ -37,7 +38,7 @@ type Props = {
 };
 
 export default function AffiliatesEdit() {
-  const props = usePage<{ props: Props }>().props as unknown as Props;
+  const props = cast<Props>(usePage().props);
   const loggedInUser = useLoggedInUser();
 
   const { data, setData, patch, processing, errors, setError, clearErrors } = useForm<{

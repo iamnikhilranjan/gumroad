@@ -93,7 +93,7 @@ export const getStatistics = (id: string) =>
   request({
     method: "GET",
     accept: "json",
-    url: Routes.statistics_internal_affiliate_path(id),
+    url: Routes.statistics_affiliate_path(id),
   })
     .then((res) => {
       if (!res.ok) throw new ResponseError();

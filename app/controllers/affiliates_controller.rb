@@ -30,7 +30,7 @@ class AffiliatesController < Sellers::BaseController
     affiliates_data = presenter.index_props
 
     if affiliates_data[:affiliates].empty? && affiliates_data[:affiliate_requests].empty? && (page.nil? || page == 1) && query.blank?
-      redirect_to onboarding_affiliates_path && return
+      return redirect_to onboarding_affiliates_path
     end
 
     render inertia: "Affiliates/Index", props: affiliates_data
@@ -47,14 +47,7 @@ class AffiliatesController < Sellers::BaseController
     authorize DirectAffiliate, :create?
 
     presenter = AffiliatesPresenter.new(pundit_user)
-    products = presenter.onboarding_props[:products].map do |product|
-      product.merge(enabled: false, fee_percent: nil, referral_url: "", destination_url: nil)
-    end
-
-    render inertia: "Affiliates/New", props: {
-      products:,
-      affiliates_disabled_reason: presenter.onboarding_props[:affiliates_disabled_reason]
-    }
+    render inertia: "Affiliates/New", props: presenter.new_affiliate_props
   end
 
   def edit
@@ -64,12 +57,7 @@ class AffiliatesController < Sellers::BaseController
     authorize @affiliate, :update?
 
     presenter = AffiliatesPresenter.new(pundit_user)
-    affiliate_data = @affiliate.affiliate_info.merge(products: @affiliate.products_data)
-
-    render inertia: "Affiliates/Edit", props: {
-      affiliate: affiliate_data,
-      affiliates_disabled_reason: presenter.onboarding_props[:affiliates_disabled_reason]
-    }
+    render inertia: "Affiliates/Edit", props: presenter.edit_affiliate_props(@affiliate)
   end
 
   def subscribe_posts
@@ -84,6 +72,16 @@ class AffiliatesController < Sellers::BaseController
     @direct_affiliate.update_posts_subscription(send_posts: false)
   end
 
+  def statistics
+    affiliate = current_seller.direct_affiliates.find_by_external_id!(params[:id])
+    authorize affiliate
+
+    products = affiliate.product_sales_info
+    total_volume_cents = products.values.sum { _1[:volume_cents] }
+
+    render json: { total_volume_cents:, products: }
+  end
+
   def create
     authorize DirectAffiliate, :create?
 
@@ -91,7 +89,7 @@ class AffiliatesController < Sellers::BaseController
     result = process_affiliate_params(affiliate)
 
     if result[:success]
-      redirect_to affiliates_path, notice: "Affiliate created successfully"
+      redirect_to affiliates_path, notice: "Affiliate created successfully", status: :see_other
     else
       redirect_to new_affiliate_path, inertia: { errors: { base: [result[:message]] } }
     end
@@ -106,7 +104,7 @@ class AffiliatesController < Sellers::BaseController
     result = process_affiliate_params(@affiliate)
 
     if result[:success]
-      redirect_to affiliates_path, notice: "Affiliate updated successfully"
+      redirect_to affiliates_path, notice: "Affiliate updated successfully", status: :see_other
     else
       redirect_to edit_affiliate_path(@affiliate), inertia: { errors: { base: [result[:message]] } }
     end

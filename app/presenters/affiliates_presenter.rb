@@ -28,7 +28,7 @@ class AffiliatesPresenter
       affiliates:,
       pagination: PagyPresenter.new(pagination).props,
       allow_approve_all_requests: Feature.active?(:auto_approve_affiliates, seller),
-      affiliates_disabled_reason: seller.has_brazilian_stripe_connect_account? ? "Affiliates with Brazilian Stripe accounts are not supported." : nil,
+      affiliates_disabled_reason:,
     }
   end
 
@@ -38,7 +38,25 @@ class AffiliatesPresenter
       products: self_service_affiliate_product_details.values.sort_by { |product| [product[:enabled] ? 0 : 1, product[:name]] },
       disable_global_affiliate: seller.disable_global_affiliate?,
       global_affiliate_percentage: seller.global_affiliate.affiliate_percentage,
-      affiliates_disabled_reason: seller.has_brazilian_stripe_connect_account? ? "Affiliates with Brazilian Stripe accounts are not supported." : nil,
+      affiliates_disabled_reason:,
+    }
+  end
+
+  def new_affiliate_props
+    products = onboarding_props[:products].map do |product|
+      product.merge(enabled: false, fee_percent: nil, referral_url: "", destination_url: nil)
+    end
+
+    {
+      products:,
+      affiliates_disabled_reason:,
+    }
+  end
+
+  def edit_affiliate_props(affiliate)
+    {
+      affiliate: affiliate.affiliate_info.merge(products: affiliate.products_data),
+      affiliates_disabled_reason:,
     }
   end
 
@@ -59,6 +77,10 @@ class AffiliatesPresenter
 
   private
     attr_reader :pundit_user, :seller, :query, :page, :sort, :should_get_affiliate_requests
+
+    def affiliates_disabled_reason
+      seller.has_brazilian_stripe_connect_account? ? "Affiliates with Brazilian Stripe accounts are not supported." : nil
+    end
 
     def existing_self_service_affiliate_product_details(self_service_affiliate_product)
       fee = self_service_affiliate_product.affiliate_basis_points / 100

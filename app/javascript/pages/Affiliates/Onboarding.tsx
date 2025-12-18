@@ -1,6 +1,7 @@
 import { Link, useForm, usePage } from "@inertiajs/react";
 import cx from "classnames";
 import * as React from "react";
+import { cast } from "ts-safe-cast";
 
 import { SelfServeAffiliateProduct } from "$app/data/affiliates";
 import { isUrlValid } from "$app/utils/url";
@@ -57,7 +58,7 @@ const AffiliatesNavigation = () => (
 );
 
 export default function AffiliatesOnboarding() {
-  const props = usePage<{ props: Props }>().props as unknown as Props;
+  const props = cast<Props>(usePage().props);
   const loggedInUser = useLoggedInUser();
 
   const { data, setData, patch, processing } = useForm({

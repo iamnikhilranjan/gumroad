@@ -386,6 +386,7 @@ Rails.application.routes.draw do
       member do
         get :subscribe_posts
         get :unsubscribe_posts
+        get :statistics
       end
       collection do
         get :onboarding
@@ -902,13 +903,6 @@ Rails.application.routes.draw do
     # React Router routes
     scope module: :api, defaults: { format: :json } do
       namespace :internal do
-        resources :affiliates, only: [:index, :show, :create, :update, :destroy] do
-          collection do
-            get :onboarding
-          end
-          get :statistics, on: :member
-        end
-
         resources :collaborators, only: [:index, :new, :create, :edit, :update, :destroy] do
           scope module: :collaborators do
             resources :invitation_acceptances, only: [:create]
