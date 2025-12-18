@@ -57,7 +57,7 @@ class LoginsController < Devise::SessionsController
       return if request.headers["X-Inertia"].present?
 
       # Block direct JSON requests (non-Inertia API calls)
-      head :not_acceptable if request.format.json?
+      head :bad_request if request.format.json?
     end
 
     def redirect_with_login_error(message)

@@ -40,6 +40,9 @@ describe LoginsController do
       it "renders successfully" do
         get :new, params: { next: @next_url }
         expect(response).to be_successful
+
+        get :new, params: { next: @next_url }, format: :json
+        expect(response).to be_a_bad_request
       end
 
       it "sets the application" do
