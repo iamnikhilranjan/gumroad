@@ -213,7 +213,7 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
     files: product.files.map((file) => ({ ...file, url: getDownloadUrl(id, file) })),
     filesById,
   });
-  const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ files: product.files, filesById });
+  const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ filesById });
   const uploadFilesRef = useRefToLatest(uploadFiles);
   const contentEditorExtensions = extensions(id, [
     FileEmbedGroup.configure({ getConfig: () => fileEmbedGroupConfig.current }),

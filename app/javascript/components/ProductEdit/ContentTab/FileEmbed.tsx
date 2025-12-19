@@ -681,7 +681,7 @@ const FileEmbedNodeView = ({ node, editor, getPos, updateAttributes }: NodeViewP
   );
 };
 
-export type FileEmbedConfig = { files: FileEntry[]; filesById: Map<string, FileEntry> };
+export type FileEmbedConfig = { filesById: Map<string, FileEntry> };
 
 export const FileEmbed = TiptapNode.create<{ getConfig?: () => FileEmbedConfig }>({
   name: "fileEmbed",
