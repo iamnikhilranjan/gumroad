@@ -65,7 +65,7 @@ import { useIsAboveBreakpoint } from "$app/components/useIsAboveBreakpoint";
 import { useRefToLatest } from "$app/components/useRefToLatest";
 import { WithTooltip } from "$app/components/WithTooltip";
 
-import { FileEmbed, FileEmbedConfig, getDownloadUrl } from "./FileEmbed";
+import { FileEmbed, FileEmbedConfig } from "./FileEmbed";
 import { Page, PageTab, titleWithFallback } from "./PageTab";
 
 declare global {
@@ -210,7 +210,6 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
     productId: id,
     variantId: selectedVariantId,
     prepareDownload: save,
-    files: product.files.map((file) => ({ ...file, url: getDownloadUrl(id, file) })),
     filesById,
   });
   const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ filesById });

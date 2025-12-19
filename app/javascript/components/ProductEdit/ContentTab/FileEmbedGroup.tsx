@@ -34,7 +34,6 @@ type FileGroupConfig = {
   productId: string;
   variantId: string | null;
   prepareDownload: () => Promise<void>;
-  files: FileEntry[];
   filesById: Map<string, FileEntry>;
 };
 type FileEmbedGroupStorage = { lastCreatedUid: string | null };
