@@ -1,0 +1,25 @@
+name: Stale PRs
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Run daily at midnight UTC
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          days-before-stale: 14
+          days-before-close: -1
+          stale-pr-message: "This pull request has been inactive for 2 weeks. Please update it or it may become stale."
+          stale-pr-label: "stale"
+          exempt-pr-labels: "on-hold"
+          operations-per-run: 100
+          # Only target PRs, not issues
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
