@@ -47,7 +47,10 @@ class SignupController < Devise::RegistrationsController
       # Do not require 2FA for newly signed up users
       remember_two_factor_auth
 
-      redirect_to login_path_for(@user), allow_other_host: true #
+      respond_to do |format|
+        format.html { redirect_to login_path_for(@user), allow_other_host: true }
+        format.json { render json: { success: true, redirect_location: login_path_for(@user) } }
+      end
     else
       error_message = if !params[:user] || params[:user][:email].blank?
         "Please provide a valid email address."
@@ -57,7 +60,10 @@ class SignupController < Devise::RegistrationsController
         @user.errors.full_messages[0]
       end
 
-      redirect_with_signup_error(error_message)
+      respond_to do |format|
+        format.html { redirect_with_signup_error(error_message) }
+        format.json { render json: { success: false, error_message: error_message } }
+      end
     end
   end
 
@@ -95,7 +101,11 @@ class SignupController < Devise::RegistrationsController
       if params[:user] && params[:user][:buyer_signup].blank?
         site_key = GlobalConfig.get("RECAPTCHA_SIGNUP_SITE_KEY")
         if !(Rails.env.development? && site_key.blank?) && !valid_recaptcha_response?(site_key: site_key)
-          return redirect_with_signup_error("Sorry, we could not verify the CAPTCHA. Please try again.")
+          respond_to do |format|
+            format.html { redirect_with_signup_error("Sorry, we could not verify the CAPTCHA. Please try again.") }
+            format.json { render json: { success: false, error_message: "Sorry, we could not verify the CAPTCHA. Please try again." } }
+          end
+          return
         end
       end
 
@@ -106,9 +116,15 @@ class SignupController < Devise::RegistrationsController
 
       if !user.deleted? && user.try(:valid_password?, params[:user][:password])
         sign_in_or_prepare_for_two_factor_auth(user)
-        redirect_to login_path_for(user), allow_other_host: true #
+        respond_to do |format|
+          format.html { redirect_to login_path_for(user) }
+          format.json { render json: { success: true, redirect_location: login_path_for(user) } }
+        end
       else
-        redirect_with_signup_error("An account already exists with this email.")
+        respond_to do |format|
+          format.html { redirect_with_signup_error("An account already exists with this email.") }
+          format.json { render json: { success: false, error_message: "An account already exists with this email." } }
+        end
       end
     end
 
