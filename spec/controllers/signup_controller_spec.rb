@@ -52,6 +52,13 @@ describe SignupController do
           expect(response).to redirect_to(dashboard_path)
           expect(controller.user_signed_in?).to eq true
         end
+
+        it "returns json response" do
+          post "create", params: { user: { email: @user.email, password: "password" } }, format: :json
+
+          expect(response.parsed_body["success"]).to be(true)
+          expect(response.parsed_body["redirect_location"]).to eq(dashboard_path)
+        end
       end
 
       context "when two factor authentication is enabled for the user" do
@@ -81,6 +88,14 @@ describe SignupController do
       last_user.valid_password?("password")
       expect(last_user.confirmed?).to be(false)
       expect(last_user.check_merchant_account_is_linked).to be(false)
+    end
+
+    it "creates a user and returns json response" do
+      user = build(:user, password: "password")
+      post "create", params: { user: { email: user.email, password: "password" } }, format: :json
+
+      expect(response.parsed_body["success"]).to be(true)
+      expect(response.parsed_body["redirect_location"]).to eq(dashboard_path)
     end
 
     it "sets two factor authenticated" do
@@ -170,6 +185,12 @@ describe SignupController do
       post "create"
       expect(response).to redirect_to(signup_path)
       expect(flash[:warning]).to eq "Please provide a valid email address."
+    end
+
+    it "returns json error if user payload is not given" do
+      post "create", format: :json
+      expect(response.parsed_body["success"]).to be(false)
+      expect(response.parsed_body["error_message"]).to eq "Please provide a valid email address."
     end
 
     it "turns notifications off the user if the user is from Canada" do
