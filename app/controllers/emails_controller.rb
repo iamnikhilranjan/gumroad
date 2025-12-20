@@ -34,5 +34,4 @@ class EmailsController < Sellers::BaseController
     presenter = PaginatedInstallmentsPresenter.new(seller: current_seller, type: Installment::SCHEDULED, page: 1)
     render inertia: "Emails/Scheduled", props: presenter.props
   end
-
-
+end
