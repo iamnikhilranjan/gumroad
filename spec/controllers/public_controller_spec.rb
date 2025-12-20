@@ -2,8 +2,9 @@
 
 require "spec_helper"
 require "shared_examples/authorize_called"
+require "inertia_rails/rspec"
 
-describe PublicController do
+describe PublicController, type: :controller, inertia: true do
   render_views
 
   let!(:demo_product) { create(:product, unique_permalink: "demo") }
@@ -48,11 +49,20 @@ describe PublicController do
 
       include_context "with user signed in as admin for seller"
 
-      it "initializes WidgetPresenter with seller" do
+      it "renders the inertia page with correct component and props" do
         get :widgets
 
         expect(response).to be_successful
-        expect(assigns[:widget_presenter].seller).to eq(seller)
+        expect(inertia).to render_component("Public/Widgets")
+        expect(inertia.props).to be_present
+      end
+
+      it "sets correct instance variables" do
+        get :widgets
+
+        expect(assigns(:title)).to eq("Widgets")
+        expect(assigns(:on_widgets_page)).to be(true)
+        expect(assigns(:widget_scripts)).to be(true)
       end
     end
   end

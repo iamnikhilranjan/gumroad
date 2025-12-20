@@ -1,8 +1,6 @@
 import * as React from "react";
 import ReactDOMServer from "react-dom/server";
-import { createCast } from "ts-safe-cast";
 
-import { register } from "$app/utils/serverComponentUtil";
 import { buildOverlayCodeToCopy, buildEmbedCodeToCopy } from "$app/utils/widgetCodeToCopyBuilders";
 
 import { Button } from "$app/components/Button";
@@ -261,5 +259,3 @@ const EmbedPanel = ({ selectedProduct }: PanelProps) => {
     </>
   );
 };
-
-export default register({ component: WidgetsPage, propParser: createCast() });
