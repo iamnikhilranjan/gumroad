@@ -1,23 +1,18 @@
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import React from "react";
 import { cast } from "ts-safe-cast";
 
-import {
-  deleteInstallment,
-  getAudienceCount,
-  getScheduledInstallments,
-  Pagination,
-  ScheduledInstallment,
-} from "$app/data/installments";
+import { getAudienceCount, Pagination, ScheduledInstallment } from "$app/data/installments";
 import { assertDefined } from "$app/utils/assert";
-import { classNames } from "$app/utils/classNames";
-import { asyncVoid } from "$app/utils/promise";
-import { AbortError, assertResponseError } from "$app/utils/request";
 import { formatStatNumber } from "$app/utils/formatStatNumber";
+import { asyncVoid } from "$app/utils/promise";
+import { assertResponseError } from "$app/utils/request";
 
 import { Button, NavigationButton } from "$app/components/Button";
 import { useCurrentSeller } from "$app/components/CurrentSeller";
+import { EmptyStatePlaceholder } from "$app/components/EmailsPage/EmptyStatePlaceholder";
 import { EditEmailButton, EmailsLayout, NewEmailButton } from "$app/components/EmailsPage/Layout";
+import { ViewEmailButton } from "$app/components/EmailsPage/ViewEmailButton";
 import { Icon } from "$app/components/Icons";
 import { Modal } from "$app/components/Modal";
 import { showAlert } from "$app/components/server-components/Alert";
@@ -26,8 +21,6 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { useUserAgentInfo } from "$app/components/UserAgent";
 
 import scheduledPlaceholder from "$assets/images/placeholders/scheduled_posts.png";
-import { EmptyStatePlaceholder } from "$app/components/EmailsPage/EmptyStatePlaceholder";
-import { ViewEmailButton } from "$app/components/EmailsPage/ViewEmailButton";
 
 type AudienceCounts = Map<string, number | "loading" | "failed">;
 
@@ -43,12 +36,12 @@ const audienceCountValue = (audienceCounts: AudienceCounts, installmentId: strin
 type PageProps = {
   installments: ScheduledInstallment[];
   pagination: Pagination;
+  has_posts: boolean;
 };
 
 export default function EmailsScheduled() {
-  const { installments: initialInstallments, pagination: initialPagination } = cast<PageProps>(usePage().props);
-  const [installments, setInstallments] = React.useState<ScheduledInstallment[]>(initialInstallments);
-  const [pagination, setPagination] = React.useState<Pagination>(initialPagination);
+  const pageProps = cast<PageProps>(usePage().props);
+  const { installments, pagination, has_posts } = pageProps;
   const currentSeller = assertDefined(useCurrentSeller(), "currentSeller is required");
   const userAgentInfo = useUserAgentInfo();
   const installmentsByDate = React.useMemo(
@@ -91,57 +84,28 @@ export default function EmailsScheduled() {
     name: string;
     state: "delete-confirmation" | "deleting";
   } | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
 
-  const activeFetchRequest = React.useRef<{ cancel: () => void } | null>(null);
-
-  const fetchInstallments = async (reset = false) => {
-    const nextPage = reset ? 1 : pagination.next;
-    if (!nextPage) return;
-    setIsLoading(true);
-    try {
-      activeFetchRequest.current?.cancel();
-      const request = getScheduledInstallments({ page: nextPage, query: "" });
-      activeFetchRequest.current = request;
-      const response = await request.response;
-      setInstallments(reset ? response.installments : [...installments, ...response.installments]);
-      setPagination(response.pagination);
-      activeFetchRequest.current = null;
-      setIsLoading(false);
-    } catch (e) {
-      if (e instanceof AbortError) return;
-      activeFetchRequest.current = null;
-      setIsLoading(false);
-      assertResponseError(e);
-      showAlert("Sorry, something went wrong. Please try again.", "error");
-    }
-  };
-
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!deletingInstallment) return;
-    try {
-      setDeletingInstallment({ ...deletingInstallment, state: "deleting" });
-      await deleteInstallment(deletingInstallment.id);
-      setInstallments(installments.filter((installment) => installment.external_id !== deletingInstallment.id));
-      setDeletingInstallment(null);
-      showAlert("Email deleted!", "success");
-    } catch (e) {
-      assertResponseError(e);
-      showAlert("Sorry, something went wrong. Please try again.", "error");
-    }
+    setDeletingInstallment({ ...deletingInstallment, state: "deleting" });
+    router.delete(Routes.internal_installment_path(deletingInstallment.id), {
+      onSuccess: () => {
+        setDeletingInstallment(null);
+      },
+      onError: () => {
+        setDeletingInstallment({ ...deletingInstallment, state: "delete-confirmation" });
+        showAlert("Sorry, something went wrong. Please try again.", "error");
+      },
+    });
   };
 
   return (
-    <EmailsLayout selectedTab="scheduled">
+    <EmailsLayout selectedTab="scheduled" hasPosts={has_posts}>
       <div className="space-y-4 p-4 md:p-8">
         {installments.length > 0 ? (
           <>
             {Object.keys(installmentsByDate).map((date) => (
-              <Table
-                key={date}
-                aria-live="polite"
-                className={classNames("mb-16", isLoading && "pointer-events-none opacity-50")}
-              >
+              <Table key={date} aria-live="polite" className="mb-16">
                 <TableCaption>Scheduled for {date}</TableCaption>
                 <TableHeader>
                   <TableRow>
@@ -179,7 +143,12 @@ export default function EmailsScheduled() {
               </Table>
             ))}
             {pagination.next ? (
-              <Button color="primary" disabled={isLoading} onClick={() => void fetchInstallments()}>
+              <Button
+                color="primary"
+                onClick={() => {
+                  router.reload({ data: { page: pagination.next } });
+                }}
+              >
                 Load more
               </Button>
             ) : null}

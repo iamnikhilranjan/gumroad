@@ -1,12 +1,10 @@
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import React from "react";
 import { cast } from "ts-safe-cast";
 
-import { deleteInstallment, getPublishedInstallments, Pagination, PublishedInstallment } from "$app/data/installments";
+import { Pagination, PublishedInstallment } from "$app/data/installments";
 import { assertDefined } from "$app/utils/assert";
-import { classNames } from "$app/utils/classNames";
 import { formatStatNumber } from "$app/utils/formatStatNumber";
-import { AbortError, assertResponseError } from "$app/utils/request";
 
 import { Button, NavigationButton } from "$app/components/Button";
 import { useCurrentSeller } from "$app/components/CurrentSeller";
@@ -26,12 +24,11 @@ import { ViewEmailButton } from "$app/components/EmailsPage/ViewEmailButton";
 type PageProps = {
   installments: PublishedInstallment[];
   pagination: Pagination;
+  has_posts: boolean;
 };
 
 export default function EmailsPublished() {
-  const { installments: initialInstallments, pagination: initialPagination } = cast<PageProps>(usePage().props);
-  const [installments, setInstallments] = React.useState<PublishedInstallment[]>(initialInstallments);
-  const [pagination, setPagination] = React.useState<Pagination>(initialPagination);
+  const { installments, pagination, has_posts } = cast<PageProps>(usePage().props);
   const currentSeller = assertDefined(useCurrentSeller(), "currentSeller is required");
   const [selectedInstallmentId, setSelectedInstallmentId] = React.useState<string | null>(null);
   const [deletingInstallment, setDeletingInstallment] = React.useState<{
@@ -39,61 +36,32 @@ export default function EmailsPublished() {
     name: string;
     state: "delete-confirmation" | "deleting";
   } | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
   const selectedInstallment = selectedInstallmentId
     ? (installments.find((i) => i.external_id === selectedInstallmentId) ?? null)
     : null;
 
-  const activeFetchRequest = React.useRef<{ cancel: () => void } | null>(null);
-
-  const fetchInstallments = async ({ reset }: { reset: boolean }) => {
-    const nextPage = reset ? 1 : pagination.next;
-    if (!nextPage) return;
-    setIsLoading(true);
-    try {
-      activeFetchRequest.current?.cancel();
-      const request = getPublishedInstallments({ page: nextPage, query: "" });
-      activeFetchRequest.current = request;
-      const response = await request.response;
-      setInstallments(reset ? response.installments : [...installments, ...response.installments]);
-      setPagination(response.pagination);
-      activeFetchRequest.current = null;
-      setIsLoading(false);
-    } catch (e) {
-      if (e instanceof AbortError) return;
-      activeFetchRequest.current = null;
-      setIsLoading(false);
-      assertResponseError(e);
-      showAlert("Sorry, something went wrong. Please try again.", "error");
-    }
-  };
-
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!deletingInstallment) return;
-    try {
-      setDeletingInstallment({ ...deletingInstallment, state: "deleting" });
-      await deleteInstallment(deletingInstallment.id);
-      setInstallments(installments.filter((installment) => installment.external_id !== deletingInstallment.id));
-      setDeletingInstallment(null);
-      showAlert("Email deleted!", "success");
-    } catch (e) {
-      assertResponseError(e);
-      showAlert("Sorry, something went wrong. Please try again.", "error");
-    }
+    setDeletingInstallment({ ...deletingInstallment, state: "deleting" });
+    router.delete(Routes.internal_installment_path(deletingInstallment.id), {
+      onSuccess: () => {
+        setDeletingInstallment(null);
+      },
+      onError: () => {
+        setDeletingInstallment({ ...deletingInstallment, state: "delete-confirmation" });
+        showAlert("Sorry, something went wrong. Please try again.", "error");
+      },
+    });
   };
 
   const userAgentInfo = useUserAgentInfo();
 
   return (
-    <EmailsLayout selectedTab="published">
+    <EmailsLayout selectedTab="published" hasPosts={has_posts}>
       <div className="space-y-4 p-4 md:p-8">
         {installments.length > 0 ? (
           <>
-            <Table
-              aria-live="polite"
-              className={classNames(isLoading && "pointer-events-none opacity-50")}
-              aria-label="Published"
-            >
+            <Table aria-live="polite" aria-label="Published">
               <TableHeader>
                 <TableRow>
                   <TableHead>Subject</TableHead>
@@ -173,7 +141,12 @@ export default function EmailsPublished() {
               </TableBody>
             </Table>
             {pagination.next ? (
-              <Button color="primary" disabled={isLoading} onClick={() => void fetchInstallments({ reset: false })}>
+              <Button
+                color="primary"
+                onClick={() => {
+                  router.reload({ data: { page: pagination.next } });
+                }}
+              >
                 Load more
               </Button>
             ) : null}
