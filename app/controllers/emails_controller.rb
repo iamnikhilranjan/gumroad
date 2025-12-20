@@ -3,7 +3,7 @@
 class EmailsController < Sellers::BaseController
   layout "inertia"
 
-  before_action :set_installment, only: %i[edit update]
+  before_action :set_installment, only: %i[edit update destroy]
 
   def index
     authorize Installment
@@ -19,7 +19,12 @@ class EmailsController < Sellers::BaseController
     authorize Installment, :index?
     create_user_event("emails_view")
 
-    presenter = PaginatedInstallmentsPresenter.new(seller: current_seller, type: Installment::PUBLISHED, page: 1)
+    presenter = PaginatedInstallmentsPresenter.new(
+      seller: current_seller,
+      type: Installment::PUBLISHED,
+      page: params[:page],
+      query: params[:query],
+    )
     render inertia: "Emails/Published", props: presenter.props
   end
 
@@ -27,7 +32,12 @@ class EmailsController < Sellers::BaseController
     authorize Installment, :index?
     create_user_event("emails_view")
 
-    presenter = PaginatedInstallmentsPresenter.new(seller: current_seller, type: Installment::SCHEDULED, page: 1)
+    presenter = PaginatedInstallmentsPresenter.new(
+      seller: current_seller,
+      type: Installment::SCHEDULED,
+      page: params[:page],
+      query: params[:query],
+    )
     render inertia: "Emails/Scheduled", props: presenter.props
   end
 
@@ -35,7 +45,12 @@ class EmailsController < Sellers::BaseController
     authorize Installment, :index?
     create_user_event("emails_view")
 
-    presenter = PaginatedInstallmentsPresenter.new(seller: current_seller, type: Installment::DRAFT, page: 1)
+    presenter = PaginatedInstallmentsPresenter.new(
+      seller: current_seller,
+      type: Installment::DRAFT,
+      page: params[:page],
+      query: params[:query],
+    )
     render inertia: "Emails/Drafts", props: presenter.props
   end
 
@@ -61,6 +76,12 @@ class EmailsController < Sellers::BaseController
   def update
     authorize @installment
     save_installment
+  end
+
+  def destroy
+    authorize @installment
+    @installment.destroy
+    redirect_to emails_path, notice: "Email deleted!", status: :see_other
   end
 
   private

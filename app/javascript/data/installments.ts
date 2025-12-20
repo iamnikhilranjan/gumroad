@@ -85,66 +85,6 @@ export type InstallmentFormContext = {
   allow_comments_by_default: boolean;
 };
 
-export function getPublishedInstallments({ page, query }: { page: number; query: string }) {
-  const abort = new AbortController();
-  const response = request({
-    method: "GET",
-    accept: "json",
-    url: Routes.internal_installments_path({ params: { type: "published", page, query } }),
-    abortSignal: abort.signal,
-  })
-    .then((res) => {
-      if (!res.ok) throw new ResponseError();
-      return res.json();
-    })
-    .then((json) => cast<{ installments: PublishedInstallment[]; pagination: Pagination }>(json));
-
-  return {
-    response,
-    cancel: () => abort.abort(),
-  };
-}
-
-export function getScheduledInstallments({ page, query }: { page: number; query: string }) {
-  const abort = new AbortController();
-  const response = request({
-    method: "GET",
-    accept: "json",
-    url: Routes.internal_installments_path({ params: { type: "scheduled", page, query } }),
-    abortSignal: abort.signal,
-  })
-    .then((res) => {
-      if (!res.ok) throw new ResponseError();
-      return res.json();
-    })
-    .then((json) => cast<{ installments: ScheduledInstallment[]; pagination: Pagination }>(json));
-
-  return {
-    response,
-    cancel: () => abort.abort(),
-  };
-}
-
-export function getDraftInstallments({ page, query }: { page: number; query: string }) {
-  const abort = new AbortController();
-  const response = request({
-    method: "GET",
-    accept: "json",
-    url: Routes.internal_installments_path({ params: { type: "draft", page, query } }),
-    abortSignal: abort.signal,
-  })
-    .then((res) => {
-      if (!res.ok) throw new ResponseError();
-      return res.json();
-    })
-    .then((json) => cast<{ installments: DraftInstallment[]; pagination: Pagination }>(json));
-
-  return {
-    response,
-    cancel: () => abort.abort(),
-  };
-}
-
 export async function getAudienceCount(externalId: string) {
   const response = await request({
     method: "GET",
@@ -187,41 +127,6 @@ export function getRecipientCount(requestPayload: RecipientCountRequestPayload) 
     response,
     cancel: () => abort.abort(),
   };
-}
-
-export async function deleteInstallment(externalId: string) {
-  const response = await request({
-    method: "DELETE",
-    accept: "json",
-    url: Routes.internal_installment_path(externalId),
-  });
-
-  if (!response.ok) throw new ResponseError();
-  const responseData = cast<{ success: true } | { success: false; message: string }>(await response.json());
-  if (!responseData.success) throw new ResponseError(responseData.message);
-  return responseData;
-}
-
-export async function getNewInstallment(copy_from: string | null = null) {
-  const response = await request({
-    method: "GET",
-    accept: "json",
-    url: Routes.new_internal_installment_path({ copy_from }),
-  });
-  if (!response.ok) throw new ResponseError();
-  return cast<{ context: InstallmentFormContext; installment: Omit<Installment, "external_id"> | null }>(
-    await response.json(),
-  );
-}
-
-export async function getEditInstallment(externalId: string) {
-  const response = await request({
-    method: "GET",
-    accept: "json",
-    url: Routes.edit_internal_installment_path(externalId),
-  });
-  if (!response.ok) throw new ResponseError();
-  return cast<{ context: InstallmentFormContext; installment: SavedInstallment }>(await response.json());
 }
 
 export async function previewInstallment(externalId: string) {

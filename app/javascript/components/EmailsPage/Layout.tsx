@@ -7,12 +7,10 @@ import { PageHeader } from "$app/components/ui/PageHeader";
 import { Tab, Tabs } from "$app/components/ui/Tabs";
 import { WithTooltip } from "$app/components/WithTooltip";
 
-const TABS = ["published", "scheduled", "drafts", "subscribers"] as const;
-export type EmailTab = (typeof TABS)[number];
-export const isValidEmailTab = (tab: string): tab is EmailTab => TABS.some((t) => t === tab);
+export type EmailTab = "published" | "scheduled" | "drafts" | "subscribers";
 
 // Path helpers using Rails routes
-export const emailTabPath = (tab: (typeof TABS)[number]) => {
+export const emailTabPath = (tab: EmailTab) => {
   switch (tab) {
     case "published":
       return Routes.published_emails_path();

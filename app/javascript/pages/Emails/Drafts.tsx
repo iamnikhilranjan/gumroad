@@ -1,20 +1,17 @@
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { formatDistanceToNow } from "date-fns";
 import React from "react";
 import { cast } from "ts-safe-cast";
 
 import {
-  deleteInstallment,
   DraftInstallment,
   getAudienceCount,
-  getDraftInstallments,
   Pagination,
 } from "$app/data/installments";
 import { assertDefined } from "$app/utils/assert";
-import { classNames } from "$app/utils/classNames";
 import { formatStatNumber } from "$app/utils/formatStatNumber";
 import { asyncVoid } from "$app/utils/promise";
-import { AbortError, assertResponseError } from "$app/utils/request";
+import { assertResponseError } from "$app/utils/request";
 
 import { Button, NavigationButton } from "$app/components/Button";
 import { useCurrentSeller } from "$app/components/CurrentSeller";
@@ -27,7 +24,6 @@ import { showAlert } from "$app/components/server-components/Alert";
 import { Sheet, SheetHeader } from "$app/components/ui/Sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 import { useDebouncedCallback } from "$app/components/useDebouncedCallback";
-import { useOnChange } from "$app/components/useOnChange";
 import { useUserAgentInfo } from "$app/components/UserAgent";
 
 import draftsPlaceholder from "$assets/images/placeholders/draft_posts.png";
@@ -50,13 +46,8 @@ type PageProps = {
 };
 
 export default function EmailsDrafts() {
-  const {
-    installments: initialInstallments,
-    pagination: initialPagination,
-    has_posts,
-  } = cast<PageProps>(usePage().props);
-  const [installments, setInstallments] = React.useState<DraftInstallment[]>(initialInstallments);
-  const [pagination, setPagination] = React.useState<Pagination>(initialPagination);
+  const pageProps = cast<PageProps>(usePage().props);
+  const { installments, pagination, has_posts } = pageProps;
   const currentSeller = assertDefined(useCurrentSeller(), "currentSeller is required");
   const [audienceCounts, setAudienceCounts] = React.useState<AudienceCounts>(new Map());
   React.useEffect(() => {
@@ -83,47 +74,36 @@ export default function EmailsDrafts() {
     name: string;
     state: "delete-confirmation" | "deleting";
   } | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [query, setQuery] = React.useState("");
-  const activeFetchRequest = React.useRef<{ cancel: () => void } | null>(null);
 
-  const fetchInstallments = async (reset = false) => {
-    const nextPage = reset ? 1 : pagination.next;
-    if (!nextPage) return;
-    setIsLoading(true);
-    try {
-      activeFetchRequest.current?.cancel();
-      const request = getDraftInstallments({ page: nextPage, query });
-      activeFetchRequest.current = request;
-      const response = await request.response;
-      setInstallments(reset ? response.installments : [...installments, ...response.installments]);
-      setPagination(response.pagination);
-      activeFetchRequest.current = null;
-      setIsLoading(false);
-    } catch (e) {
-      if (e instanceof AbortError) return;
-      activeFetchRequest.current = null;
-      setIsLoading(false);
-      assertResponseError(e);
-      showAlert("Sorry, something went wrong. Please try again.", "error");
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialQuery = urlParams.get("query") || "";
+  const [query, setQuery] = React.useState(initialQuery);
+  const isInitialMount = React.useRef(true);
+
+  const debouncedSearch = useDebouncedCallback((searchQuery: string) => {
+    router.get(Routes.drafts_emails_path(), { query: searchQuery || undefined }, { preserveState: false, preserveScroll: false });
+  }, 500);
+
+  React.useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
-  };
+    debouncedSearch(query);
+  }, [query]);
 
-  const debouncedFetchInstallments = useDebouncedCallback((reset: boolean) => void fetchInstallments(reset), 500);
-  useOnChange(() => debouncedFetchInstallments(true), [query]);
-
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!deletingInstallment) return;
-    try {
-      setDeletingInstallment({ ...deletingInstallment, state: "deleting" });
-      await deleteInstallment(deletingInstallment.id);
-      setInstallments(installments.filter((installment) => installment.external_id !== deletingInstallment.id));
-      setDeletingInstallment(null);
-      showAlert("Email deleted!", "success");
-    } catch (e) {
-      assertResponseError(e);
-      showAlert("Sorry, something went wrong. Please try again.", "error");
-    }
+    setDeletingInstallment({ ...deletingInstallment, state: "deleting" });
+    router.delete(Routes.email_path(deletingInstallment.id), {
+      onSuccess: () => {
+        setDeletingInstallment(null);
+      },
+      onError: () => {
+        setDeletingInstallment({ ...deletingInstallment, state: "delete-confirmation" });
+        showAlert("Sorry, something went wrong. Please try again.", "error");
+      },
+    });
   };
 
   const userAgentInfo = useUserAgentInfo();
@@ -136,7 +116,6 @@ export default function EmailsDrafts() {
             <Table
               aria-live="polite"
               aria-label="Drafts"
-              className={classNames(isLoading && "pointer-events-none opacity-50")}
             >
               <TableHeader>
                 <TableRow>
@@ -169,7 +148,12 @@ export default function EmailsDrafts() {
               </TableBody>
             </Table>
             {pagination.next ? (
-              <Button color="primary" disabled={isLoading} onClick={() => void fetchInstallments()}>
+              <Button
+                color="primary"
+                onClick={() => {
+                  router.reload({ data: { page: pagination.next } });
+                }}
+              >
                 Load more
               </Button>
             ) : null}

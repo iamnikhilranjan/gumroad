@@ -200,13 +200,14 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("preview_post") === "true" && installment?.full_url) {
-      window.open(installment.full_url, "_blank");
+    const fullUrl = installment?.full_url;
+    if (urlParams.get("preview_post") === "true" && fullUrl) {
+      window.open(fullUrl, "_blank");
       urlParams.delete("preview_post");
       const newUrl = window.location.pathname + (urlParams.toString() ? `?${urlParams.toString()}` : "");
-      router.visit(newUrl, { replace: true, preserveState: true, preserveScroll: true });
+      router.visit(newUrl, { replace: true, preserveState: true, preserveScroll: true, only: [] });
     }
-  }, [installment]);
+  }, [installment?.full_url]);
   const [bought, setBought] = React.useState<string[]>(() => {
     if (!installment) return [];
     return installment.installment_type === "variant" && installment.variant_external_id
@@ -591,21 +592,11 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       save_action_name: action,
     };
 
-    const formOptions = {
-      onError: (errors: Record<string, string | string[]>) => {
-        const errorMessage =
-          (typeof errors.message === "string" ? errors.message : undefined) ||
-          (typeof errors.base === "string" ? errors.base : undefined) ||
-          "Something went wrong. Please try again.";
-        showAlert(errorMessage, "error", { html: true });
-      },
-    };
-
     form.transform(() => payload);
     if (installment?.external_id) {
-      form.put(Routes.email_path(installment.external_id), formOptions);
+      form.put(Routes.email_path(installment.external_id));
     } else {
-      form.post(Routes.emails_path(), formOptions);
+      form.post(Routes.emails_path());
     }
   });
   const isBusy =
