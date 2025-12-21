@@ -44,6 +44,13 @@ export default function EmailsScheduled() {
   const { installments, pagination, has_posts } = pageProps;
   const currentSeller = assertDefined(useCurrentSeller(), "currentSeller is required");
   const userAgentInfo = useUserAgentInfo();
+  const [query, setQuery] = React.useState("");
+
+  const handleQueryChange = React.useCallback((newQuery: string) => {
+    setQuery(newQuery);
+    router.reload({ data: { query: newQuery || undefined } });
+  }, []);
+
   const installmentsByDate = React.useMemo(
     () =>
       installments.reduce<Record<string, ScheduledInstallment[]>>((acc, installment) => {
@@ -93,7 +100,7 @@ export default function EmailsScheduled() {
   };
 
   return (
-    <EmailsLayout selectedTab="scheduled" hasPosts={has_posts}>
+    <EmailsLayout selectedTab="scheduled" hasPosts={has_posts} query={query} onQueryChange={handleQueryChange}>
       <div className="space-y-4 p-4 md:p-8">
         {installments.length > 0 ? (
           <>

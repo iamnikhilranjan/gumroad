@@ -32,6 +32,12 @@ export default function EmailsPublished() {
   const currentSeller = assertDefined(useCurrentSeller(), "currentSeller is required");
   const [selectedInstallment, setSelectedInstallment] = React.useState<PublishedInstallment | null>(null);
   const [installmentToDelete, setInstallmentToDelete] = React.useState<PublishedInstallment | null>(null);
+  const [query, setQuery] = React.useState("");
+
+  const handleQueryChange = React.useCallback((newQuery: string) => {
+    setQuery(newQuery);
+    router.reload({ data: { query: newQuery || undefined } });
+  }, []);
 
   const deleteForm = useForm({});
   const handleDelete = () => {
@@ -50,7 +56,7 @@ export default function EmailsPublished() {
   const userAgentInfo = useUserAgentInfo();
 
   return (
-    <EmailsLayout selectedTab="published" hasPosts={has_posts}>
+    <EmailsLayout selectedTab="published" hasPosts={has_posts} query={query} onQueryChange={handleQueryChange}>
       <div className="space-y-4 p-4 md:p-8">
         {installments.length > 0 ? (
           <>
