@@ -15,7 +15,6 @@ class PublicController < ApplicationController
   end
 
   def widgets
-    @on_widgets_page = true
     @title = "Widgets"
     widget_presenter = WidgetPresenter.new(seller: current_seller)
 

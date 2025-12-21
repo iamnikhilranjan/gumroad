@@ -2,8 +2,9 @@ import { usePage } from "@inertiajs/react";
 import React from "react";
 import { cast } from "ts-safe-cast";
 
-import { WidgetsPage } from "$app/components/server-components/Developer/WidgetsPage";
 import { useExternalScripts } from "$app/hooks/useExternalScripts";
+
+import { WidgetsPage } from "$app/components/server-components/Developer/WidgetsPage";
 
 type Product = {
   name: string;
