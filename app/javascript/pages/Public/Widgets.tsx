@@ -1,38 +1,17 @@
 import { usePage } from "@inertiajs/react";
 import React from "react";
-import { cast } from "ts-safe-cast";
 
 import { useExternalScripts } from "$app/hooks/useExternalScripts";
 
-import { WidgetsPage } from "$app/components/server-components/Developer/WidgetsPage";
+import { WidgetsPage, type WidgetsPageProps } from "$app/components/server-components/Developer/WidgetsPage";
 
-type Product = {
-  name: string;
-  script_base_url: string;
-  url: string;
-  gumroad_domain_url: string;
-};
+function PublicWidgets() {
+  const props = usePage<WidgetsPageProps>().props;
 
-type Props = {
-  default_product: Product;
-  display_product_select: boolean;
-  products: Product[];
-  affiliated_products: Product[];
-};
-
-const PublicWidgets = () => {
-  const { default_product, display_product_select, products, affiliated_products } = cast<Props>(usePage().props);
-
+  // Dynamically load widget scripts for Inertia navigation support
   useExternalScripts(["/js/gumroad.js", "/js/gumroad-embed.js"]);
 
-  return (
-    <WidgetsPage
-      default_product={default_product}
-      display_product_select={display_product_select}
-      products={products}
-      affiliated_products={affiliated_products}
-    />
-  );
-};
+  return <WidgetsPage {...props} />;
+}
 
 export default PublicWidgets;

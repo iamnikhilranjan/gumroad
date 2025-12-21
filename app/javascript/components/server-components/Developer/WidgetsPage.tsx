@@ -15,14 +15,19 @@ import { useHasChanged } from "$app/components/Developer/useHasChanged";
 import { DomainSettingsProvider, useDomains } from "$app/components/DomainSettings";
 import { Icon } from "$app/components/Icons";
 
-type Props = {
+export type WidgetsPageProps = {
   default_product: Product;
   display_product_select: boolean;
   products: Product[];
   affiliated_products: Product[];
 };
 
-export const WidgetsPage = ({ display_product_select, products, affiliated_products, default_product }: Props) => {
+export const WidgetsPage = ({
+  display_product_select,
+  products,
+  affiliated_products,
+  default_product,
+}: WidgetsPageProps) => {
   const currentSeller = useCurrentSeller();
   const domains = useDomains();
 
@@ -116,7 +121,7 @@ export const WidgetsPage = ({ display_product_select, products, affiliated_produ
   );
 };
 
-const Widgets = ({ display_product_select, products, affiliated_products, default_product }: Props) => {
+const Widgets = ({ display_product_select, products, affiliated_products, default_product }: WidgetsPageProps) => {
   const [selectedProduct, setSelectedProduct] = React.useState(default_product);
   const [selectedTab, setSelectedTab] = React.useState<Tab>("overlay");
   const overlayTabpanelUID = React.useId();
