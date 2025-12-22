@@ -65,7 +65,7 @@ import { useIsAboveBreakpoint } from "$app/components/useIsAboveBreakpoint";
 import { useRefToLatest } from "$app/components/useRefToLatest";
 import { WithTooltip } from "$app/components/WithTooltip";
 
-import { FileEmbed, FileEmbedConfig, getDownloadUrl } from "./FileEmbed";
+import { FileEmbed, FileEmbedConfig } from "./FileEmbed";
 import { Page, PageTab, titleWithFallback } from "./PageTab";
 
 declare global {
@@ -210,7 +210,7 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
     productId: id,
     variantId: selectedVariantId,
     prepareDownload: save,
-    filesById: new Map(product.files.map((file) => [file.id, { ...file, url: getDownloadUrl(id, file) }])),
+    filesById,
   });
   const fileEmbedConfig = useRefToLatest<FileEmbedConfig>({ filesById });
   const uploadFilesRef = useRefToLatest(uploadFiles);
@@ -363,10 +363,13 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
 
   const addDropboxFiles = (files: ResponseDropboxFile[]) => {
     updateProduct((product) => {
+      const [updatedFiles, nonModifiedFiles] = partition(product.files, (file) =>
+        files.some(({ external_id }) => file.id === external_id),
+      );
       product.files = [
-        ...product.files.filter((file) => !files.some(({ external_id }) => file.id === external_id)),
+        ...nonModifiedFiles,
         ...files.map((file) => {
-          const existing = filesById.get(file.external_id);
+          const existing = updatedFiles.find(({ id }) => id === file.external_id);
           const extension = FileUtils.getFileExtension(file.name).toUpperCase();
           return {
             display_name: existing?.display_name ?? FileUtils.getFileNameWithoutExtension(file.name),
