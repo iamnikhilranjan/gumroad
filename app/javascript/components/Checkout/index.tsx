@@ -24,7 +24,6 @@ import {
   CartItemEnd,
   CartItemQuantity,
   CartItemActions,
-  CartActionButton,
 } from "$app/components/CartItemList";
 import { PaymentForm } from "$app/components/Checkout/PaymentForm";
 import { Icon } from "$app/components/Icons";
@@ -545,7 +544,7 @@ const CartItemComponent = ({
             item.product.installment_plan ||
             isPWYW ? (
               <Popover
-                trigger={<CartActionButton>Edit</CartActionButton>}
+                trigger={<Button className="h-8 w-15 !p-0 !text-xs">Edit</Button>}
                 open={editPopoverOpen}
                 onToggle={setEditPopoverOpen}
               >
@@ -567,7 +566,8 @@ const CartItemComponent = ({
                 </div>
               </Popover>
             ) : null}
-            <CartActionButton
+            <Button
+              className="h-8 w-15 !p-0 !text-xs"
               onClick={() => {
                 const newItems = cart.items.filter((i) => i !== item);
                 updateCart({
@@ -585,7 +585,7 @@ const CartItemComponent = ({
               }}
             >
               Remove
-            </CartActionButton>
+            </Button>
           </CartItemActions>
         </CartItemFooter>
       </CartItemMain>
