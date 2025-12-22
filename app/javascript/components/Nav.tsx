@@ -205,7 +205,7 @@ export const NavLinkDropdownMembershipItem = ({ teamMembership }: { teamMembersh
       href={Routes.sellers_switch_path()}
       onClick={onClick}
       aria-checked={teamMembership.is_selected}
-      className="!flex min-w-0 items-center gap-2"
+      className="flex! min-w-0 items-center gap-2"
     >
       <img className="user-avatar shrink-0" src={teamMembership.seller_avatar_url} alt={teamMembership.seller_name} />
       <span className="min-w-0 flex-1 truncate" title={teamMembership.seller_name}>
