@@ -106,7 +106,7 @@ describe Admin::Products::PurchasesController do
     end
 
     it "requires purchase ids" do
-      post :mass_refund_for_fraud, params: { product_id: product.id }, format: :json
+      post :mass_refund_for_fraud, params: { product_id: product.id, purchase_ids: [] }, as: :json, format: :json
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body["success"]).to eq(false)
