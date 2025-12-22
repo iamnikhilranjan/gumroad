@@ -2481,7 +2481,7 @@ const ChargesSection = ({
 
   return (
     <Stack asChild>
-      <section className="stack">
+      <section>
         <StackItem asChild>
           <header>
             <h3 className="grow">Charges</h3>
