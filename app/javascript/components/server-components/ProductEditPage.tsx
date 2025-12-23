@@ -184,8 +184,6 @@ const ProductEditPage = (props: Props) => {
     setSaving(false);
   };
 
-  const filesById = React.useMemo(() => new Map(product.files.map((file) => [file.id, file])), [product.files]);
-
   const contextValue = React.useMemo(
     () => ({
       ...createContextValue(props),
@@ -199,9 +197,8 @@ const ProductEditPage = (props: Props) => {
       saving,
       contentUpdates,
       setContentUpdates,
-      filesById,
     }),
-    [product, updateProduct, existingFiles, setExistingFiles, filesById],
+    [product, updateProduct, existingFiles, setExistingFiles],
   );
 
   const imageSettings = React.useMemo(
