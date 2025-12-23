@@ -3,7 +3,7 @@ import { Content, Editor, JSONContent } from "@tiptap/core";
 import cx from "classnames";
 import { addHours, format, startOfDay, startOfHour } from "date-fns";
 import React from "react";
-import { Link, Location, useLoaderData, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Location, useLoaderData, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { cast } from "ts-safe-cast";
 
 import {
@@ -605,9 +605,9 @@ export const EmailForm = () => {
       }
 
       if (action === "save_and_schedule") {
-        navigate(emailTabPath("scheduled"));
+        window.location.href = emailTabPath("scheduled");
       } else if (action === "save_and_publish") {
-        navigate(emailTabPath("published"));
+        window.location.href = emailTabPath("published");
       } else {
         navigate(editEmailPath(response.installment_id), {
           replace: true,
@@ -665,10 +665,10 @@ export const EmailForm = () => {
                 Preview
               </Button>
             )}
-            <Link to={cancelPath} className="button" inert={isBusy}>
+            <a href={cancelPath} className="button" inert={isBusy || undefined}>
               <Icon name="x-square" />
               Cancel
-            </Link>
+            </a>
             <Popover
               trigger={
                 <Button disabled={isBusy}>
