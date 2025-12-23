@@ -342,7 +342,6 @@ export const Checkout = ({
                     </form>
                   ) : null}
                 </div>
-
                 {total != null ? (
                   <>
                     <footer className="grid gap-4 border-t border-border p-4">
