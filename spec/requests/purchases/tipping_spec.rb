@@ -141,7 +141,7 @@ describe("Product checkout with tipping", type: :system, js: true) do
       expect(page).not_to have_radio_button("Other")
       expect(page).not_to have_field("Tip")
 
-      fill_checkout_form(free_product2)
+      fill_checkout_form(free_product2, is_free: true)
 
       expect(page).to have_text("Subtotal US$0", normalize_ws: true)
       expect(page).not_to have_text("Tip")
