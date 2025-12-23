@@ -7,6 +7,7 @@ require "inertia_rails/rspec"
 
 describe Settings::ProfileController, :vcr, type: :controller, inertia: true do
   let(:seller) { create(:named_seller) }
+  let(:pundit_user) { SellerContext.new(user: user_with_role_for_seller, seller:) }
 
   include_context "with user signed in as admin for seller"
 
@@ -15,7 +16,7 @@ describe Settings::ProfileController, :vcr, type: :controller, inertia: true do
   end
 
   describe "GET show" do
-    it "returns http success and renders Inertia component" do
+    it "returns successful response with Inertia page data" do
       get :show
 
       expect(response).to be_successful

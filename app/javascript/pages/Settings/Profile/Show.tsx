@@ -1,4 +1,4 @@
-import { useForm, usePage } from "@inertiajs/react";
+import { Head, router, usePage, useForm } from "@inertiajs/react";
 import * as React from "react";
 import { cast } from "ts-safe-cast";
 
@@ -26,6 +26,7 @@ type ProfilePageProps = {
   settings_pages: SettingPage[];
 } & ProfileProps;
 
+const FONT_CHOICES = ["ABC Favorit", "Inter", "Domine", "Merriweather", "Roboto Slab", "Roboto Mono"];
 const FONT_DESCRIPTIONS: Record<string, string> = {
   Domine: "Modern and bold serif",
   Inter: "Simple and modern sans-serif",
@@ -35,15 +36,18 @@ const FONT_DESCRIPTIONS: Record<string, string> = {
   "Roboto Slab": "Personable and fun serif",
 };
 
-export default function ProfileSettingsPage() {
-  const props = cast<ProfilePageProps>(usePage().props);
+export default function SettingsPage() {
+  const { creator_profile, profile_settings, settings_pages, ...profileProps } = cast<ProfilePageProps>(
+    usePage().props,
+  );
   const { rootDomain, scheme } = useDomains();
   const loggedInUser = useLoggedInUser();
-  const [creatorProfile, setCreatorProfile] = React.useState(props.creator_profile);
+  const [creatorProfile, setCreatorProfile] = React.useState(creator_profile);
+  React.useEffect(() => setCreatorProfile(creator_profile), [creator_profile]);
   const updateCreatorProfile = (newProfile: Partial<CreatorProfile>) =>
     setCreatorProfile((prevProfile) => ({ ...prevProfile, ...newProfile }));
 
-  const form = useForm(props.profile_settings);
+  const form = useForm(profile_settings);
 
   const profileSettings = form.data;
   const updateProfileSettings = (newSettings: Partial<ProfileSettings>) =>
@@ -70,7 +74,7 @@ export default function ProfileSettingsPage() {
   const handleUnlinkTwitter = asyncVoid(async () => {
     try {
       await unlinkTwitter();
-      window.location.reload();
+      router.reload();
     } catch (e) {
       assertResponseError(e);
       showAlert(e.message, "error");
@@ -83,7 +87,18 @@ export default function ProfileSettingsPage() {
     `${parseInt(hex.slice(1, 3), 16)} ${parseInt(hex.slice(3, 5), 16)} ${parseInt(hex.slice(5), 16)}`;
 
   return (
-    <SettingsLayout currentPage="profile" pages={props.settings_pages} onSave={handleSave} canUpdate={canUpdate}>
+    <SettingsLayout currentPage="profile" pages={settings_pages} onSave={handleSave} canUpdate={canUpdate}>
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {FONT_CHOICES.filter((font) => font !== "ABC Favorit").map((font) => (
+          <link
+            rel="stylesheet"
+            href={`https://fonts.googleapis.com/css2?family=${font}:wght@400;600&display=swap`}
+            key={font}
+          />
+        ))}
+      </Head>
       <WithPreviewSidebar>
         <form>
           <section className="p-4! md:p-8!">
@@ -172,24 +187,22 @@ export default function ProfileSettingsPage() {
             <fieldset>
               <legend>Font</legend>
               <div className="radio-buttons grid-cols-1! sm:grid-cols-2! md:grid-cols-3!" role="radiogroup">
-                {(["ABC Favorit", "Inter", "Domine", "Merriweather", "Roboto Slab", "Roboto Mono"] as const).map(
-                  (font) => (
-                    <Button
-                      role="radio"
-                      key={font}
-                      aria-checked={font === profileSettings.font}
-                      onClick={() => updateProfileSettings({ font })}
-                      style={{ fontFamily: font === "ABC Favorit" ? undefined : font }}
-                      disabled={!canUpdate}
-                    >
-                      <Icon name="file-earmark-font" />
-                      <div>
-                        <h4>{font}</h4>
-                        {FONT_DESCRIPTIONS[font]}
-                      </div>
-                    </Button>
-                  ),
-                )}
+                {FONT_CHOICES.map((font) => (
+                  <Button
+                    role="radio"
+                    key={font}
+                    aria-checked={font === profileSettings.font}
+                    onClick={() => updateProfileSettings({ font })}
+                    style={{ fontFamily: font === "ABC Favorit" ? undefined : font }}
+                    disabled={!canUpdate}
+                  >
+                    <Icon name="file-earmark-font" />
+                    <div>
+                      <h4>{font}</h4>
+                      {FONT_DESCRIPTIONS[font]}
+                    </div>
+                  </Button>
+                ))}
               </div>
             </fieldset>
             <div className="flex gap-4">
@@ -254,10 +267,7 @@ export default function ProfileSettingsPage() {
           >
             <Profile
               creator_profile={creatorProfile}
-              {...(() => {
-                const { creator_profile, ...rest } = props;
-                return rest;
-              })()}
+              {...(() => ({ profile_settings, settings_pages, ...profileProps }))()}
               bio={profileSettings.bio}
             />
           </Preview>
