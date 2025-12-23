@@ -3,7 +3,6 @@ import * as React from "react";
 
 import { Button } from "$app/components/Button";
 import { useState, getErrors } from "$app/components/Checkout/payment";
-import { Icon } from "$app/components/Icons";
 import { Modal } from "$app/components/Modal";
 import { Alert } from "$app/components/ui/Alert";
 
@@ -18,11 +17,7 @@ export const GiftForm = ({ isMembership }: { isMembership: boolean }) => {
 
   return (
     <div className="flex flex-col">
-      <label className="flex w-full items-center justify-between">
-        <div className="flex items-center">
-          <Icon name="gift-fill" className="mr-2" />
-          <h4>Give as a gift?</h4>
-        </div>
+      <label className="flex w-full items-center">
         <input
           type="checkbox"
           role="switch"
@@ -36,10 +31,13 @@ export const GiftForm = ({ isMembership }: { isMembership: boolean }) => {
             }
           }}
         />
+        <div className="flex items-center">
+          <h4>Give as a gift?</h4>
+        </div>
       </label>
 
       {gift ? (
-        <div className="flex w-full flex-col gap-4">
+        <div className="flex w-full flex-col gap-4 py-4">
           {isMembership ? (
             <Alert variant="info">
               Note: Free trials will be charged immediately. The membership will not auto-renew. The recipient must
