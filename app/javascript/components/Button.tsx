@@ -8,17 +8,20 @@ import { classNames } from "$app/utils/classNames";
 
 import { ButtonColor, buttonColors } from "$app/components/design";
 
-export type BrandName =
-  | "paypal"
-  | "discord"
-  | "stripe"
-  | "facebook"
-  | "twitter"
-  | "apple"
-  | "android"
-  | "kindle"
-  | "zoom"
-  | "google";
+export const brandNames = [
+  "paypal",
+  "discord",
+  "stripe",
+  "facebook",
+  "twitter",
+  "apple",
+  "android",
+  "kindle",
+  "zoom",
+  "google",
+] as const;
+
+export type BrandName = (typeof brandNames)[number];
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 cursor-pointer border border-border rounded bg-transparent font-inherit no-underline transition-transform hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[0.25rem_0.25rem_0_currentColor] active:translate-x-0 active:translate-y-0 active:shadow-none disabled:opacity-30 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-none",
@@ -130,13 +133,14 @@ const useButtonCommon = ({
 
   // Support legacy brand prop by mapping it to color
   const effectiveColor = brand || color;
+  const effectiveBrand = brand || (brandNames.includes(effectiveColor as BrandName) ? (effectiveColor as BrandName) : undefined);
 
   const classes = classNames(
     buttonVariants({ variant, size, color: effectiveColor && !outline ? effectiveColor : undefined }),
     className,
   );
 
-  const icon = brand && <span className={`brand-icon brand-icon-${brand}`} />;
+  const icon = effectiveBrand && <span className={`brand-icon brand-icon-${effectiveBrand}`} />;
 
   return { classes, icon };
 };
@@ -148,8 +152,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp className={classes} ref={ref} disabled={disabled} type={asChild ? undefined : "button"} {...props}>
-        {icon}
-        {children}
+        {asChild ? children : (
+          <>
+            {icon}
+            {children}
+          </>
+        )}
       </Comp>
     );
   },
@@ -162,27 +170,36 @@ export interface NavigationButtonProps extends Omit<React.ComponentPropsWithoutR
 
 export const NavigationButton = React.forwardRef<HTMLAnchorElement, NavigationButtonProps>(
   ({ className, color, outline, small, brand, disabled, children, ...props }, ref) => {
-    const { classes, icon } = useButtonCommon({ className, color, outline, small, brand });
+    const { icon } = useButtonCommon({ className, color, outline, small, brand });
 
     return (
-      <a
-        className={classes}
-        ref={ref}
-        inert={disabled}
-        {...props}
-        onClick={(evt) => {
-          if (props.onClick == null) return;
-
-          if (props.href == null || props.href === "#") evt.preventDefault();
-
-          props.onClick(evt);
-
-          evt.stopPropagation();
-        }}
+      <Button
+        asChild
+        className={className}
+        color={color}
+        outline={outline}
+        small={small}
+        brand={brand}
+        disabled={disabled}
       >
-        {icon}
-        {children}
-      </a>
+        <a
+          ref={ref}
+          inert={disabled}
+          {...props}
+          onClick={(evt) => {
+            if (props.onClick == null) return;
+
+            if (props.href == null || props.href === "#") evt.preventDefault();
+
+            props.onClick(evt);
+
+            evt.stopPropagation();
+          }}
+        >
+          {icon}
+          {children}
+        </a>
+      </Button>
     );
   },
 );

@@ -10,4 +10,36 @@ a.gumroad-button {
   font-family: $font-family;
   $icons: [];
   @import "../stylesheets/icons";
+
+  // Inlined from deleted _button.scss
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: spacer(2);
+  cursor: pointer;
+  border: $border;
+  border-radius: border-radius(1);
+  background-color: transparent;
+  font-family: inherit;
+  text-decoration: none;
+  @include transition(transform);
+
+  padding: spacer(3) spacer(4);
+  @include font-size(2);
+
+  background-color: full-color(primary);
+  color: full-color(contrast-primary);
+  border-color: full-color(primary);
+
+  &:hover {
+    transform: translate(-$button-hover-transform-length, -$button-hover-transform-length);
+    box-shadow: box-shadow(1);
+    background-color: full-color(accent);
+    color: full-color(contrast-accent);
+  }
+
+  &:active {
+    transform: translate(0, 0);
+    box-shadow: none;
+  }
 }
