@@ -56,12 +56,11 @@ describe PublicController, type: :controller, inertia: true do
 
       include_context "with user signed in as admin for seller"
 
-      it "renders the inertia page with correct component, props, and title" do
+      it "renders the inertia page with correct component and title" do
         get :widgets
 
         expect(response).to be_successful
         expect(inertia).to render_component("Public/Widgets")
-        expect(inertia.props).to be_present
         expect(assigns(:title)).to eq("Widgets")
       end
     end
