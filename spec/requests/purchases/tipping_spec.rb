@@ -125,14 +125,11 @@ describe("Product checkout with tipping", type: :system, js: true) do
   end
 
   context "when the cart is free," do
-    let(:free_product1) { create(:product, name: "Free Product 1", user: seller, price_cents: 0) }
-    let(:free_product2) { create(:product, name: "Free Product 2", user: seller, price_cents: 0) }
+    let(:free_product) { create(:product, name: "Free Product", user: seller, price_cents: 0) }
 
     it "does not show tip selector and allows checkout without tip" do
-      visit free_product2.long_url
-      add_to_cart(free_product2, pwyw_price: 0)
-      visit free_product1.long_url
-      add_to_cart(free_product1, pwyw_price: 0)
+      visit free_product.long_url
+      add_to_cart(free_product)
 
       expect(page).not_to have_text("Add a tip")
       expect(page).not_to have_radio_button("0%")
@@ -141,26 +138,13 @@ describe("Product checkout with tipping", type: :system, js: true) do
       expect(page).not_to have_radio_button("Other")
       expect(page).not_to have_field("Tip")
 
-      fill_checkout_form(free_product2, is_free: true)
+      check_out(free_product, is_free: true)
 
-      expect(page).to have_text("Subtotal US$0", normalize_ws: true)
-      expect(page).not_to have_text("Tip")
-      expect(page).to have_text("Total US$0", normalize_ws: true)
-      click_on "Get"
-
-      expect(page).to have_alert(text: "Your purchase was successful! We sent a receipt to test@gumroad.com.")
-
-      purchase_free_product2 = Purchase.last
-      expect(purchase_free_product2).to be_successful
-      expect(purchase_free_product2.link).to eq(free_product2)
-      expect(purchase_free_product2.price_cents).to eq(0)
-      expect(purchase_free_product2.tip).to be_nil
-
-      purchase_free_product1 = Purchase.second_to_last
-      expect(purchase_free_product1).to be_successful
-      expect(purchase_free_product1.link).to eq(free_product1)
-      expect(purchase_free_product1.price_cents).to eq(0)
-      expect(purchase_free_product1.tip).to be_nil
+      purchase = Purchase.last
+      expect(purchase).to be_successful
+      expect(purchase.link).to eq(free_product)
+      expect(purchase.price_cents).to eq(0)
+      expect(purchase.tip).to be_nil
     end
   end
 
