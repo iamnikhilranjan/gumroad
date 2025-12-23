@@ -101,13 +101,17 @@ namespace :admin do
       resource :details, controller: "details", only: [:show]
       resource :info, only: [:show]
       resource :staff_picked, controller: "staff_picked", only: [:create]
-      resources :purchases, only: [:index]
+      resources :purchases, only: [:index] do
+        collection do
+          post :mass_refund_for_fraud
+        end
+      end
     end
   end
 
   resources :comments, only: :create
 
-  resources :purchases, only: [:show] do
+  resources :purchases, only: [:show], param: :external_id do
     scope module: :purchases do
       concerns :commentable
     end
@@ -128,7 +132,7 @@ namespace :admin do
 
   resources :sales_reports, only: [:index, :create]
 
-  resources :merchant_accounts, only: [:show] do
+  resources :merchant_accounts, only: [:show], param: :external_id do
     member do
       get :live_attributes
     end

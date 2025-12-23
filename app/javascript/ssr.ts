@@ -45,7 +45,6 @@ import GenerateInvoicePage from "$app/components/server-components/GenerateInvoi
 import GumroadBlogIndexPage from "$app/components/server-components/GumroadBlog/IndexPage";
 import GumroadBlogPostPage from "$app/components/server-components/GumroadBlog/PostPage";
 import HelpCenterArticlesIndexPage from "$app/components/server-components/HelpCenter/ArticlesIndexPage";
-import LibraryPage from "$app/components/server-components/LibraryPage";
 import LoginPage from "$app/components/server-components/LoginPage";
 import Nav from "$app/components/server-components/Nav";
 import PayoutCreditCard from "$app/components/server-components/PayoutPage/CreditCard";
@@ -65,7 +64,6 @@ import DisputeEvidencePage from "$app/components/server-components/Purchase/Disp
 import PurchaseProductPage from "$app/components/server-components/Purchase/ProductPage";
 import SubscribeReviewReminders from "$app/components/server-components/ReviewReminders/SubscribeReviewReminders";
 import UnsubscribeReviewReminders from "$app/components/server-components/ReviewReminders/UnsubscribeReviewReminders";
-import ReviewsPage from "$app/components/server-components/ReviewsPage";
 import SecureRedirectPage from "$app/components/server-components/SecureRedirectPage";
 import AdvancedSettingsPage from "$app/components/server-components/Settings/AdvancedPage";
 import ApplicationEditPage from "$app/components/server-components/Settings/AdvancedPage/EditApplicationPage";
@@ -85,8 +83,6 @@ import TaxesCollectionModal from "$app/components/server-components/TaxesCollect
 import UtmLinksPage from "$app/components/server-components/UtmLinksPage";
 import VideoStreamPlayer from "$app/components/server-components/VideoStreamPlayer";
 import WishlistPage from "$app/components/server-components/WishlistPage";
-import WishlistsFollowingPage from "$app/components/server-components/WishlistsFollowingPage";
-import WishlistsPage from "$app/components/server-components/WishlistsPage";
 import CodeSnippet from "$app/components/ui/CodeSnippet";
 import { Pill } from "$app/components/ui/Pill";
 
@@ -139,7 +135,6 @@ ReactOnRails.register({
   GenerateInvoicePage,
   GumroadBlogIndexPage,
   GumroadBlogPostPage,
-  LibraryPage,
   LoginPage,
   MainSettingsPage,
   Nav,
@@ -160,7 +155,6 @@ ReactOnRails.register({
   ProfileWishlistPage,
   PublicChargePage,
   PublicLicenseKeyPage,
-  ReviewsPage,
   SecureRedirectPage,
   SignupPage,
   SubscribePage,
@@ -174,7 +168,5 @@ ReactOnRails.register({
   ThirdPartyAnalyticsSettingsPage,
   VideoStreamPlayer,
   WishlistPage,
-  WishlistsFollowingPage,
-  WishlistsPage,
   UtmLinksPage,
 });
