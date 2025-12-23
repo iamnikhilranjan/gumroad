@@ -116,7 +116,7 @@ describe("Email Editing Flow", :js, :elasticsearch_wait_for_refresh, type: :syst
     expect(subtitle.language).to include("English")
     expect(installment.stream_only?).to be(false)
 
-    expect(page).to have_current_path("#{emails_path}/#{installment.external_id}/edit")
+    expect(page).to have_current_path("#{emails_path}/#{installment.external_id}/edit", ignore_query: true)
   end
 
   it "allows editing and scheduling a draft email" do
@@ -181,7 +181,7 @@ describe("Email Editing Flow", :js, :elasticsearch_wait_for_refresh, type: :syst
     find(:table_row, { "Subject" => "Scheduled email" }).click
     click_on "Edit"
 
-    expect(page).to have_current_path("#{emails_path}/#{scheduled_installment.external_id}/edit")
+    expect(page).to have_current_path("#{emails_path}/#{scheduled_installment.external_id}/edit", ignore_query: true)
     expect(page).to have_checked_field("Send email")
     expect(page).to have_unchecked_field("Post to profile")
     expect(page).to have_field("Title", with: "Scheduled email")
@@ -225,7 +225,7 @@ describe("Email Editing Flow", :js, :elasticsearch_wait_for_refresh, type: :syst
     find(:table_row, { "Subject" => "Original email" }).click
     click_on "Edit"
 
-    expect(page).to have_current_path("#{emails_path}/#{installment.external_id}/edit")
+    expect(page).to have_current_path("#{emails_path}/#{installment.external_id}/edit", ignore_query: true)
     expect(page).to have_checked_field("Send email")
     expect(page).to have_unchecked_field("Post to profile")
     check "Post to profile"
@@ -276,7 +276,7 @@ describe("Email Editing Flow", :js, :elasticsearch_wait_for_refresh, type: :syst
     find(:table_row, { "Subject" => "Hello" }).click
     click_on "Edit"
 
-    expect(page).to have_current_path("#{emails_path}/#{published_installment.external_id}/edit")
+    expect(page).to have_current_path("#{emails_path}/#{published_installment.external_id}/edit", ignore_query: true)
     expect(page).to have_text("Edit email")
     expect(page).to have_radio_button("Customers only", checked: true, disabled: true)
     expect(page).to have_radio_button("Everyone", checked: false, disabled: true)

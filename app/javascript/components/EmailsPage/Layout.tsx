@@ -99,19 +99,25 @@ export const EmailsLayout = ({ selectedTab, children, hasPosts, query, onQueryCh
   );
 };
 
-// Navigation to react-router pages uses <a href> to force full page reload
-export const NewEmailButton = ({ copyFrom }: { copyFrom?: string } = {}) => {
-  const href = copyFrom ? `/emails/new?copy_from=${copyFrom}` : "/emails/new";
+// Pass current path as 'from' query param so the form can redirect back after cancel
+export const NewEmailButton = ({ copyFrom, from }: { copyFrom?: string; from?: string } = {}) => {
+  const params = new URLSearchParams();
+  if (copyFrom) params.set("copy_from", copyFrom);
+  if (from) params.set("from", from);
+  const href = `/emails/new${params.toString() ? `?${params.toString()}` : ""}`;
 
   return (
-    <a className={cx("button", { accent: !copyFrom })} href={href}>
+    <a className={cx("button", { accent: !copyFrom })} href={href} data-inertia="false">
       {copyFrom ? "Duplicate" : "New email"}
     </a>
   );
 };
 
-export const EditEmailButton = ({ id }: { id: string }) => (
-  <a className="button" href={`/emails/${id}/edit`}>
-    Edit
-  </a>
-);
+export const EditEmailButton = ({ id, from }: { id: string; from?: string }) => {
+  const href = from ? `/emails/${id}/edit?from=${encodeURIComponent(from)}` : `/emails/${id}/edit`;
+  return (
+    <a className="button" href={href} data-inertia="false">
+      Edit
+    </a>
+  );
+};

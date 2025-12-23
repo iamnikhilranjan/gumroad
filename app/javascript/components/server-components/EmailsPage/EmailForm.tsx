@@ -609,7 +609,7 @@ export const EmailForm = () => {
         );
         navigate(editEmailPath(response.installment_id), {
           replace: true,
-          state: { from: routerLocation.state?.from },
+          state: { from: routerLocation.state?.from ?? searchParams.get("from") },
         });
       }
     } catch (e) {
@@ -624,8 +624,9 @@ export const EmailForm = () => {
     imagesUploading.size > 0 ||
     files.some((file) => isFileUploading(file) || file.subtitle_files.some(isFileUploading));
 
+  const fromParam = searchParams.get("from");
   const cancelPath =
-    routerLocation.state?.from ?? emailTabPath(context.has_scheduled_emails ? "scheduled" : "published");
+    routerLocation.state?.from ?? fromParam ?? emailTabPath(context.has_scheduled_emails ? "scheduled" : "published");
 
   return (
     <div>
