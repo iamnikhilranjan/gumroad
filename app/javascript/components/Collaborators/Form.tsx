@@ -2,19 +2,19 @@ import { useForm } from "@inertiajs/react";
 import cx from "classnames";
 import * as React from "react";
 
+import type { CollaboratorFormProduct, CollaboratorFormData } from "$app/data/collaborators";
 import { isValidEmail } from "$app/utils/email";
 
 import { Button } from "$app/components/Button";
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { Modal } from "$app/components/Modal";
-import { NumberInput } from "$app/components/NumberInput";
 import { NavigationButtonInertia } from "$app/components/NavigationButton";
+import { NumberInput } from "$app/components/NumberInput";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Pill } from "$app/components/ui/Pill";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 import { WithTooltip } from "$app/components/WithTooltip";
-import type { CollaboratorFormProduct, CollaboratorFormData } from "$app/data/collaborators";
 
 const DEFAULT_PERCENT_COMMISSION = 50;
 const MIN_PERCENT_COMMISSION = 1;
@@ -68,7 +68,9 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
         ? {
             ...product,
             percent_commission: product.percent_commission || initialDefaultPercentCommission,
-            dont_show_as_co_creator: initialApplyToAllProducts ? initialDontShowAsCoCreator : product.dont_show_as_co_creator,
+            dont_show_as_co_creator: initialApplyToAllProducts
+              ? initialDontShowAsCoCreator
+              : product.dont_show_as_co_creator,
             has_error: false,
           }
         : {
@@ -136,7 +138,7 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
       }
 
       if (emailError) {
-        setError("email", emailError);
+        form.setError("email", emailError);
         showAlert(emailError, "error");
         emailInputRef.current?.focus();
         return;
@@ -175,13 +177,16 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
       onSuccess: () => {
         showAlert(isEditing ? "Changes saved!" : "Collaborator added!", "success");
       },
-      onError: (errs: any) => {
-        showAlert(errs.base?.[0] || (isEditing ? "Failed to update collaborator" : "Failed to add collaborator"), "error");
+      onError: (errs: Record<string, string[]>) => {
+        showAlert(
+          errs.base?.[0] || (isEditing ? "Failed to update collaborator" : "Failed to add collaborator"),
+          "error",
+        );
       },
     };
 
     if (isEditing) {
-      patch(Routes.collaborator_path(formData.id), options);
+      patch(Routes.collaborators_path() + `/${formData.id}`, options);
     } else {
       post(Routes.collaborators_path(), options);
     }
