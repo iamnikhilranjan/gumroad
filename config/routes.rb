@@ -391,11 +391,16 @@ Rails.application.routes.draw do
         get :export
       end
     end
-    resources :collaborators, only: [:index]
-    # Routes handled by react-router. Non-catch-all routes are declared to
-    # generate URL helpers.
-    get "/collaborators/incomings", to: "collaborators#index"
-    get "/collaborators/*other", to: "collaborators#index"
+
+    resources :collaborators, only: [:index, :new, :create, :edit, :update, :destroy], path: "collaborators", controller: "collaborators/main"
+    scope path: "collaborators", module: :collaborators, as: "collaborators" do
+      resources :incomings, only: [:index, :destroy], controller: "incomings" do
+        member do
+          post :accept
+          post :decline
+        end
+      end
+    end
 
     get "/affiliates/*other", to: "affiliates#index" # route handled by react-router
     get "/emails/*other", to: "emails#index" # route handled by react-router
@@ -909,15 +914,6 @@ Rails.application.routes.draw do
           get :statistics, on: :member
         end
 
-        resources :collaborators, only: [:index, :new, :create, :edit, :update, :destroy] do
-          scope module: :collaborators do
-            resources :invitation_acceptances, only: [:create]
-            resources :invitation_declines, only: [:create]
-          end
-        end
-        namespace :collaborators do
-          resources :incomings, only: [:index]
-        end
 
         resources :installments, only: [:index, :new, :edit, :create, :update, :destroy] do
           member do

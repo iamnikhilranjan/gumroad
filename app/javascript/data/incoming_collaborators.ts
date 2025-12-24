@@ -1,11 +1,4 @@
-import { cast } from "ts-safe-cast";
-
-import { request, ResponseError } from "$app/utils/request";
-
-export type IncomingCollaboratorsData = {
-  collaborators: IncomingCollaborator[];
-  collaborators_disabled_reason: string | null;
-};
+import type { CollaboratorPagesSharedProps } from "./collaborators";
 
 export type IncomingCollaborator = {
   id: string;
@@ -25,14 +18,6 @@ export type IncomingCollaborator = {
   }[];
 };
 
-export const getIncomingCollaborators = async () => {
-  const response = await request({
-    method: "GET",
-    url: Routes.internal_collaborators_incomings_path(),
-    accept: "json",
-  });
-
-  if (!response.ok) throw new ResponseError();
-
-  return cast<IncomingCollaboratorsData>(await response.json());
-};
+export type IncomingCollaboratorsPageProps = {
+  collaborators: IncomingCollaborator[];
+} & CollaboratorPagesSharedProps;
