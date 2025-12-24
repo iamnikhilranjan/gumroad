@@ -17,11 +17,12 @@ export const GiftForm = ({ isMembership }: { isMembership: boolean }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <label className="flex w-full items-center">
+      <label className="flex w-full items-center gap-4">
         <input
           type="checkbox"
           role="switch"
           checked={!!gift}
+          className="text-xl!"
           onChange={(e) => {
             if (gift?.type === "anonymous") {
               e.preventDefault();
