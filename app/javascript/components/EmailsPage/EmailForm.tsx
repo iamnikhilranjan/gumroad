@@ -344,47 +344,50 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       setBought(bought);
       setAudienceType("customers");
       setChannel({ profile: false, email: true });
-      form.setData("installment.message", JSON.stringify({
-        type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: "New content has been added to ",
-              },
-              {
-                type: "text",
-                marks: [
-                  {
-                    type: "link",
-                    attrs: {
-                      href: Routes.short_link_url(permalink, {
-                        host: `${window.location.protocol}//${currentSeller.subdomain || appDomain}`,
-                      }),
+      form.setData(
+        "installment.message",
+        JSON.stringify({
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: "New content has been added to ",
+                },
+                {
+                  type: "text",
+                  marks: [
+                    {
+                      type: "link",
+                      attrs: {
+                        href: Routes.short_link_url(permalink, {
+                          host: `${window.location.protocol}//${currentSeller.subdomain || appDomain}`,
+                        }),
+                      },
                     },
-                  },
-                ],
-                text: productName ?? "your product",
-              },
-              {
-                type: "text",
-                text: ".",
-              },
-            ],
-          },
-          {
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: "You can access it by visiting your Gumroad Library or through the link in your email receipt.",
-              },
-            ],
-          },
-        ],
-      }));
+                  ],
+                  text: productName ?? "your product",
+                },
+                {
+                  type: "text",
+                  text: ".",
+                },
+              ],
+            },
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: "You can access it by visiting your Gumroad Library or through the link in your email receipt.",
+                },
+              ],
+            },
+          ],
+        }),
+      );
 
       return;
     }
@@ -398,20 +401,23 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
         setBought([permalink]);
       }
       form.setData("installment.name", `${productName} - updated!`);
-      form.setData("installment.message", JSON.stringify({
-        type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: `I have recently updated some files associated with ${productName}. They're yours for free.`,
-              },
-            ],
-          },
-        ],
-      }));
+      form.setData(
+        "installment.message",
+        JSON.stringify({
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: `I have recently updated some files associated with ${productName}. They're yours for free.`,
+                },
+              ],
+            },
+          ],
+        }),
+      );
     } else if (isBundleMarketing) {
       if (canSendToCustomers) {
         const permalinks = searchParams
@@ -425,7 +431,10 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
       const bundlePermalink = searchParams.get("bundle_permalink");
       if (bundleName && bundlePermalink) {
         form.setData("installment.name", `Introducing ${bundleName}`);
-        form.setData("installment.message", JSON.stringify({ type: "doc", content: getBundleMarketingMessage(searchParams) }));
+        form.setData(
+          "installment.message",
+          JSON.stringify({ type: "doc", content: getBundleMarketingMessage(searchParams) }),
+        );
       }
     }
   });
