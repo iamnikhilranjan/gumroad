@@ -278,8 +278,7 @@ const Period = ({ payoutPeriodData }: { payoutPeriodData: PayoutPeriodData }) =>
                     isCurrentPeriod={isCurrentPeriod}
                     bankAccount={{
                       ...payoutPeriodData,
-                      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                      arrival_date: payoutPeriodData.arrival_date,
+                      arrival_date: "arrival_date" in payoutPeriodData ? payoutPeriodData.arrival_date : null,
                       status: payoutPeriodData.status,
                       payout_currency: payoutPeriodData.payout_currency,
                     }}
