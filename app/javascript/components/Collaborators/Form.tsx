@@ -58,31 +58,33 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
     return !product.has_another_collaborator && product.published;
   };
 
-  const { data, setData, post, patch, processing, errors, setError, transform } = useForm({
+  const form = useForm({
     email: isEditing ? formData.email : "",
     apply_to_all_products: initialApplyToAllProducts,
     percent_commission: initialDefaultPercentCommission,
     dont_show_as_co_creator: initialDontShowAsCoCreator,
-    products: formData.products.map((product) =>
-      isEditing
-        ? {
-            ...product,
-            percent_commission: product.percent_commission || initialDefaultPercentCommission,
-            dont_show_as_co_creator: initialApplyToAllProducts
-              ? initialDontShowAsCoCreator
-              : product.dont_show_as_co_creator,
-            has_error: false,
-          }
-        : {
-            ...product,
-            enabled: shouldEnableProduct(product),
-            percent_commission: initialDefaultPercentCommission,
-            has_error: false,
-            dont_show_as_co_creator: false,
-          },
-    ) as CollaboratorProduct[],
+    products: formData.products.map(
+      (product): CollaboratorProduct =>
+        isEditing
+          ? {
+              ...product,
+              percent_commission: product.percent_commission || initialDefaultPercentCommission,
+              dont_show_as_co_creator: initialApplyToAllProducts
+                ? initialDontShowAsCoCreator
+                : product.dont_show_as_co_creator,
+              has_error: false,
+            }
+          : {
+              ...product,
+              enabled: shouldEnableProduct(product),
+              percent_commission: initialDefaultPercentCommission,
+              has_error: false,
+              dont_show_as_co_creator: false,
+            },
+    ),
     default_commission_has_error: false,
   });
+  const { data, setData, post, patch, processing, errors, transform } = form;
 
   const productsWithAffiliates = data.products.filter((product) => product.enabled && product.has_affiliates);
   const listedProductsWithAffiliatesCount =
@@ -177,16 +179,13 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
       onSuccess: () => {
         showAlert(isEditing ? "Changes saved!" : "Collaborator added!", "success");
       },
-      onError: (errs: Record<string, string[]>) => {
-        showAlert(
-          errs.base?.[0] || (isEditing ? "Failed to update collaborator" : "Failed to add collaborator"),
-          "error",
-        );
+      onError: () => {
+        showAlert(isEditing ? "Failed to update collaborator" : "Failed to add collaborator", "error");
       },
     };
 
     if (isEditing) {
-      patch(Routes.collaborators_path() + `/${formData.id}`, options);
+      patch(`/collaborators/${formData.id}`, options);
     } else {
       post(Routes.collaborators_path(), options);
     }
