@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 class AudienceController < Sellers::BaseController
-  layout "inertia", only: [:index]
+  layout "inertia"
 
-  before_action :set_body_id_as_app, except: [:index]
   before_action :set_time_range, only: %i[data_by_date]
 
   after_action :set_dashboard_preference_to_audience, only: :index
