@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AudienceController < Sellers::BaseController
-  before_action :set_time_range, only: %i[data_by_date]
+  before_action :set_time_range, only: %i[index]
 
   after_action :set_dashboard_preference_to_audience, only: :index
   before_action :check_payment_details, only: :index
@@ -12,7 +12,15 @@ class AudienceController < Sellers::BaseController
     authorize :audience
 
     total_follower_count = current_seller.audience_members.where(follower: true).count
-    render inertia: "Audience/Index", props: { total_follower_count: }
+    props = {
+      total_follower_count: InertiaRails.always { total_follower_count }
+    }
+
+    if total_follower_count > 0
+      props[:audience_data] = InertiaRails.optional { fetch_audience_data }
+    end
+
+    render inertia: "Audience/Index", props: props
   end
 
   def export
@@ -27,13 +35,7 @@ class AudienceController < Sellers::BaseController
     head :ok
   end
 
-  def data_by_date
-    authorize :audience, :index?
 
-    data = CreatorAnalytics::Following.new(current_seller).by_date(start_date: @start_date.to_date, end_date: @end_date.to_date)
-
-    render json: data
-  end
 
   protected
     def set_time_range
@@ -51,5 +53,13 @@ class AudienceController < Sellers::BaseController
 
     def set_title
       @title = "Analytics"
+    end
+
+  private
+    def fetch_audience_data
+      CreatorAnalytics::Following.new(current_seller).by_date(
+        start_date: @start_date.to_date,
+        end_date: @end_date.to_date
+      )
     end
 end
