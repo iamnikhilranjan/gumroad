@@ -22,7 +22,6 @@ export const GiftForm = ({ isMembership }: { isMembership: boolean }) => {
           type="checkbox"
           role="switch"
           checked={!!gift}
-          className="text-xl!"
           onChange={(e) => {
             if (gift?.type === "anonymous") {
               e.preventDefault();
