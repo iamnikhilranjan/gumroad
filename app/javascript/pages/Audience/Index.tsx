@@ -36,7 +36,6 @@ export default function AudiencePage() {
   const hasContent = total_follower_count > 0;
 
   React.useEffect(() => {
-    // Skip initial mount - data is already loaded via Inertia props
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
