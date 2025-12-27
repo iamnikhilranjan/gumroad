@@ -150,16 +150,18 @@ describe EmailsController, type: :controller, inertia: true do
     end
 
     context "when save is successful" do
+      let(:new_installment) { build(:installment, seller:) }
+
       before do
         allow_any_instance_of(SaveInstallmentService).to receive(:process).and_return(true)
-        allow_any_instance_of(SaveInstallmentService).to receive(:installment).and_return(build(:installment, seller:))
+        allow_any_instance_of(SaveInstallmentService).to receive(:installment).and_return(new_installment)
       end
 
-      it "redirects to emails path with success notice" do
+      it "redirects to edit email path with success notice" do
         post :create, params: { installment: { subject: "Test Email" } }
 
-        expect(response).to redirect_to(emails_path)
-        expect(flash[:notice]).to eq("Email saved successfully.")
+        expect(response).to redirect_to(edit_email_path(new_installment.external_id))
+        expect(flash[:notice]).to eq("Email created!")
       end
 
       it "redirects to edit path when save_and_preview_post is clicked" do
@@ -169,7 +171,7 @@ describe EmailsController, type: :controller, inertia: true do
         post :create, params: { installment: { subject: "Test Email" }, save_action_name: "save_and_preview_post" }
 
         expect(response).to redirect_to(edit_email_path(installment.external_id, preview_post: true))
-        expect(flash[:notice]).to eq("Email saved successfully.")
+        expect(flash[:notice]).to eq("Preview link opened.")
       end
     end
 
@@ -202,11 +204,11 @@ describe EmailsController, type: :controller, inertia: true do
         allow_any_instance_of(SaveInstallmentService).to receive(:installment).and_return(installment)
       end
 
-      it "redirects to emails path with success notice" do
+      it "redirects to edit email path with success notice" do
         patch :update, params: { id: installment.external_id, installment: { subject: "Updated Email" } }
 
-        expect(response).to redirect_to(emails_path)
-        expect(flash[:notice]).to eq("Email saved successfully.")
+        expect(response).to redirect_to(edit_email_path(installment.external_id))
+        expect(flash[:notice]).to eq("Changes saved!")
       end
     end
 
@@ -236,7 +238,7 @@ describe EmailsController, type: :controller, inertia: true do
     it "destroys the installment" do
       expect do
         delete :destroy, params: { id: installment.external_id }
-      end.to change(Installment, :count).by(-1)
+      end.to change(Installment.alive, :count).by(-1)
     end
 
     it "redirects to emails path with success notice" do
