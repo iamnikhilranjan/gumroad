@@ -16,7 +16,6 @@ import { Icon } from "$app/components/Icons";
 import { LoadingSpinner } from "$app/components/LoadingSpinner";
 import { Popover } from "$app/components/Popover";
 import Placeholder from "$app/components/ui/Placeholder";
-import { useDebouncedCallback } from "$app/components/useDebouncedCallback";
 import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/audience.png";
@@ -30,32 +29,32 @@ export default function AudiencePage() {
   const { total_follower_count, audience_data } = cast<AudienceProps>(usePage().props);
   const dateRange = useAnalyticsDateRange();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isInitialMount = React.useRef(true);
+
+  const startTime = lightFormat(dateRange.from, "yyyy-MM-dd");
+  const endTime = lightFormat(dateRange.to, "yyyy-MM-dd");
 
   const hasContent = total_follower_count > 0;
 
-  const reloadAudienceData = (startTime: string, endTime: string) => {
+  const reloadAudienceData = React.useCallback((start: string, end: string) => {
     router.reload({
       only: ["audience_data"],
-      data: { start_time: startTime, end_time: endTime },
+      data: { start_time: start, end_time: end },
       onStart: () => setIsLoading(true),
       onFinish: () => setIsLoading(false),
     });
-  };
+  }, []);
 
-  const debouncedReloadAudienceData = useDebouncedCallback(() => {
+  React.useEffect(() => {
     if (!hasContent) return;
-    reloadAudienceData(lightFormat(dateRange.from, "yyyy-MM-dd"), lightFormat(dateRange.to, "yyyy-MM-dd"));
-  }, 100);
 
-  const handleSetFrom = (from: Date) => {
-    dateRange.setFrom(from);
-    debouncedReloadAudienceData();
-  };
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
 
-  const handleSetTo = (to: Date) => {
-    dateRange.setTo(to);
-    debouncedReloadAudienceData();
-  };
+    reloadAudienceData(startTime, endTime);
+  }, [startTime, endTime, hasContent, reloadAudienceData]);
 
   return (
     <AnalyticsLayout
@@ -75,7 +74,7 @@ export default function AudiencePage() {
             >
               {(close) => <ExportSubscribersPopover closePopover={close} />}
             </Popover>
-            <DateRangePicker from={dateRange.from} to={dateRange.to} setFrom={handleSetFrom} setTo={handleSetTo} />
+            <DateRangePicker {...dateRange} />
           </>
         ) : null
       }
