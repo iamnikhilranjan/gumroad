@@ -19,14 +19,15 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
     let(:from_email) { "old@example.com" }
     let(:to_email) { "new@example.com" }
     let!(:target_user) { create(:user, email: to_email) }
-    let!(:purchase1) { create(:purchase, email: from_email, purchaser: buyer) }
-    let!(:purchase2) { create(:purchase, email: from_email, purchaser: buyer) }
-    let!(:purchase3) { create(:purchase, email: from_email, purchaser: nil) }
+    let!(:merchant_account) { create(:merchant_account, user: nil) }
+    let!(:purchase1) { create(:purchase, email: from_email, purchaser: buyer, merchant_account: merchant_account) }
+    let!(:purchase2) { create(:purchase, email: from_email, purchaser: buyer, merchant_account: merchant_account) }
+    let!(:purchase3) { create(:purchase, email: from_email, purchaser: nil, merchant_account: merchant_account) }
 
     context "when both emails are provided" do
       it "reassigns purchases and updates purchaser_id when target user exists" do
         subscription = create(:subscription, user: buyer)
-        subscription_purchase = create(:purchase, email: from_email, purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription)
+        subscription_purchase = create(:purchase, email: from_email, purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription, merchant_account: merchant_account)
 
         post :reassign_purchases, params: { from: from_email, to: to_email }
 
@@ -44,7 +45,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
 
         purchase3.reload
         expect(purchase3.email).to eq(to_email)
-        expect(purchase3.purchaser_id).to be_nil
+        expect(purchase3.purchaser_id).to eq(target_user.id)
 
         subscription_purchase.reload
         expect(subscription_purchase.email).to eq(to_email)
@@ -54,7 +55,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
         expect(subscription.user).to eq(target_user)
       end
 
-      it "sends grouped receipt to new email and refreshes library" do
+      it "sends grouped receipt to new email" do
         expect(CustomerMailer).to receive(:grouped_receipt).with([purchase1.id, purchase2.id, purchase3.id]).and_call_original
 
         post :reassign_purchases, params: { from: from_email, to: to_email }
@@ -62,6 +63,13 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
         expect(response).to have_http_status(:success)
         expect(response.parsed_body["success"]).to eq(true)
         expect(response.parsed_body["message"]).to include("Receipt sent to #{to_email}")
+      end
+
+      it "refreshes library by updating purchaser_id" do
+        post :reassign_purchases, params: { from: from_email, to: to_email }
+
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body["success"]).to eq(true)
 
         purchase3.reload
         expect(purchase3.purchaser_id).to eq(target_user.id)
@@ -69,8 +77,8 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
 
       it "updates original_purchase email for subscription purchases" do
         subscription = create(:subscription, user: buyer)
-        original_purchase = create(:purchase, email: "old_original_purchase@example.com", purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription)
-        recurring_purchase = create(:purchase, email: from_email, purchaser: buyer, subscription: subscription)
+        original_purchase = create(:purchase, email: "old_original_purchase@example.com", purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription, merchant_account: merchant_account)
+        recurring_purchase = create(:purchase, email: from_email, purchaser: buyer, subscription: subscription, merchant_account: merchant_account)
 
         post :reassign_purchases, params: { from: from_email, to: to_email }
 
@@ -91,11 +99,11 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
         from_email = "recurring_purchase@example.com"
 
         subscription = create(:subscription, user: buyer)
-        create(:purchase, email: "old_original_purchase@example.com", purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription)
+        create(:purchase, email: "old_original_purchase@example.com", purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription, merchant_account: merchant_account)
 
-        create(:purchase, email: from_email, purchaser: buyer, subscription: subscription)
-        create(:purchase, email: from_email, purchaser: buyer, subscription: subscription)
-        create(:purchase, email: from_email, purchaser: buyer, subscription: subscription)
+        create(:purchase, email: from_email, purchaser: buyer, subscription: subscription, merchant_account: merchant_account)
+        create(:purchase, email: from_email, purchaser: buyer, subscription: subscription, merchant_account: merchant_account)
+        create(:purchase, email: from_email, purchaser: buyer, subscription: subscription, merchant_account: merchant_account)
 
         post :reassign_purchases, params: { from: from_email, to: to_email }
 
@@ -107,7 +115,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
 
       it "reassigns purchases and sets purchaser_id to nil when target user doesn't exist" do
         subscription = create(:subscription, user: buyer)
-        subscription_purchase = create(:purchase, email: from_email, purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription)
+        subscription_purchase = create(:purchase, email: from_email, purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription, merchant_account: merchant_account)
 
         expect do
           post :reassign_purchases, params: { from: from_email, to: "nonexistent@example.com" }
