@@ -3,7 +3,7 @@
 class AudienceController < Sellers::BaseController
   layout "inertia"
 
-  before_action :set_time_range, only: %i[index data_by_date]
+  before_action :set_time_range, only: :index
 
   after_action :set_dashboard_preference_to_audience, only: :index
   before_action :check_payment_details, only: :index
@@ -27,14 +27,6 @@ class AudienceController < Sellers::BaseController
     Exports::AudienceExportWorker.perform_async(current_seller.id, (impersonating_user || current_seller).id, options)
 
     head :ok
-  end
-
-  def data_by_date
-    authorize :audience, :index?
-
-    data = CreatorAnalytics::Following.new(current_seller).by_date(start_date: @start_date.to_date, end_date: @end_date.to_date)
-
-    render json: data
   end
 
   protected
