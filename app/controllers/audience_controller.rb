@@ -12,15 +12,10 @@ class AudienceController < Sellers::BaseController
     authorize :audience
 
     total_follower_count = current_seller.audience_members.where(follower: true).count
-    props = {
-      total_follower_count: InertiaRails.always { total_follower_count }
+    render inertia: "Audience/Index", props: {
+      total_follower_count: InertiaRails.always { total_follower_count },
+      audience_data: -> { total_follower_count > 0 ? fetch_audience_data : nil }
     }
-
-    if total_follower_count > 0
-      props[:audience_data] = -> { fetch_audience_data }
-    end
-
-    render inertia: "Audience/Index", props: props
   end
 
   def export
