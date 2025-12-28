@@ -35,15 +35,12 @@ export const ShareSection = ({
   const [saveState, setSaveState] = React.useState<
     { type: "initial" | "saving" } | ({ type: "success" } & SuccessState)
   >({ type: "initial" });
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [isCreatingNew, setIsCreatingNew] = React.useState(false);
-  const [newWishlistName, setNewWishlistName] = React.useState("");
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [dropdownState, setDropdownState] = React.useState<
+    { state: "closed" } | { state: "open" } | { state: "creating"; newWishlistName: string }
+  >({ state: "closed" });
 
   const closeDropdown = () => {
-    setIsOpen(false);
-    setIsCreatingNew(false);
-    setNewWishlistName("");
+    setDropdownState({ state: "closed" });
   };
 
   const isSelectionInWishlist = (wishlist: WishlistForProduct) =>
@@ -93,7 +90,10 @@ export const ShareSection = ({
   };
 
   const newWishlist = async () => {
-    const { wishlist } = await createWishlist(newWishlistName);
+    if (dropdownState.state !== "creating") {
+      throw new Error("Cannot create wishlist when not in creating state");
+    }
+    const { wishlist } = await createWishlist(dropdownState.newWishlistName);
     setWishlists([...wishlists, { ...wishlist, selections_in_wishlist: [] }]);
     return { newlyCreated: true, wishlist };
   };
@@ -103,7 +103,11 @@ export const ShareSection = ({
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <ComboBox
           input={(props) => (
-            <div {...props} className={`input ${isOpen ? "!rounded-b-none" : ""}`} aria-label="Add to wishlist">
+            <div
+              {...props}
+              className={`input ${dropdownState.state !== "closed" ? "!rounded-b-none" : ""}`}
+              aria-label="Add to wishlist"
+            >
               <span className="fake-input text-singleline">
                 {saveState.type === "success"
                   ? saveState.wishlist.name
@@ -130,13 +134,13 @@ export const ShareSection = ({
                   <Icon name="file-text" /> {wishlist.name}
                 </div>
               </div>
-            ) : isCreatingNew ? (
+            ) : dropdownState.state === "creating" ? (
               <form
                 role={props.role}
                 className="flex gap-2 p-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (!newWishlistName.trim()) {
+                  if (dropdownState.state === "creating" && !dropdownState.newWishlistName.trim()) {
                     showAlert("Please enter a wishlist name", "error");
                     return;
                   }
@@ -147,12 +151,11 @@ export const ShareSection = ({
                 }}
               >
                 <input
-                  ref={inputRef}
                   type="text"
                   autoFocus
                   placeholder="Wishlist name"
-                  value={newWishlistName}
-                  onChange={(e) => setNewWishlistName(e.target.value)}
+                  value={dropdownState.state === "creating" ? dropdownState.newWishlistName : ""}
+                  onChange={(e) => setDropdownState({ state: "creating", newWishlistName: e.target.value })}
                   onMouseDown={(e) => e.stopPropagation()}
                   onKeyDown={(e) => e.stopPropagation()}
                   className="input"
@@ -163,21 +166,25 @@ export const ShareSection = ({
                 </Button>
               </form>
             ) : (
-              <div {...props} onMouseDown={(e) => e.preventDefault()} onClick={() => setIsCreatingNew(true)}>
+              <div
+                {...props}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setDropdownState({ state: "creating", newWishlistName: "" })}
+              >
                 <div>
                   <Icon name="plus" /> New wishlist
                 </div>
               </div>
             )
           }
-          open={loggedInUser ? isOpen : false}
+          open={loggedInUser ? dropdownState.state !== "closed" : false}
           onToggle={(open) => {
             if (!loggedInUser) {
               window.location.href = Routes.login_url({ host: appDomain, next: product.long_url });
               return;
             }
             if (open) {
-              setIsOpen(true);
+              setDropdownState({ state: "open" });
             } else {
               closeDropdown();
             }
