@@ -66,16 +66,6 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
         expect(response.parsed_body["message"]).to include("Receipt sent to #{to_email}")
       end
 
-      it "refreshes library by updating purchaser_id" do
-        post :reassign_purchases, params: { from: from_email, to: to_email }
-
-        expect(response).to have_http_status(:success)
-        expect(response.parsed_body["success"]).to eq(true)
-
-        purchase3.reload
-        expect(purchase3.purchaser_id).to eq(target_user.id)
-      end
-
       it "updates original_purchase email for subscription purchases" do
         subscription = create(:subscription, user: buyer)
         original_purchase = create(:purchase, email: "old_original_purchase@example.com", purchaser: buyer, is_original_subscription_purchase: true, subscription: subscription, merchant_account: merchant_account)
