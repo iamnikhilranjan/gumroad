@@ -60,19 +60,21 @@ export default function AffiliatesEdit() {
 
   const toggleAllProducts = (checked: boolean) => {
     if (checked) {
-      setData(
-        "affiliate.products",
-        data.affiliate.products.map((p) => ({
+      setData("affiliate", {
+        ...data.affiliate,
+        apply_to_all_products: true,
+        products: data.affiliate.products.map((p) => ({
           ...p,
           enabled: true,
           fee_percent: data.affiliate.fee_percent,
         })),
-      );
+      });
     } else {
-      setData(
-        "affiliate.products",
-        data.affiliate.products.map((p) => ({ ...p, enabled: false })),
-      );
+      setData("affiliate", {
+        ...data.affiliate,
+        apply_to_all_products: false,
+        products: data.affiliate.products.map((p) => ({ ...p, enabled: false })),
+      });
     }
   };
 

@@ -3,7 +3,7 @@ import cx from "classnames";
 import { parseISO } from "date-fns";
 import * as React from "react";
 
-import { updateAffiliateRequest } from "$app/data/affiliate_request";
+import { approvePendingAffiliateRequests, updateAffiliateRequest } from "$app/data/affiliate_request";
 import { Affiliate, AffiliateRequest, AffiliateStatistics, getStatistics } from "$app/data/affiliates";
 import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
 import { asyncVoid } from "$app/utils/promise";
@@ -58,13 +58,20 @@ const SearchBoxPopover = ({ initialQuery, onSearch }: { initialQuery: string; on
   const [searchBoxOpen, setSearchBoxOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState(initialQuery);
   const searchInputRef = React.useRef<HTMLInputElement | null>(null);
+  const wasOpenedRef = React.useRef(false);
 
   React.useEffect(() => {
-    if (searchBoxOpen) searchInputRef.current?.focus();
+    if (searchBoxOpen) {
+      searchInputRef.current?.focus();
+      wasOpenedRef.current = true;
+    }
   }, [searchBoxOpen]);
 
   React.useEffect(() => {
     setInputValue(initialQuery);
+    if (wasOpenedRef.current && initialQuery.length > 0) {
+      setSearchBoxOpen(true);
+    }
   }, [initialQuery]);
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +84,7 @@ const SearchBoxPopover = ({ initialQuery, onSearch }: { initialQuery: string; on
     <Popover
       open={searchBoxOpen}
       onToggle={setSearchBoxOpen}
-      aria-label="Toggle Search"
+      aria-label="Search"
       trigger={
         <WithTooltip tip="Search" position="bottom">
           <div className="button">
@@ -94,6 +101,7 @@ const SearchBoxPopover = ({ initialQuery, onSearch }: { initialQuery: string; on
           autoFocus
           type="text"
           placeholder="Search"
+          aria-label="Search"
           onChange={handleChange}
         />
       </div>
@@ -101,15 +109,27 @@ const SearchBoxPopover = ({ initialQuery, onSearch }: { initialQuery: string; on
   );
 };
 
-const ApproveAllButton = () => {
-  const isLoading = useRouteLoading();
+const ApproveAllButton = ({ onSuccess }: { onSuccess: () => void }) => {
+  const [isLoading, setIsLoading] = React.useState(false);
   return (
     <Button
       color="primary"
-      onClick={() => router.post(Routes.approve_all_affiliate_requests_path(), {}, { preserveState: true })}
+      onClick={asyncVoid(async () => {
+        setIsLoading(true);
+        try {
+          await approvePendingAffiliateRequests();
+          showAlert("Approved all pending affiliate requests!", "success");
+          onSuccess();
+        } catch (err) {
+          assertResponseError(err);
+          showAlert(err instanceof Error ? err.message : "Failed to approve requests", "error");
+        } finally {
+          setIsLoading(false);
+        }
+      })}
       disabled={isLoading}
     >
-      {isLoading ? "Approving" : "Approve all"}
+      {isLoading ? "Approving..." : "Approve all"}
     </Button>
   );
 };
@@ -126,6 +146,10 @@ const AffiliateRequestsTable = ({
 
   const [affiliateRequests, setAffiliateRequests] =
     React.useState<(AffiliateRequest & { processingState?: "approve" | "ignore" })[]>(initialAffiliateRequests);
+
+  const handleApproveAllSuccess = () => {
+    setAffiliateRequests((requests) => requests.map((r) => ({ ...r, state: "approved" as const })));
+  };
 
   const update = asyncVoid(async (request: AffiliateRequest, action: "approve" | "ignore") => {
     const error =
@@ -166,7 +190,7 @@ const AffiliateRequestsTable = ({
           <TableCaption>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               Requests
-              {allowApproveAll ? <ApproveAllButton /> : null}
+              {allowApproveAll ? <ApproveAllButton onSuccess={handleApproveAllSuccess} /> : null}
             </div>
           </TableCaption>
           <TableHeader>
@@ -261,13 +285,17 @@ export default function AffiliatesIndex() {
       params.delete("query");
     }
     params.delete("page");
-    router.reload({ data: Object.fromEntries(params) });
+    const url = new URL(window.location.href);
+    url.search = params.toString();
+    router.get(url.toString());
   }, 500);
 
   const onChangePage = (newPage: number) => {
     const params = new URLSearchParams(window.location.search);
     params.set("page", newPage.toString());
-    router.reload({ data: Object.fromEntries(params) });
+    const url = new URL(window.location.href);
+    url.search = params.toString();
+    router.get(url.toString());
   };
 
   const onSetSort = (newSort: Sort<SortKey> | null) => {
@@ -276,9 +304,14 @@ export default function AffiliatesIndex() {
     if (newSort) {
       params.set("column", newSort.key);
       params.set("sort", newSort.direction);
+    } else {
+      params.delete("column");
+      params.delete("sort");
     }
     setSort(newSort);
-    router.reload({ data: Object.fromEntries(params) });
+    const url = new URL(window.location.href);
+    url.search = params.toString();
+    router.get(url.toString());
   };
   const thProps = useSortingTableDriver<SortKey>(sort, onSetSort);
 

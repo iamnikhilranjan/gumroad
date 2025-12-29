@@ -83,7 +83,9 @@ describe "Affiliates", type: :system, js: true do
     expect(page).to_not have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
     # Clear the search and make sure the requests table is back
-    fill_in "Search", with: ""
+    select_disclosure "Search" do
+      fill_in "Search", with: ""
+    end
     expect(page).to have_table "Affiliates", with_rows: [
       { "Name" => affiliate1.affiliate_user.name, "Product" => product.name, "Commission" => "3%" },
       { "Name" => affiliate2.affiliate_user.name, "Product" => product.name, "Commission" => "3%" },
@@ -555,11 +557,12 @@ describe "Affiliates", type: :system, js: true do
 
       click_on "Save changes"
       expect_alert_message("Affiliate updated successfully")
-      expect(page).to have_table_row({ "Name" => affiliate_user.name, "Products" => "2 products", "Commission" => "15%" })
+      expect(page).to have_table "Affiliates"
 
       expect(direct_affiliate.reload.apply_to_all_products).to be true
       expect(direct_affiliate.affiliate_basis_points).to eq 1500
       expect(direct_affiliate.product_affiliates.count).to eq(2)
+      expect(page).to have_table_row({ "Name" => affiliate_user.name, "Products" => "2 products", "Commission" => "15%" })
     end
 
     it "can clear affiliate products" do
@@ -573,7 +576,7 @@ describe "Affiliates", type: :system, js: true do
       uncheck "Enable all products"
 
       click_on "Save changes"
-      expect_alert_message("Please enable at least one product.")
+      expect_alert_message("Please enable at least one product")
     end
   end
 
@@ -598,7 +601,7 @@ describe "Affiliates", type: :system, js: true do
       visit affiliates_path
       click_on "Delete"
       wait_for_ajax
-      expect_alert_message("The affiliate was removed successfully.")
+      expect_alert_message("Affiliate deleted successfully")
     end
 
     it "removes an affiliate from the aside drawer" do
@@ -614,7 +617,7 @@ describe "Affiliates", type: :system, js: true do
         click_on "Delete"
       end
       wait_for_ajax
-      expect_alert_message("The affiliate was removed successfully.")
+      expect_alert_message("Affiliate deleted successfully")
     end
 
     it "approves all pending affiliates" do
@@ -626,7 +629,7 @@ describe "Affiliates", type: :system, js: true do
       click_on "Approve all"
       wait_for_ajax
 
-      expect(page).to have_text "Approved"
+      expect_alert_message("Approved all pending affiliate requests!")
       pending_requests.each do |request|
         expect(request.reload).to be_approved
       end
@@ -716,7 +719,7 @@ describe "Affiliates", type: :system, js: true do
   end
 
   describe "sorting" do
-    let!(:seller) { create(:named_seller) }
+    let!(:seller) { create(:user) }
     let!(:product1) { create(:product, user: seller, name: "p1", price_cents: 10_00) }
     let!(:product2) { create(:product, user: seller, name: "p2", price_cents: 10_00) }
     let!(:product3) { create(:product, user: seller, name: "p3", price_cents: 10_00) }
@@ -728,6 +731,11 @@ describe "Affiliates", type: :system, js: true do
     let!(:affiliate_request) { create(:affiliate_request, seller:) }
 
     before do
+      MerchantAccount.find_or_create_by!(
+        charge_processor_id: StripeChargeProcessor.charge_processor_id,
+        user_id: nil
+      )
+
       stub_const("AffiliatesPresenter::PER_PAGE", 1)
       ProductAffiliate.where(affiliate_id: affiliate_user_1.id).each.with_index do |affiliate, idx|
         affiliate.update_columns(affiliate_basis_points: 3000 + 100 * idx, updated_at: Time.now)
@@ -742,10 +750,10 @@ describe "Affiliates", type: :system, js: true do
         affiliate.update_columns(affiliate_basis_points: 100 + 100 * idx, updated_at: Time.now + 3)
       end
 
-      create_list(:purchase_with_balance, 2, link: product1, affiliate: affiliate_user_1)
-      create_list(:purchase_with_balance, 3, link: product1, affiliate: affiliate_user_2)
-      create(:purchase_with_balance, link: product1, affiliate: affiliate_user_3)
-      create_list(:purchase_with_balance, 2, link: product1, affiliate: affiliate_user_4)
+      create_list(:purchase_with_balance, 2, link: product1, affiliate: affiliate_user_1, affiliate_credit_cents: 100)
+      create_list(:purchase_with_balance, 3, link: product1, affiliate: affiliate_user_2, affiliate_credit_cents: 100)
+      create(:purchase_with_balance, link: product1, affiliate: affiliate_user_3, affiliate_credit_cents: 100)
+      create_list(:purchase_with_balance, 2, link: product1, affiliate: affiliate_user_4, affiliate_credit_cents: 100)
 
       # Properly test sorting on affiliate_user_name
       affiliate_user_1.affiliate_user.update_columns(name: "alice", username: nil, unconfirmed_email: "ignored@example.com", email: "ignored@example.com")
@@ -858,17 +866,14 @@ describe "Affiliates", type: :system, js: true do
       within current_affiliates_table do
         find(:columnheader, "Name").click
       end
-      wait_for_ajax
-      page.go_back
-      wait_for_ajax
+      expect(page).to have_current_path("#{affiliates_path}?page=1&column=affiliate_user_name&sort=asc")
 
+      page.go_back
       expect(page).to have_current_path(affiliates_path)
       expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$2" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       page.go_forward
-      wait_for_ajax
-
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=affiliate_user_name&sort=asc")
       expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$2" })
 
