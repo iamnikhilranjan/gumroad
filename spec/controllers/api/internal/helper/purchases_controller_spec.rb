@@ -300,7 +300,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
         purchase_json[:seller_email] = purchase.seller_email
         purchase_json[:receipt_url] = receipt_purchase_url(purchase.external_id, host: UrlService.domain_with_protocol, email: purchase.email)
         purchase_json[:refund_status] = nil
-        params = @params.merge(email: "user@example.com")
+        params = { query: "user@example.com", timestamp: Time.now.to_i }
         post :search, params: params
 
         expect(response.parsed_body).to eq({ success: true, message: "Purchase found", purchase: purchase_json }.as_json)
