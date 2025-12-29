@@ -36,7 +36,7 @@ describe LoginsController, type: :controller, inertia: true do
 
     context "with an email in the next parameter" do
       it "renders successfully" do
-        get :new, params: { next: settings_team_invitations_path(email: "test@example.com", format: :json )}
+        get :new, params: { next: settings_team_invitations_path(email: "test@example.com", format: :json) }
 
         expect(response).to be_successful
         expect(inertia.component).to eq("Logins/New")

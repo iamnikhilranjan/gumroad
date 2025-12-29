@@ -45,33 +45,33 @@ describe SignupController, type: :controller, inertia: true do
         )
       end
 
-      context 'when an email is provided in the params' do
-        it 'sets the email in the props' do
+      context "when an email is provided in the params" do
+        it "sets the email in the props" do
           get :new, params: { email: "test@example.com" }
           expect(inertia.props[:email]).to eq "test@example.com"
         end
       end
 
-      context 'when an email is present in the next parameter' do
-        it 'sets the email in the props' do
+      context "when an email is present in the next parameter" do
+        it "sets the email in the props" do
           get :new, params: { next: settings_team_invitations_path(email: "test@example.com", format: :json) }
           expect(inertia.props[:email]).to eq "test@example.com"
         end
       end
 
-      context 'when a referrer is provided in the params' do
+      context "when a referrer is provided in the params" do
         let(:referrer) { create(:user, username: "testreferrer") }
 
-        it 'sets the referrer in the props' do
+        it "sets the referrer in the props" do
           get :new, params: { referrer: referrer.username }
           expect(inertia.props[:referrer]).to eq({
-            id: referrer.external_id,
-            name: referrer.name_or_username,
-          })
+                                                   id: referrer.external_id,
+                                                   name: referrer.name_or_username,
+                                                 })
         end
       end
 
-      context 'when stats are present in Redis' do
+      context "when stats are present in Redis" do
         before do
           $redis.mset(RedisKey.number_of_creators, 100, RedisKey.total_made, 1000000)
         end
@@ -81,17 +81,17 @@ describe SignupController, type: :controller, inertia: true do
           $redis.del(RedisKey.total_made)
         end
 
-        it 'sets the stats in the props' do
+        it "sets the stats in the props" do
           get :new
           expect(inertia.props[:stats]).to eq({
-            number_of_creators: 100,
-            total_made: 1000000,
-          })
+                                                number_of_creators: 100,
+                                                total_made: 1000000,
+                                              })
         end
       end
 
       context "when next param does not start with /oauth/authorize" do
-        it 'sets noindex header' do
+        it "sets noindex header" do
           get :new, params: { next: "invalid-url" }
           expect(response.headers["X-Robots-Tag"]).to be_nil
         end
