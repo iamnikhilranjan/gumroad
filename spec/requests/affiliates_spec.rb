@@ -772,65 +772,65 @@ describe "Affiliates", type: :system, js: true do
         find(:columnheader, "Name").click
       end
 
-      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$2" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=affiliate_user_name&sort=asc")
+      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$20" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Name").click
       end
 
-      expect(page).to have_table_row({ "Name" => "david@example.com", "Products" => "2 products", "Commission" => "10% - 11%", "Sales" => "$1" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=affiliate_user_name&sort=desc")
+      expect(page).to have_table_row({ "Name" => "david@example.com", "Products" => "2 products", "Commission" => "10% - 11%", "Sales" => "$10" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Products").click
       end
 
-      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$2" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=products&sort=asc")
+      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$20" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Products").click
       end
 
-      expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$2" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=products&sort=desc")
+      expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$20" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Commission").click
       end
 
-      expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$2" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=fee_percent&sort=asc")
+      expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$20" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Commission").click
       end
 
-      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$2" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=fee_percent&sort=desc")
+      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$20" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Sales").click
       end
 
-      expect(page).to have_table_row({ "Name" => "david@example.com", "Products" => "2 products", "Commission" => "10% - 11%", "Sales" => "$1" })
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=volume_cents&sort=asc")
+      expect(page).to have_table_row({ "Name" => "david@example.com", "Products" => "2 products", "Commission" => "10% - 11%", "Sales" => "$10" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       within current_affiliates_table do
         find(:columnheader, "Sales").click
       end
 
-      expect(page).to have_table_row({ "Name" => "bob", "Products" => "3 products", "Commission" => "20% - 22%", "Sales" => "$3" })
-      expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=volume_cents&sort=desc")
+      expect(page).to have_table_row({ "Name" => "bob", "Products" => "3 products", "Commission" => "20% - 22%", "Sales" => "$30" })
+      expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
     end
 
     it "sets the page to 1 on sort" do
@@ -870,12 +870,12 @@ describe "Affiliates", type: :system, js: true do
 
       page.go_back
       expect(page).to have_current_path(affiliates_path)
-      expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$2" })
+      expect(page).to have_table_row({ "Name" => "charlie@example.com", "Products" => "4 products", "Commission" => "1% - 4%", "Sales" => "$20" })
       expect(page).to have_table "Requests", with_rows: [{ "Name" => affiliate_request.name }]
 
       page.go_forward
       expect(page).to have_current_path("#{affiliates_path}?page=1&column=affiliate_user_name&sort=asc")
-      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$2" })
+      expect(page).to have_table_row({ "Name" => "alice", "Products" => "p1", "Commission" => "30%", "Sales" => "$20" })
 
       within find("[aria-label='Pagination']") do
         expect(find_button("1")["aria-current"]).to eq("page")

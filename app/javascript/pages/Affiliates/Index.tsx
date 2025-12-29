@@ -272,10 +272,26 @@ export default function AffiliatesIndex() {
 
   const { affiliates, affiliate_requests, pagination, allow_approve_all_requests, affiliates_disabled_reason } = props;
   const [selectedAffiliate, setSelectedAffiliate] = React.useState<Affiliate | null>(null);
-  const [sort, setSort] = React.useState<Sort<SortKey> | null>(null);
 
   const searchParams = new URLSearchParams(window.location.search);
   const searchQuery = searchParams.get("query") ?? "";
+
+  const sortFromUrl = React.useMemo((): Sort<SortKey> | null => {
+    const column = searchParams.get("column");
+    const direction = searchParams.get("sort");
+    const isSortKey = (value: string | null): value is SortKey =>
+      value === "affiliate_user_name" || value === "products" || value === "fee_percent" || value === "volume_cents";
+    const isDirection = (value: string | null): value is "asc" | "desc" => value === "asc" || value === "desc";
+    if (isSortKey(column) && isDirection(direction)) {
+      return { key: column, direction };
+    }
+    return null;
+  }, [searchParams.get("column"), searchParams.get("sort")]);
+  const [sort, setSort] = React.useState<Sort<SortKey> | null>(sortFromUrl);
+
+  React.useEffect(() => {
+    setSort(sortFromUrl);
+  }, [sortFromUrl]);
 
   const onSearch = useDebouncedCallback((newQuery: string) => {
     const params = new URLSearchParams(window.location.search);
