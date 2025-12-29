@@ -42,26 +42,19 @@ const CollaboratorDetailsSheet = ({
         <h3>Products</h3>
         {collaborator.products.map((product) => {
           const productName = product.name;
-          const isCollaborator = !isIncoming;
 
           return (
             <section key={product.id}>
-              {isCollaborator ? (
-                <div>{productName}</div>
-              ) : (
+              {isIncoming ? (
                 <a href={"url" in product ? product.url : "#"} target="_blank" rel="noreferrer">
                   {productName}
                 </a>
+              ) : (
+                <div>{productName}</div>
               )}
               <div>
                 {formatAsPercent(
-                  (isCollaborator
-                    ? "percent_commission" in product
-                      ? product.percent_commission
-                      : 0
-                    : "affiliate_percentage" in product
-                      ? product.affiliate_percentage
-                      : 0) ?? 0,
+                  "percent_commission" in product ? product.percent_commission : product.affiliate_percentage,
                 )}
               </div>
             </section>

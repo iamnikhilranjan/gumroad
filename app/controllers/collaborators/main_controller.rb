@@ -46,13 +46,7 @@ class Collaborators::MainController < Collaborators::BaseController
 
   private
     def collaborator_params
-      params.require(:collaborator).permit(
-        :email,
-        :apply_to_all_products,
-        :percent_commission,
-        :dont_show_as_co_creator,
-        products: [:id, :percent_commission, :dont_show_as_co_creator]
-      )
+      params.require(:collaborator).permit(:email, :apply_to_all_products, :percent_commission, :dont_show_as_co_creator, products: [:id, :percent_commission, :dont_show_as_co_creator])
     end
 
     def render_index_props

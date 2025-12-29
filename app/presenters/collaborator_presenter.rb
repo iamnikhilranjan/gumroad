@@ -82,7 +82,7 @@ class CollaboratorPresenter
         {
           id: pa.product.external_id,
           name: pa.product.name,
-          percent_commission: pa.affiliate_percentage,
+          percent_commission: pa.affiliate_percentage || collaborator.affiliate_percentage,
         }
       end
     end

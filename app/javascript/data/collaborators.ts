@@ -12,7 +12,7 @@ export type Collaborator = {
 export type CollaboratorProduct = {
   id: string;
   name: string;
-  percent_commission: number | null;
+  percent_commission: number;
 };
 
 export type CollaboratorFormProduct = {

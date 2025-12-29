@@ -59,7 +59,7 @@ describe CollaboratorPresenter do
       props = described_class.new(seller:, collaborator:).collaborator_props
 
       expect(props.except(:products)).to match(collaborator.as_json)
-      expect(props[:products]).to match_array([{ id: visible_product.external_id, name: visible_product.name, percent_commission: nil }])
+      expect(props[:products]).to match_array([{ id: visible_product.external_id, name: visible_product.name, percent_commission: collaborator.affiliate_percentage }])
     end
   end
 
