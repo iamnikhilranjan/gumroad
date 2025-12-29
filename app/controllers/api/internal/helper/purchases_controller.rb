@@ -260,7 +260,7 @@ class Api::Internal::Helper::PurchasesController < Api::Internal::Helper::BaseCo
   }.freeze
   def search
     search_params = {
-      query: params[:query].presence || params[:email],
+      query: params[:query] || params[:email],
       email: params[:query].present? ? params[:email] : nil,
       creator_email: params[:creator_email],
       license_key: params[:license_key],
