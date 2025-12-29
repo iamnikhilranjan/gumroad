@@ -40,8 +40,8 @@ describe AdminSearchService do
 
     describe "email parameter" do
       it "filters purchases by email when provided" do
-        purchase = create(:purchase, email: "customer@example.com")
-        other_purchase = create(:purchase, email: "other@example.com")
+        purchase = create(:free_purchase, email: "customer@example.com")
+        other_purchase = create(:free_purchase, email: "other@example.com")
 
         purchases = AdminSearchService.new.search_purchases(email: "customer@example.com")
         expect(purchases).to include(purchase)
@@ -49,15 +49,15 @@ describe AdminSearchService do
       end
 
       it "can use email and query together to find specific purchase" do
-        purchase = create(:purchase, email: "customer@example.com")
-        create(:purchase, email: "other@example.com")
+        purchase = create(:free_purchase, email: "customer@example.com")
+        create(:free_purchase, email: "other@example.com")
 
         purchases = AdminSearchService.new.search_purchases(query: purchase.external_id, email: "customer@example.com")
         expect(purchases).to eq([purchase])
       end
 
       it "returns empty when query matches but email doesn't" do
-        purchase = create(:purchase, email: "customer@example.com")
+        purchase = create(:free_purchase, email: "customer@example.com")
 
         purchases = AdminSearchService.new.search_purchases(query: purchase.external_id, email: "wrong@example.com")
         expect(purchases).to be_empty

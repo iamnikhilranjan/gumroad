@@ -386,7 +386,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
 
     context "when searching by query parameter" do
       it "returns purchase data when searching by order ID (external_id) via query param" do
-        purchase = create(:purchase)
+        purchase = create(:free_purchase)
         purchase_json = purchase.slice(:email, :link_name, :price_cents, :purchase_state, :created_at)
         purchase_json[:id] = purchase.external_id_numeric
         purchase_json[:seller_email] = purchase.seller_email
@@ -401,7 +401,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
       end
 
       it "returns purchase data when searching by order ID and email together" do
-        purchase = create(:purchase, email: "customer@example.com")
+        purchase = create(:free_purchase, email: "customer@example.com")
         purchase_json = purchase.slice(:email, :link_name, :price_cents, :purchase_state, :created_at)
         purchase_json[:id] = purchase.external_id_numeric
         purchase_json[:seller_email] = purchase.seller_email
@@ -416,7 +416,7 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
       end
 
       it "returns not found when order ID doesn't match the customer email" do
-        purchase = create(:purchase, email: "customer@example.com")
+        purchase = create(:free_purchase, email: "customer@example.com")
 
         params = { query: purchase.external_id, email: "different@example.com", timestamp: Time.now.to_i }
         post :search, params: params
