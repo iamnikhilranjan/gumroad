@@ -22,7 +22,7 @@ describe InstallmentPresenter do
       props = described_class.new(seller:).new_page_props
 
       expect(props.keys).to include(:context)
-      expect(props[:context].keys).to match_array(%i(audience_types products affiliate_products timezone currency_type countries profile_sections has_scheduled_emails aws_access_key_id s3_url user_id allow_comments_by_default))
+      expect(props[:context].keys).to match_array(%i(audience_types products affiliate_products timezone currency_type countries profile_sections has_scheduled_emails aws_access_key_id s3_url user_id allow_comments_by_default from_tab))
       expect(props[:context][:products]).to match_array(
         [
           {
@@ -116,7 +116,7 @@ describe InstallmentPresenter do
       props = described_class.new(seller:, installment:).edit_page_props
 
       expect(props.keys).to match_array(%i(context installment))
-      expect(props[:context].keys).to match_array(%i(audience_types products affiliate_products timezone currency_type countries profile_sections has_scheduled_emails aws_access_key_id s3_url user_id allow_comments_by_default))
+      expect(props[:context].keys).to match_array(%i(audience_types products affiliate_products timezone currency_type countries profile_sections has_scheduled_emails aws_access_key_id s3_url user_id allow_comments_by_default from_tab))
       expect(props[:context][:products]).to match_array(
         [
           {
