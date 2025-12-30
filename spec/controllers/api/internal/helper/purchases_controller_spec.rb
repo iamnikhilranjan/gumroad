@@ -383,10 +383,6 @@ describe Api::Internal::Helper::PurchasesController, :vcr do
         expect(response.parsed_body).to eq({ success: true, message: "Purchase found", purchase: purchase_json }.as_json)
       end
     end
-  end
-
-  describe "POST search with query parameter" do
-    include_examples "helper api authorization required", :post, :search
 
     it "returns purchase data when searching by order ID (external_id) via query param" do
       purchase = create(:free_purchase)
