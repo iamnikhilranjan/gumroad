@@ -4,7 +4,7 @@ import * as React from "react";
 import { Layout } from "$app/components/Authentication/Layout";
 import { Button } from "$app/components/Button";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
-import { FlashError } from "$app/components/WarningFlashMessage";
+import { WarningFlash } from "$app/components/WarningFlashMessage";
 
 type PageProps = {
   user_id: string;
@@ -48,7 +48,7 @@ function TwoFactorAuthentication() {
     >
       <form onSubmit={handleSubmit}>
         <section>
-          <FlashError />
+          <WarningFlash />
           <fieldset>
             <legend>
               <label htmlFor={uid}>Authentication Token</label>

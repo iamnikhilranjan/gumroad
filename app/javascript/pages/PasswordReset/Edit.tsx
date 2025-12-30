@@ -4,7 +4,7 @@ import * as React from "react";
 import { Layout } from "$app/components/Authentication/Layout";
 import { Button } from "$app/components/Button";
 import { PasswordInput } from "$app/components/PasswordInput";
-import { FlashError } from "$app/components/WarningFlashMessage";
+import { WarningFlash } from "$app/components/WarningFlashMessage";
 
 type PageProps = {
   reset_password_token: string;
@@ -31,7 +31,7 @@ function PasswordReset() {
     <Layout header={<h1>Reset your password</h1>} headerActions={<Link href={Routes.login_path()}>Log in</Link>}>
       <form onSubmit={handleSubmit}>
         <section>
-          <FlashError />
+          <WarningFlash />
           <fieldset>
             <legend>
               <label htmlFor={`${uid}-password`}>Enter a new password</label>
