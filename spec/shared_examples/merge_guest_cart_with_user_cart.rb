@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.shared_context "merge guest cart setup" do
+RSpec.shared_examples_for "merge guest cart with user cart" do
   let(:browser_guid) { "123" }
   let(:guest_cart) { create(:cart, :guest, browser_guid:) }
   let(:user_cart) { create(:cart, user:, browser_guid:) }
