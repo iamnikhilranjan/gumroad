@@ -605,8 +605,12 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
     }
   };
 
-  // Keep isSaving for countdown feature (separate from form submission)
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [isPublishing, setIsPublishing] = React.useState(false);
+
+  const finishPublishing = React.useCallback(() => {
+    setIsPublishing(false);
+    setSecondsLeftToPublish(0);
+  }, []);
 
   const save = asyncVoid(async (action: SaveAction = "save") => {
     await Promise.resolve();
@@ -642,16 +646,17 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
     };
 
     form.transform(() => payload);
+
     if (installment?.external_id) {
-      form.put(Routes.email_path(installment.external_id));
+      form.put(Routes.email_path(installment.external_id), { onFinish: () => finishPublishing() });
     } else {
-      form.post(Routes.emails_path());
+      form.post(Routes.emails_path(), { onFinish: () => finishPublishing() });
     }
   });
 
   const isBusy =
     form.processing ||
-    isSaving ||
+    isPublishing ||
     imagesUploading.size > 0 ||
     files.some((file) => isFileUploading(file) || file.subtitle_files.some(isFileUploading));
 
@@ -710,7 +715,7 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
             >
               <div className="grid gap-3">
                 <div style={{ display: "grid", gridTemplateColumns: "1fr max-content" }}>
-                  {isSaving && secondsLeftToPublish > 0 ? (
+                  {isPublishing && secondsLeftToPublish > 0 ? (
                     <>
                       <Button color="accent" disabled>
                         {channel.profile ? "Publishing" : "Sending"} in {secondsLeftToPublish}...
@@ -722,8 +727,7 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
                             publishCountdownRef.current.abort();
                             publishCountdownRef.current = null;
                           }
-                          setIsSaving(false);
-                          setSecondsLeftToPublish(0);
+                          finishPublishing();
                         }}
                       >
                         <Icon name="x" />
@@ -735,7 +739,7 @@ export const EmailForm = ({ context, installment }: EmailFormProps) => {
                       onClick={() => {
                         if (!validate("save_and_publish")) return;
 
-                        setIsSaving(true);
+                        setIsPublishing(true);
                         publishCountdownRef.current = new Countdown(
                           DEFAULT_SECONDS_LEFT_TO_PUBLISH,
                           (secondsLeft) => {

@@ -636,7 +636,6 @@ describe("Email Creation Flow", :js, type: :system) do
     sleep 1 # wait for the message editor to update
 
     select_disclosure "Publish" do
-      find("button span.icon-x").click
       click_on "Publish now"
     end
     expect(page).to have_alert(text: "Email successfully sent!")
