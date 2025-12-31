@@ -194,9 +194,9 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
             <Button
               color="accent"
               onClick={submitForm}
-              disabled={formData.collaborators_disabled_reason !== null || processing}
+              disabled={formData.collaborators_disabled_reason !== null || form.processing}
             >
-              {processing ? "Saving..." : isEditing ? "Save changes" : "Add collaborator"}
+              {form.processing ? "Saving..." : isEditing ? "Save changes" : "Add collaborator"}
             </Button>
           </WithTooltip>
         </>
@@ -212,7 +212,7 @@ const CollaboratorForm = ({ formData }: { formData: CollaboratorFormData }) => {
             </a>
           </header>
           {!isEditing ? (
-            <fieldset className={cx({ danger: errors.email })}>
+            <fieldset className={cx({ danger: form.errors.email })}>
               <legend>
                 <label htmlFor="email">Email</label>
               </legend>
