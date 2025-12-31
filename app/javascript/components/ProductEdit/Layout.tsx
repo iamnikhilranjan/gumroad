@@ -6,7 +6,6 @@ import { saveProduct } from "$app/data/product_edit";
 import { setProductPublished } from "$app/data/publish_product";
 import { classNames } from "$app/utils/classNames";
 import { assertResponseError } from "$app/utils/request";
-import { paramsToQueryString } from "$app/utils/url";
 
 import { Button, NavigationButton } from "$app/components/Button";
 import { CopyToClipboard } from "$app/components/CopyToClipboard";
@@ -17,8 +16,8 @@ import { Preview } from "$app/components/Preview";
 import { PreviewSidebar, WithPreviewSidebar } from "$app/components/PreviewSidebar";
 import { useImageUploadSettings } from "$app/components/RichTextEditor";
 import { showAlert } from "$app/components/server-components/Alert";
-import { newEmailPath } from "$app/components/server-components/EmailsPage";
 import { SubtitleFile } from "$app/components/SubtitleList/Row";
+import { Alert } from "$app/components/ui/Alert";
 import { PageHeader } from "$app/components/ui/PageHeader";
 import { Tabs, Tab } from "$app/components/ui/Tabs";
 import { useRefToLatest } from "$app/components/useRefToLatest";
@@ -90,7 +89,7 @@ const NotifyAboutProductUpdatesAlert = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div role="alert" className="info">
+      <Alert variant="info">
         <div className="flex flex-col gap-4">
           Changes saved! Would you like to notify your customers about those changes?
           <div className="flex gap-2">
@@ -99,23 +98,24 @@ const NotifyAboutProductUpdatesAlert = () => {
             </Button>
             <NavigationButton
               color="primary"
-              href={`${newEmailPath}?${paramsToQueryString({
+              href={Routes.new_email_path({
                 template: "content_updates",
                 product: uniquePermalink,
                 bought: contentUpdates?.uniquePermalinkOrVariantIds ?? [],
-              })}`}
+              })}
               onClick={() => {
                 // NOTE: this is a workaround to make sure the alert closes after the tab is opened
                 // with correct URL params. Otherwise `bought` won't be set correctly.
                 setTimeout(() => close(), 100);
               }}
               target="_blank"
+              rel="noreferrer"
             >
               Send notification
             </NavigationButton>
           </div>
         </div>
-      </div>
+      </Alert>
     </div>
   );
 };

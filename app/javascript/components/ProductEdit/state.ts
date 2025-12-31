@@ -193,6 +193,7 @@ export const ProductEditContext = React.createContext<{
   cancellationDiscountsEnabled: boolean;
   contentUpdates: ContentUpdates;
   setContentUpdates: React.Dispatch<React.SetStateAction<ContentUpdates>>;
+  filesById: Map<string, FileEntry>;
 } | null>(null);
 export const useProductEditContext = () => assertDefined(React.useContext(ProductEditContext));
 
