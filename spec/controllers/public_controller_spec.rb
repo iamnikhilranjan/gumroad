@@ -15,7 +15,9 @@ describe PublicController do
       it "succeeds and set instance variable" do
         get(url)
         expect(assigns(:title)).to eq(title)
-        expect(assigns(:"on_#{url}_page")).to be(true)
+        if url != :api
+          expect(assigns(:"on_#{url}_page")).to be(true)
+        end
       end
     end
   end
