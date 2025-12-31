@@ -33,15 +33,7 @@ describe UtmLinksController, type: :controller, inertia: true do
       expect(flash[:alert]).to eq("Your current role as Admin cannot perform this action.")
     end
 
-    it "renders successfully with Inertia" do
-      get :index
-      expect(response).to be_successful
-      expect(inertia.component).to eq("UtmLinks/Index")
-      expect(inertia.props[:utm_links]).to be_an(Array)
-      expect(inertia.props[:pagination]).to be_present
-    end
-
-    it "returns seller's paginated UTM links" do
+    it "renders seller's paginated UTM links with Inertia" do
       utm_link1 = create(:utm_link, seller:, created_at: 1.day.ago)
       _deleted_link = create(:utm_link, seller:, deleted_at: DateTime.current)
       utm_link2 = create(:utm_link, seller:, created_at: 2.days.ago)
@@ -49,8 +41,10 @@ describe UtmLinksController, type: :controller, inertia: true do
       get :index
 
       expect(response).to be_successful
-      props = inertia.props
-      expect(props[:utm_links].map { |l| l[:id] }).to match_array([utm_link1.external_id, utm_link2.external_id])
+      expect(inertia.component).to eq("UtmLinks/Index")
+      expect(inertia.props[:utm_links]).to be_an(Array)
+      expect(inertia.props[:pagination]).to be_present
+      expect(inertia.props[:utm_links].map { |l| l[:id] }).to match_array([utm_link1.external_id, utm_link2.external_id])
     end
 
     it "filters UTM links by search query" do
@@ -127,7 +121,7 @@ describe UtmLinksController, type: :controller, inertia: true do
         post :create, params: valid_params
       end.to change { seller.utm_links.count }.by(1)
 
-      expect(response).to redirect_to(utm_links_dashboard_path)
+      expect(response).to redirect_to(dashboard_utm_links_path)
       expect(response).to have_http_status(:see_other)
       expect(flash[:notice]).to eq("Link created!")
 
@@ -143,7 +137,7 @@ describe UtmLinksController, type: :controller, inertia: true do
         post :create, params: valid_params
       end.not_to change { UtmLink.count }
 
-      expect(response).to redirect_to(new_utm_link_dashboard_path)
+      expect(response).to redirect_to(new_dashboard_utm_link_path)
       expect(flash[:alert]).to be_present
     end
   end
@@ -190,7 +184,7 @@ describe UtmLinksController, type: :controller, inertia: true do
     it "updates the UTM link and redirects with success message" do
       patch :update, params: update_params
 
-      expect(response).to redirect_to(utm_links_dashboard_path)
+      expect(response).to redirect_to(dashboard_utm_links_path)
       expect(response).to have_http_status(:see_other)
       expect(flash[:notice]).to eq("Link updated!")
       expect(utm_link.reload.title).to eq("Updated Title")
@@ -201,7 +195,7 @@ describe UtmLinksController, type: :controller, inertia: true do
 
       patch :update, params: update_params
 
-      expect(response).to redirect_to(edit_utm_link_dashboard_path(utm_link.external_id))
+      expect(response).to redirect_to(edit_dashboard_utm_link_path(utm_link.external_id))
       expect(flash[:alert]).to be_present
     end
 
@@ -235,7 +229,7 @@ describe UtmLinksController, type: :controller, inertia: true do
     it "soft deletes the UTM link and redirects with success message" do
       delete :destroy, params: { id: utm_link.external_id }
 
-      expect(response).to redirect_to(utm_links_dashboard_path)
+      expect(response).to redirect_to(dashboard_utm_links_path)
       expect(response).to have_http_status(:see_other)
       expect(flash[:notice]).to eq("Link deleted!")
       expect(utm_link.reload.deleted_at).to be_present

@@ -824,8 +824,9 @@ Rails.application.routes.draw do
 
     # utm links
     get "/utm_links" => redirect("/dashboard/utm_links")
-    get "/dashboard/utm_links", to: "utm_links#index", as: :utm_links_dashboard
-    resources :utm_links, only: [:new, :create, :edit, :update, :destroy], path: "dashboard/utm_links", as: :utm_link_dashboard
+    scope as: :dashboard, path: "dashboard" do
+      resources :utm_links, only: [:index, :new, :create, :edit, :update, :destroy]
+    end
 
     # shipments
     post "/shipments/verify_shipping_address", to: "shipments#verify_shipping_address", as: :verify_shipping_address
@@ -935,7 +936,7 @@ Rails.application.routes.draw do
           resources :existing_product_files, only: [:index]
           resource :receipt_preview, only: [:show]
         end
-        resources :utm_links, only: [:index, :new, :create, :edit, :update, :destroy] do
+        resources :utm_links, only: [] do
           collection do
             resource :unique_permalink, only: [:show], controller: "utm_links/unique_permalinks", as: :utm_link_unique_permalink
             resources :stats, only: [:index], controller: "utm_links/stats", as: :utm_links_stats

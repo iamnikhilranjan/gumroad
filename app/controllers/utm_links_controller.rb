@@ -34,7 +34,7 @@ class UtmLinksController < Sellers::BaseController
 
     save_utm_link(
       success_message: "Link created!",
-      error_redirect_path: new_utm_link_dashboard_path
+      error_redirect_path: new_dashboard_utm_link_path
     )
   end
 
@@ -48,13 +48,13 @@ class UtmLinksController < Sellers::BaseController
 
     save_utm_link(
       success_message: "Link updated!",
-      error_redirect_path: edit_utm_link_dashboard_path(@utm_link.external_id)
+      error_redirect_path: edit_dashboard_utm_link_path(@utm_link.external_id)
     )
   end
 
   def destroy
     @utm_link.mark_deleted!
-    redirect_to utm_links_dashboard_path, notice: "Link deleted!", status: :see_other
+    redirect_to dashboard_utm_links_path, notice: "Link deleted!", status: :see_other
   end
 
   private
@@ -73,9 +73,7 @@ class UtmLinksController < Sellers::BaseController
 
     def index_params
       params.permit(:query, :page, :key, :direction).tap do |p|
-        if p[:key].present? && p[:direction].present?
-          p[:sort] = { key: p[:key], direction: p[:direction] }
-        end
+        p[:sort] = { key: p[:key], direction: p[:direction] } if p[:key].present? && p[:direction].present?
       end
     end
 
@@ -92,9 +90,8 @@ class UtmLinksController < Sellers::BaseController
 
     def save_utm_link(success_message:, error_redirect_path:)
       SaveUtmLinkService.new(seller: current_seller, params: permitted_params, utm_link: @utm_link).perform
-      redirect_to utm_links_dashboard_path, notice: success_message, status: :see_other
+      redirect_to dashboard_utm_links_path, notice: success_message, status: :see_other
     rescue ActiveRecord::RecordInvalid => e
-      error = e.record.errors.first
-      redirect_to error_redirect_path, inertia: { errors: { error.attribute => [error.message] } }, alert: error.message
+      redirect_to error_redirect_path, inertia: { errors: e.record.errors }, alert: e.record.errors.full_messages.join(", ")
     end
 end

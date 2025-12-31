@@ -3,7 +3,7 @@ import * as React from "react";
 import { cast } from "ts-safe-cast";
 
 import { getUtmLinksStats, UtmLinksStats, UtmLinkStats } from "$app/data/utm_links";
-import type { SavedUtmLink, SortKey, UtmLinksIndexProps } from "$app/types/utm_link";
+import type { SavedUtmLink, SortKey } from "$app/types/utm_link";
 import { asyncVoid } from "$app/utils/promise";
 
 import { Button } from "$app/components/Button";
@@ -11,7 +11,7 @@ import { CopyToClipboard } from "$app/components/CopyToClipboard";
 import { Icon } from "$app/components/Icons";
 import { LoadingSpinner } from "$app/components/LoadingSpinner";
 import { Modal } from "$app/components/Modal";
-import { Pagination } from "$app/components/Pagination";
+import { Pagination, PaginationProps } from "$app/components/Pagination";
 import { Popover } from "$app/components/Popover";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Skeleton } from "$app/components/Skeleton";
@@ -27,8 +27,12 @@ import { WithTooltip } from "$app/components/WithTooltip";
 import noLinksYetPlaceholder from "$assets/images/placeholders/utm_links_empty.png";
 import noLinksFoundPlaceholder from "$assets/images/placeholders/utm_links_not_found.png";
 
-const duplicateLinkPath = (link: SavedUtmLink) => `${Routes.utm_links_dashboard_path()}/new?copy_from=${link.id}`;
-const editLinkPath = (link: SavedUtmLink) => `${Routes.utm_links_dashboard_path()}/${link.id}/edit`;
+type UtmLinksIndexProps = {
+  utm_links: SavedUtmLink[];
+  pagination: PaginationProps;
+  query: string | null;
+  sort: Sort<SortKey> | null;
+};
 
 const truncateText = (text: string, maxLength: number) => {
   const truncated = text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
@@ -124,16 +128,11 @@ export default function UtmLinksIndex() {
       newParams.direction = params.sort.direction;
     }
 
-    setIsLoading(true);
-    router.get(
-      Routes.utm_links_dashboard_path(newParams),
-      {},
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onFinish: () => setIsLoading(false),
-      },
-    );
+    router.reload({
+      data: newParams,
+      onStart: () => setIsLoading(true),
+      onFinish: () => setIsLoading(false),
+    });
   };
 
   const onChangePage = (newPage: number) => {
@@ -159,17 +158,14 @@ export default function UtmLinksIndex() {
   const handleDelete = () => {
     if (!deletingUtmLink) return;
 
-    setDeletingUtmLink({ ...deletingUtmLink, state: "deleting" });
-    router.delete(`${Routes.utm_links_dashboard_path()}/${deletingUtmLink.id}`, {
-      only: ["utm_links", "pagination", "flash"],
-      onSuccess: () => {
-        setDeletingUtmLink(null);
-        setSelectedUtmLink(null);
-      },
+    router.delete(Routes.dashboard_utm_link_path(deletingUtmLink.id), {
+      onStart: () => setDeletingUtmLink({ ...deletingUtmLink, state: "deleting" }),
+      onSuccess: () => setSelectedUtmLink(null),
       onError: () => {
         setDeletingUtmLink((previous) => (previous ? { ...previous, state: "delete-confirmation" } : previous));
         showAlert("Failed to delete link. Please try again.", "error");
       },
+      onFinish: () => setDeletingUtmLink(null),
     });
   };
 
@@ -179,7 +175,7 @@ export default function UtmLinksIndex() {
       actions={
         <>
           <SearchBoxPopover initialQuery={query} onSearch={onSearch} />
-          <Link href={`${Routes.utm_links_dashboard_path()}/new`} className="button accent">
+          <Link href={Routes.new_dashboard_utm_link_path()} className="button accent">
             Create link
           </Link>
         </>
@@ -252,11 +248,19 @@ export default function UtmLinksIndex() {
                   <TableCell>
                     <UtmLinkActions link={link}>
                       <div role="menu">
-                        <Link href={editLinkPath(link)} role="menuitem" style={{ textDecoration: "none" }}>
+                        <Link
+                          href={Routes.edit_dashboard_utm_link_path(link.id)}
+                          role="menuitem"
+                          style={{ textDecoration: "none" }}
+                        >
                           <Icon name="pencil" />
                           &ensp;Edit
                         </Link>
-                        <Link href={duplicateLinkPath(link)} role="menuitem" style={{ textDecoration: "none" }}>
+                        <Link
+                          href={Routes.new_dashboard_utm_link_path({ copy_from: link.id })}
+                          role="menuitem"
+                          style={{ textDecoration: "none" }}
+                        >
                           <Icon name="outline-duplicate" />
                           &ensp;Duplicate
                         </Link>
@@ -537,10 +541,10 @@ const UtmLinkDetails = ({
         </div>
       </section>
       <div style={{ display: "grid", gridAutoFlow: "column", gap: "var(--spacer-4)" }}>
-        <Link href={duplicateLinkPath(utmLink)} className="button">
+        <Link href={Routes.new_dashboard_utm_link_path({ copy_from: utmLink.id })} className="button">
           Duplicate
         </Link>
-        <Link href={editLinkPath(utmLink)} className="button">
+        <Link href={Routes.edit_dashboard_utm_link_path(utmLink.id)} className="button">
           Edit
         </Link>
         <Button color="danger" onClick={onDelete}>

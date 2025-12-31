@@ -1,6 +1,3 @@
-import type { PaginationProps } from "$app/components/Pagination";
-import type { Sort } from "$app/components/useSortingTableDriver";
-
 export type UtmLinkDestinationOption = {
   id: string;
   label: string;
@@ -49,18 +46,6 @@ export type UtmLinkFormContext = {
   };
 };
 
-export type UtmLinkRequestPayload = {
-  title: string;
-  target_resource_type: string;
-  target_resource_id: string | null;
-  permalink: string;
-  utm_source: string;
-  utm_medium: string;
-  utm_campaign: string;
-  utm_term: string | null;
-  utm_content: string | null;
-};
-
 export type SortKey =
   | "link"
   | "date"
@@ -71,20 +56,3 @@ export type SortKey =
   | "sales_count"
   | "revenue_cents"
   | "conversion_rate";
-
-export type UtmLinksIndexProps = {
-  utm_links: SavedUtmLink[];
-  pagination: PaginationProps;
-  query: string | null;
-  sort: Sort<SortKey> | null;
-};
-
-export type UtmLinkFormProps = {
-  context: UtmLinkFormContext;
-  utm_link: UtmLink | null;
-};
-
-export type UtmLinkEditProps = {
-  context: UtmLinkFormContext;
-  utm_link: SavedUtmLink;
-};
