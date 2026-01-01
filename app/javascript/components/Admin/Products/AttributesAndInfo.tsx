@@ -95,7 +95,7 @@ const ProductAttributesAndInfo = ({ productData }: Props) => {
           ) : null}
           {file_info_attributes.concat(custom_attributes).map((fileInfoAttr, i) => (
             <StackItem key={i}>
-              <h5 className="bold grow">{fileInfoAttr.name}</h5>
+              <h5 className="grow font-bold">{fileInfoAttr.name}</h5>
               <div>{fileInfoAttr.value}</div>
             </StackItem>
           ))}
