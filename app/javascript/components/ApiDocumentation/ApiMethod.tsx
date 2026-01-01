@@ -23,23 +23,21 @@ export const ApiMethod: React.FC<ApiMethodProps> = ({ method }) => {
         <div className="space-y-4" dangerouslySetInnerHTML={{ __html: method.description }} />
         <CodeSnippet>{url}</CodeSnippet>
         {method.parameters && method.parameters.length > 0 ? (
-          <figure className="overflow-hidden rounded border border-border bg-background">
-            <figcaption className="p-4">Parameters:</figcaption>
-            <div className="border-t border-border bg-active-bg p-4">
-              {method.parameters.map((param, index) => (
-                <React.Fragment key={param.name}>
-                  <strong>{param.name}</strong>
-                  {param.required ? null : (
-                    <>
-                      <br />
-                      <span>{param.description || "optional, true or false"}</span>
-                    </>
-                  )}
-                  {index < (method.parameters?.length ?? 0) - 1 ? <br /> : null}
-                </React.Fragment>
-              ))}
-            </div>
-          </figure>
+          <div className="parameters">
+            <h4>Parameters:</h4>
+            {method.parameters.map((param, index) => (
+              <React.Fragment key={param.name}>
+                <strong>{param.name}</strong>
+                {param.description ? (
+                  <>
+                    <br />
+                    {param.description}
+                  </>
+                ) : null}
+                {index < (method.parameters?.length ?? 0) - 1 ? <br /> : null}
+              </React.Fragment>
+            ))}
+          </div>
         ) : null}
         {method.curlExample ? <CodeSnippet caption="cURL example">{method.curlExample}</CodeSnippet> : null}
         {method.responseExample ? (
