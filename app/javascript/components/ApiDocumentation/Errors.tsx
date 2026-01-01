@@ -11,18 +11,21 @@ export const Errors: React.FC = () => {
       </div>
       <div>
         <div className="flex flex-col gap-4">
-          <p>Gumroad uses HTTP status codes to indicate the status of a request. Here's a run down on likely response codes.</p>
+          <p>
+            Gumroad uses HTTP status codes to indicate the status of a request. Here's a run down on likely response
+            codes.
+          </p>
           <p>
             {API_ERROR_CODES.map((code, index) => (
-              <React.Fragment key={index}>
-                <strong>{code.code}</strong> {code.description}
-                <br />
-              </React.Fragment>
+              <div key={index}>
+                <strong>{code.code}</strong>
+                <span>{code.description}</span>
+              </div>
             ))}
           </p>
           <p>
-            To help you further, we provide a JSON object that goes more in-depth about the problem that led to the failed
-            request. Errors responses from the api will follow the following format.
+            To help you further, we provide a JSON object that goes more in-depth about the problem that led to the
+            failed request. Errors responses from the api will follow the following format.
           </p>
           <CodeSnippet>{JSON.stringify(ERROR_EXAMPLE, null, 2)}</CodeSnippet>
           <p></p>
