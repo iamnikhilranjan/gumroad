@@ -79,7 +79,7 @@ describe("Product panel on creator profile - infinite scroll pagination", type: 
       wait_for_ajax
 
       expect(page).to have_product_card(count: 27)
-      expect(page).to have_text("1-27 of 27")
+      expect(page).to have_text("1-27 of 38")
       expect(page).to have_product_card(text: "product 13")
       expect(page).to have_product_card(text: "product 14")
       expect(page).to_not have_product_card(text: "product 20")
