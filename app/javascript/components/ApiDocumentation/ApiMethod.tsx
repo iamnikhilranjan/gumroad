@@ -25,16 +25,10 @@ export const ApiMethod: React.FC<ApiMethodProps> = ({ method }) => {
         {method.parameters && method.parameters.length > 0 ? (
           <div className="parameters">
             <h4>Parameters:</h4>
-            {method.parameters.map((param, index) => (
+            {method.parameters.map((param) => (
               <div key={param.name}>
                 <strong>{param.name}</strong>
-                {param.description ? (
-                  <>
-                    <br />
-                    {param.description}
-                  </>
-                ) : null}
-                {index < (method.parameters?.length ?? 0) - 1 ? <br /> : null}
+                <span>{param.description ? <>{param.description}</> : null}</span>
               </div>
             ))}
           </div>
