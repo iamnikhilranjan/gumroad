@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { cast } from "ts-safe-cast";
 
-import { useExternalScript } from "$app/hooks/useExternalScript";
+import { usePersistentExternalScript } from "$app/hooks/usePersistentExternalScript";
 import { buildOverlayCodeToCopy, buildEmbedCodeToCopy } from "$app/utils/widgetCodeToCopyBuilders";
 
 import { Button } from "$app/components/Button";
@@ -28,8 +28,8 @@ type WidgetsPageProps = {
 export default function PublicWidgets() {
   const props = cast<WidgetsPageProps>(usePage().props);
 
-  useExternalScript("/js/gumroad.js");
-  useExternalScript("/js/gumroad-embed.js");
+  usePersistentExternalScript("/js/gumroad.js");
+  usePersistentExternalScript("/js/gumroad-embed.js");
 
   const currentSeller = useCurrentSeller();
   const domains = useDomains();
