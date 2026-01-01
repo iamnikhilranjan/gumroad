@@ -37,8 +37,20 @@ class FollowersController < ApplicationController
 
     can_load_more = (page * FOLLOWERS_PER_PAGE) < total_count
 
+
+    is_partial_reload = request.headers["X-Inertia-Partial-Data"].present?
+    followers_prop = if page == 1
+      paginated_followers
+    elsif is_partial_reload
+      InertiaRails.merge { paginated_followers }
+    else
+      searched_followers
+        .limit(page * FOLLOWERS_PER_PAGE)
+        .as_json(pundit_user:)
+    end
+
     render inertia: "Followers/Index", props: {
-      followers: paginated_followers,
+      followers: followers_prop,
       per_page: FOLLOWERS_PER_PAGE,
       total: total_unfiltered_count,
       total_filtered: total_count,

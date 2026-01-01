@@ -72,33 +72,15 @@ type Props = {
 };
 
 export default function FollowersPage() {
-  const {
-    followers: initialFollowers,
-    total,
-    page: initialPage,
-    can_load_more,
-    email: initialEmail,
-  } = cast<Props>(usePage().props);
+  const { followers, total, page: initialPage, can_load_more, email: initialEmail } = cast<Props>(usePage().props);
   const userAgentInfo = useUserAgentInfo();
 
   const [isLoadingMore, setIsLoadingMore] = React.useState(false);
-  const [followers, setFollowers] = React.useState<Follower[]>(initialFollowers);
   const [selectedFollowerId, setSelectedFollowerId] = React.useState<string | null>(null);
   const [searchBoxOpen, setSearchBoxOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState(initialEmail);
   const searchInputRef = React.useRef<HTMLInputElement | null>(null);
-  const lastProcessedPageRef = React.useRef(initialPage);
   const selectedFollower = followers.find((follower) => follower.id === selectedFollowerId);
-
-  React.useEffect(() => {
-    if (initialPage === 1) {
-      setFollowers(initialFollowers);
-      lastProcessedPageRef.current = 1;
-    } else if (initialPage > lastProcessedPageRef.current) {
-      setFollowers((prev) => [...prev, ...initialFollowers]);
-      lastProcessedPageRef.current = initialPage;
-    }
-  }, [initialFollowers, initialPage]);
 
   React.useEffect(() => {
     setSearchQuery(initialEmail);
