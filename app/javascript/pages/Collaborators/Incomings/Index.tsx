@@ -8,7 +8,7 @@ import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { NavigationButtonInertia } from "$app/components/NavigationButton";
-import Placeholder from "$app/components/ui/Placeholder";
+import { Placeholder, PlaceholderImage } from "$app/components/ui/Placeholder";
 import { Sheet, SheetHeader } from "$app/components/ui/Sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
 import { WithTooltip } from "$app/components/WithTooltip";
@@ -180,9 +180,7 @@ const IncomingCollaboratorsTableRow = ({
 const EmptyState = () => (
   <section className="p-4 md:p-8">
     <Placeholder>
-      <figure>
-        <img src={placeholder} />
-      </figure>
+      <PlaceholderImage src={placeholder} />
       <h2>No collaborations yet</h2>
       <h4>Creators who have invited you to collaborate on their products will appear here.</h4>
       <a href="/help/article/341-collaborations" target="_blank" rel="noreferrer">
