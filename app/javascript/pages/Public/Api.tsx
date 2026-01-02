@@ -2,16 +2,16 @@ import React from "react";
 
 import { Layout } from "$app/components/Developer/Layout";
 
-import { ApiResource } from "./ApiResource";
-import { Authentication } from "./Authentication";
-import { API_RESOURCES } from "./Endpoints";
-import { Errors } from "./Errors";
-import { Introduction } from "./Introduction";
-import { Navigation } from "./Navigation";
-import { Resources } from "./Resources";
-import { Scopes } from "./Scopes";
+import { ApiResource } from "$app/components/ApiDocumentation/ApiResource";
+import { Authentication } from "$app/components/ApiDocumentation/Authentication";
+import { API_RESOURCES } from "$app/components/ApiDocumentation/Endpoints";
+import { Errors } from "$app/components/ApiDocumentation/Errors";
+import { Introduction } from "$app/components/ApiDocumentation/Introduction";
+import { Navigation } from "$app/components/ApiDocumentation/Navigation";
+import { Resources } from "$app/components/ApiDocumentation/Resources";
+import { Scopes } from "$app/components/ApiDocumentation/Scopes";
 
-const ApiDocumentation: React.FC = () => {
+export default function Api() {
   return (
     <Layout currentPage="api">
       <main className="p-4 md:p-8">
@@ -45,6 +45,4 @@ const ApiDocumentation: React.FC = () => {
       </main>
     </Layout>
   );
-};
-
-export default ApiDocumentation;
+}

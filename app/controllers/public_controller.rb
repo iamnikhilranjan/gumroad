@@ -56,7 +56,7 @@ class PublicController < ApplicationController
 
   def api
     @title = "API"
-    render inertia: "ApiDocumentation/Index"
+    render inertia: "Public/Api"
   end
 
   def ping
