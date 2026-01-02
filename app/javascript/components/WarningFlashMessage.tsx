@@ -11,11 +11,14 @@ type PageProps = {
 export const WarningFlash: React.FC = () => {
   const { flash } = usePage<PageProps>().props;
 
+  React.useEffect(() => {
+    if (flash?.status === "success" && flash?.message) {
+      showAlert(flash.message, "success");
+    }
+  }, [flash]);
+
   if (flash?.status === "warning" && flash.message) {
     return <Alert variant="danger">{flash.message}</Alert>;
-  } else if (flash?.status === "success" && flash?.message) {
-    showAlert(flash.message, "success");
-    return null;
   }
 
   return null;

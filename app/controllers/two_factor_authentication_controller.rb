@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class TwoFactorAuthenticationController < ApplicationController
-
   before_action :redirect_to_signed_in_path, if: -> { user_signed_in? && skip_two_factor_authentication?(logged_in_user) }
   before_action :fetch_user
   before_action :check_presence_of_user, except: :verify
@@ -42,7 +41,7 @@ class TwoFactorAuthenticationController < ApplicationController
       if @user.token_authenticated?(token)
         sign_in_with_two_factor_authentication(@user)
 
-        redirect_to login_path_for(@user), notice: "Successfully logged in!" , status: :see_other
+        redirect_to login_path_for(@user), notice: "Successfully logged in!", status: :see_other
       else
         redirect_to two_factor_authentication_path, warning: "Invalid token, please try again."
       end

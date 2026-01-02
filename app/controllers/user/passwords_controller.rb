@@ -24,7 +24,7 @@ class User::PasswordsController < Devise::PasswordsController
   def edit
     reset_password_token = params[:reset_password_token]
     user = User.find_or_initialize_with_error_by(:reset_password_token,
-                                                  Devise.token_generator.digest(User, :reset_password_token, reset_password_token))
+                                                 Devise.token_generator.digest(User, :reset_password_token, reset_password_token))
     if user.errors.present?
       flash[:alert] = "That reset password token doesn't look valid (or may have expired)."
       return redirect_to root_url
