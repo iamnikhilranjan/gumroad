@@ -52,7 +52,7 @@ class UtmLinksController < Sellers::BaseController
 
     save_utm_link(
       success_message: "Link updated!",
-      error_redirect_path: edit_dashboard_utm_link_path(@utm_link)
+      error_redirect_path: edit_dashboard_utm_link_path(@utm_link.external_id)
     )
   end
 

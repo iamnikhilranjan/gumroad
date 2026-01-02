@@ -248,7 +248,7 @@ describe UtmLinksController, type: :controller, inertia: true do
 
       patch :update, params: params
 
-      expect(response).to redirect_to(edit_dashboard_utm_link_path(utm_link))
+      expect(response).to redirect_to(edit_dashboard_utm_link_path(utm_link.external_id))
     end
 
     it "returns 404 if the UTM link does not exist" do
