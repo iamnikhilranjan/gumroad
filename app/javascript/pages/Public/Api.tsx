@@ -1,6 +1,5 @@
 import React from "react";
 
-import { Layout } from "$app/components/Developer/Layout";
 
 import { ApiResource } from "$app/components/ApiDocumentation/ApiResource";
 import { Authentication } from "$app/components/ApiDocumentation/Authentication";
@@ -10,6 +9,7 @@ import { Introduction } from "$app/components/ApiDocumentation/Introduction";
 import { Navigation } from "$app/components/ApiDocumentation/Navigation";
 import { Resources } from "$app/components/ApiDocumentation/Resources";
 import { Scopes } from "$app/components/ApiDocumentation/Scopes";
+import { Layout } from "$app/components/Developer/Layout";
 
 export default function Api() {
   return (

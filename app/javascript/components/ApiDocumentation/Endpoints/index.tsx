@@ -1,15 +1,15 @@
 import React from "react";
 
-import * as Products from "./Products";
-import * as Variants from "./Variants";
-import * as OfferCodes from "./OfferCodes";
 import * as CustomFields from "./CustomFields";
-import * as User from "./User";
+import * as Licenses from "./Licenses";
+import * as OfferCodes from "./OfferCodes";
+import * as Payouts from "./Payouts";
+import * as Products from "./Products";
 import * as ResourceSubscriptions from "./ResourceSubscriptions";
 import * as Sales from "./Sales";
 import * as Subscribers from "./Subscribers";
-import * as Licenses from "./Licenses";
-import * as Payouts from "./Payouts";
+import * as User from "./User";
+import * as Variants from "./Variants";
 
 export const API_RESOURCES = [
   {

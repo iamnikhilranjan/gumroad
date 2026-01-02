@@ -6,13 +6,11 @@ type ApiResourceProps = {
   endpoints: React.ReactNode[];
 };
 
-export const ApiResource: React.FC<ApiResourceProps> = ({ name, id, endpoints }) => {
-  return (
-    <div className="stack" id={id}>
-      <div>
-        <h2>{name}</h2>
-      </div>
-      {endpoints}
+export const ApiResource: React.FC<ApiResourceProps> = ({ name, id, endpoints }) => (
+  <div className="stack" id={id}>
+    <div>
+      <h2>{name}</h2>
     </div>
-  );
-};
+    {endpoints}
+  </div>
+);

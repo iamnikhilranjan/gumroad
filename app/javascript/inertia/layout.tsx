@@ -13,7 +13,7 @@ import useRouteLoading from "$app/components/useRouteLoading";
 type PageProps = {
   title: string;
   flash?: AlertPayload;
-  logged_in_user: LoggedInUser;
+  logged_in_user: LoggedInUser | null;
   current_seller: {
     id: number;
     email: string;
