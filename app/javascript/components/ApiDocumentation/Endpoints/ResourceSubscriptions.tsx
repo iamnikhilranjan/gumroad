@@ -188,7 +188,7 @@ export const GetResourceSubscriptions: React.FC = () => (
     description="Show all active subscriptions of user for the input resource."
   >
     <ApiParameters>
-      <ApiParameter name="resource_name">optional</ApiParameter>
+      <ApiParameter name="resource_name">(optional)</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/resource_subscriptions \\

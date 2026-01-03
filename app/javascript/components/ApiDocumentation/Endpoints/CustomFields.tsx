@@ -34,7 +34,7 @@ export const CreateCustomField: React.FC = () => (
     <ApiParameters>
       <ApiParameter name="name" required />
       <br />
-      <ApiParameter name="required">optional, true or false</ApiParameter>
+      <ApiParameter name="required">(optional, true or false)</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/custom_fields \\
@@ -59,7 +59,7 @@ export const UpdateCustomField: React.FC = () => (
     description="Edit an existing product's custom field."
   >
     <ApiParameters>
-      <ApiParameter name="required">optional, true or false</ApiParameter>
+      <ApiParameter name="required">(optional, true or false)</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/custom_fields/phone%20number \\

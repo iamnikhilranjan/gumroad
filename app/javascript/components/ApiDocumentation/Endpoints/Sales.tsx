@@ -12,18 +12,20 @@ export const GetSales: React.FC = () => (
     description="Retrieves all of the successful sales by the authenticated user. Available with the 'view_sales' scope."
   >
     <ApiParameters>
-      <ApiParameter name="after">optional, date in form YYYY-MM-DD - Only return sales after this date</ApiParameter>
+      <ApiParameter name="after">(optional, date in form YYYY-MM-DD) - Only return sales after this date</ApiParameter>
       <br />
-      <ApiParameter name="before">optional, date in form YYYY-MM-DD - Only return sales before this date</ApiParameter>
+      <ApiParameter name="before">
+        (optional, date in form YYYY-MM-DD) - Only return sales before this date
+      </ApiParameter>
       <br />
-      <ApiParameter name="product_id">optional - Filter sales by this product</ApiParameter>
+      <ApiParameter name="product_id">(optional) - Filter sales by this product</ApiParameter>
       <br />
-      <ApiParameter name="email">optional - Filter sales by this email</ApiParameter>
+      <ApiParameter name="email">(optional) - Filter sales by this email</ApiParameter>
       <br />
-      <ApiParameter name="order_id">optional - Filter sales by this Order ID</ApiParameter>
+      <ApiParameter name="order_id">(optional) - Filter sales by this Order ID</ApiParameter>
       <br />
       <ApiParameter name="page_key">
-        optional - A key representing a page of results. It is given in the response as `next_page_key`.
+        (optional) - A key representing a page of results. It is given in the response as `next_page_key`.
       </ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
@@ -203,7 +205,7 @@ export const MarkSaleAsShipped: React.FC = () => (
     description="Marks a sale as shipped. Available with the 'mark_sales_as_shipped' scope."
   >
     <ApiParameters>
-      <ApiParameter name="tracking_url">optional</ApiParameter>
+      <ApiParameter name="tracking_url">(optional)</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/sales/A-m3CDDC5dlrSdKZp0RFhA==/mark_as_shipped \\
@@ -296,7 +298,7 @@ export const RefundSale: React.FC = () => (
   >
     <ApiParameters>
       <ApiParameter name="amount_cents">
-        optional - Amount in cents (in currency of the sale) to be refunded. If set, issue partial refund by this
+        (optional) - Amount in cents (in currency of the sale) to be refunded. If set, issue partial refund by this
         amount. If not set, issue full refund. You can issue multiple partial refunds per sale until it is fully
         refunded.
       </ApiParameter>

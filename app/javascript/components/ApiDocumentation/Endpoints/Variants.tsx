@@ -138,9 +138,9 @@ export const CreateVariant: React.FC = () => (
     <ApiParameters>
       <ApiParameter name="name" required />
       <br />
-      <ApiParameter name="price_difference">Optional price difference in cents</ApiParameter>
+      <ApiParameter name="price_difference">(Optional price difference in cents)</ApiParameter>
       <br />
-      <ApiParameter name="max_purchase_count">Optional max purchase count</ApiParameter>
+      <ApiParameter name="max_purchase_count">(Optional max purchase count)</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories/mN7CdHiwHaR9FlxKvF-n-g==/variants \\
@@ -194,9 +194,9 @@ export const UpdateVariant: React.FC = () => (
     <ApiParameters>
       <ApiParameter name="name" required />
       <br />
-      <ApiParameter name="price_difference">Optional price difference in cents</ApiParameter>
+      <ApiParameter name="price_difference">(Optional price difference in cents)</ApiParameter>
       <br />
-      <ApiParameter name="max_purchase_count">Optional max purchase count</ApiParameter>
+      <ApiParameter name="max_purchase_count">(Optional max purchase count)</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories/mN7CdHiwHaR9FlxKvF-n-g==/variants/kuaXCPHTmRuoK13rNGVbxg== \\

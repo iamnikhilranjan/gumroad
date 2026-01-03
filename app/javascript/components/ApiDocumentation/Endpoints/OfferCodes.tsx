@@ -74,15 +74,15 @@ export const CreateOfferCode: React.FC = () => (
     description="Create a new offer code for a product. Default offer code is in cents. A universal offer code is one that applies to all products."
   >
     <ApiParameters>
-      <ApiParameter name="name">the coupon code used at checkout</ApiParameter>
+      <ApiParameter name="name">(the coupon code used at checkout)</ApiParameter>
       <br />
       <ApiParameter name="amount_off" />
       <br />
-      <ApiParameter name="offer_type">optional, "cents" or "percent") Default: "cents"</ApiParameter>
+      <ApiParameter name="offer_type">(optional, "cents" or "percent") Default: "cents"</ApiParameter>
       <br />
-      <ApiParameter name="max_purchase_count">optional</ApiParameter>
+      <ApiParameter name="max_purchase_count">(optional)</ApiParameter>
       <br />
-      <ApiParameter name="universal">optional, true or false) Default: false</ApiParameter>
+      <ApiParameter name="universal">(optional, true or false) Default: false</ApiParameter>
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/offer_codes \\

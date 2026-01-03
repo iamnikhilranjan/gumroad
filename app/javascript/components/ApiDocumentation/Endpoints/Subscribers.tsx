@@ -27,14 +27,14 @@ export const GetSubscribers: React.FC = () => (
     }
   >
     <ApiParameters>
-      <ApiParameter name="email">optional - Filter subscribers by this email</ApiParameter>
+      <ApiParameter name="email">(optional) - Filter subscribers by this email</ApiParameter>
       <br />
       <ApiParameter name="paginated">
-        optional, default: "false" - Set to "true" to limit the number of subscribers returned to 100.
+        (optional, default: "false") - Set to "true" to limit the number of subscribers returned to 100.
       </ApiParameter>
       <br />
       <ApiParameter name="page_key">
-        optional - A key representing a page of results. It is given in the paginated response of the previous page as
+        (optional) - A key representing a page of results. It is given in the paginated response of the previous page as
         `next_page_key`.
       </ApiParameter>
     </ApiParameters>
