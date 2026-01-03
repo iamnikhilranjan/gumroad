@@ -9,7 +9,7 @@ import { PasswordInput } from "$app/components/PasswordInput";
 import { Separator } from "$app/components/Separator";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
 import { RecaptchaCancelledError, useRecaptcha } from "$app/components/useRecaptcha";
-import { AuthAlert } from "$app/components/AuthAlertComponent";
+import { AuthAlert } from "$app/components/AuthAlert";
 
 type PageProps = {
   email: string | null;
