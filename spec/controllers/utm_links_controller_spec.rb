@@ -110,6 +110,44 @@ describe UtmLinksController, type: :controller, inertia: true do
         expect(response).to be_successful
       end
     end
+
+    it "returns stats for the requested UTM link IDs" do
+      utm_link1 = create(:utm_link, seller:, unique_clicks: 3)
+      utm_link2 = create(:utm_link, seller:, unique_clicks: 1)
+      utm_link3 = create(:utm_link, seller:, unique_clicks: 2)
+      another_seller_utm_link = create(:utm_link, unique_clicks: 1)
+
+      product = create(:product, user: seller)
+      purchase1 = create(:purchase, price_cents: 1000, seller:, link: product)
+      purchase2 = create(:purchase, price_cents: 2000, seller:, link: product)
+      purchase3 = create(:purchase, price_cents: 0, seller:, link: product)
+      test_purchase = create(:test_purchase, price_cents: 3000, seller:, link: product)
+      failed_purchase = create(:failed_purchase, price_cents: 1000, seller:, link: product)
+
+      create(:utm_link_driven_sale, utm_link: utm_link1, purchase: purchase1)
+      create(:utm_link_driven_sale, utm_link: utm_link1, purchase: purchase2)
+      create(:utm_link_driven_sale, utm_link: utm_link2, purchase: purchase3)
+      create(:utm_link_driven_sale, utm_link: utm_link2, purchase: test_purchase)
+      create(:utm_link_driven_sale, utm_link: utm_link2, purchase: failed_purchase)
+
+      get :index, params: { ids: [utm_link1.external_id, utm_link2.external_id, utm_link3.external_id, another_seller_utm_link.external_id] }
+
+      expect(response).to be_successful
+      stats = inertia.props[:utm_links_stats]
+      expect(stats[utm_link1.external_id]).to eq({ sales_count: 2, revenue_cents: 3000, conversion_rate: 0.6667 })
+      expect(stats[utm_link2.external_id]).to eq({ sales_count: 1, revenue_cents: 0, conversion_rate: 1.0 })
+      expect(stats[utm_link3.external_id]).to eq({ sales_count: 0, revenue_cents: 0, conversion_rate: 0.0 })
+      expect(stats[another_seller_utm_link.external_id]).to be_nil
+    end
+
+    it "returns empty stats when ids param is not provided" do
+      create(:utm_link, seller:)
+
+      get :index
+
+      expect(response).to be_successful
+      expect(inertia.props[:utm_links_stats]).to eq({})
+    end
   end
 
   describe "GET new" do
@@ -151,6 +189,17 @@ describe UtmLinksController, type: :controller, inertia: true do
         get :new
 
         expect(response).to be_successful
+      end
+
+      it "returns a new unique permalink" do
+        allow(SecureRandom).to receive(:alphanumeric).and_return("unique01", "unique02")
+        create(:utm_link, seller:, permalink: "unique01")
+
+        get :new
+
+        expect(response).to be_successful
+        body = response.parsed_body.deep_symbolize_keys
+        expect(body[:props][:additional_metadata]).to eq({ new_permalink: "unique02" })
       end
     end
   end
@@ -200,6 +249,46 @@ describe UtmLinksController, type: :controller, inertia: true do
 
     it "redirects back with errors if validation fails" do
       params[:utm_link][:utm_source] = nil
+
+      expect do
+        post :create, params: params
+      end.not_to change { UtmLink.count }
+
+      expect(response).to redirect_to(new_dashboard_utm_link_path)
+    end
+
+    it "redirects back with error if target resource id is missing" do
+      params[:utm_link][:target_resource_id] = nil
+
+      expect do
+        post :create, params: params
+      end.not_to change { UtmLink.count }
+
+      expect(response).to redirect_to(new_dashboard_utm_link_path)
+    end
+
+    it "redirects back with error if permalink is invalid" do
+      params[:utm_link][:permalink] = "abc"
+
+      expect do
+        post :create, params: params
+      end.not_to change { UtmLink.count }
+
+      expect(response).to redirect_to(new_dashboard_utm_link_path)
+    end
+
+    it "allows creating a link with same UTM params but different target resource" do
+      create(:utm_link, seller:, utm_source: "facebook", utm_medium: "social", utm_campaign: "summer", target_resource_type: "profile_page")
+
+      expect do
+        post :create, params: params
+      end.to change { seller.utm_links.count }.by(1)
+
+      expect(response).to redirect_to(dashboard_utm_links_path)
+    end
+
+    it "does not allow creating a link with same UTM params and same target resource" do
+      create(:utm_link, seller:, utm_source: "facebook", utm_medium: "social", utm_campaign: "summer", target_resource_type: "product_page", target_resource_id: product.id)
 
       expect do
         post :create, params: params
