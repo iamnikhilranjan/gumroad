@@ -66,6 +66,7 @@ describe Collaborators::IncomingsController, inertia: true do
 
       expect(response).to be_successful
       expect(inertia.component).to eq("Collaborators/Incoming/Index")
+      expect(inertia.props[:title]).to eq("Collaborators")
 
       expect(inertia.props[:collaborators]).to eq(
         [

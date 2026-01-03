@@ -34,6 +34,7 @@ describe Collaborators::MainController, type: :controller, inertia: true do
 
       expect(response).to be_successful
       expect(inertia.component).to eq("Collaborators/Index")
+      expect(inertia.props[:title]).to eq("Collaborators")
 
       expected_collaborators = [collaborator1, collaborator2].map do
         CollaboratorPresenter.new(seller:, collaborator: _1).collaborator_props
@@ -67,6 +68,7 @@ describe Collaborators::MainController, type: :controller, inertia: true do
 
       expect(response).to be_successful
       expect(inertia.component).to eq("Collaborators/Edit")
+      expect(inertia.props[:title]).to eq("Collaborators")
 
       presenter = CollaboratorPresenter.new(seller:, collaborator:)
       expected_props = presenter.edit_collaborator_props
@@ -93,6 +95,7 @@ describe Collaborators::MainController, type: :controller, inertia: true do
 
       expect(response).to be_successful
       expect(inertia.component).to eq("Collaborators/New")
+      expect(inertia.props[:title]).to eq("Collaborators")
 
       presenter = CollaboratorPresenter.new(seller:)
       expected_props = presenter.new_collaborator_props

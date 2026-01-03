@@ -6,7 +6,6 @@ class Collaborators::IncomingsController < Collaborators::BaseController
   before_action :set_invitation!, only: [:accept, :decline]
 
   def index
-    @title = "Collaborations"
     render inertia: "Collaborators/Incoming/Index", props: IncomingCollaboratorsPresenter.new(seller: current_seller).index_props
   end
 

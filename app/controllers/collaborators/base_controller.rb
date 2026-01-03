@@ -33,4 +33,8 @@ class Collaborators::BaseController < Sellers::BaseController
         authorize Collaborator
       end
     end
+
+    def set_title
+      @title = "Collaborators"
+    end
 end

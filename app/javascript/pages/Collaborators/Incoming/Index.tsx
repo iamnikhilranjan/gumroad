@@ -1,8 +1,9 @@
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
 import { cast } from "ts-safe-cast";
 
-import type { IncomingCollaborator, IncomingCollaboratorsPageProps } from "$app/data/incoming_collaborators";
+import type { CollaboratorPagesSharedProps } from "$app/data/collaborators";
+import type { IncomingCollaborator } from "$app/data/incoming_collaborators";
 import { classNames } from "$app/utils/classNames";
 import { formatCommission, formatProductNames } from "$app/utils/collaboratorFormatters";
 
@@ -11,6 +12,7 @@ import CollaboratorDetailsSheet from "$app/components/Collaborators/Collaborator
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Placeholder, PlaceholderImage } from "$app/components/ui/Placeholder";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
@@ -162,6 +164,10 @@ const IncomingCollaboratorsTable = ({
   </section>
 );
 
+type IncomingCollaboratorsPageProps = {
+  collaborators: IncomingCollaborator[];
+} & CollaboratorPagesSharedProps;
+
 const IncomingCollaboratorsPage = () => {
   const loggedInUser = useLoggedInUser();
 
@@ -179,18 +185,18 @@ const IncomingCollaboratorsPage = () => {
 
   return (
     <Layout
-      title="Collaborations"
+      title="Collaborators"
       selectedTab="collaborations"
       showTabs
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <Link
+          <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
-            className="button accent"
+            color="accent"
             inert={!loggedInUser?.policies.collaborator.create || collaborators_disabled_reason !== null}
           >
             Add collaborator
-          </Link>
+          </NavigationButtonInertia>
         </WithTooltip>
       }
     >

@@ -2,7 +2,7 @@ import { Link, useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
 import { cast } from "ts-safe-cast";
 
-import type { Collaborator, CollaboratorsPageProps } from "$app/data/collaborators";
+import type { Collaborator, CollaboratorPagesSharedProps } from "$app/data/collaborators";
 import { formatCommission, formatProductNames } from "$app/utils/collaboratorFormatters";
 
 import { Button } from "$app/components/Button";
@@ -17,6 +17,11 @@ import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/collaborators.png";
 
+type CollaboratorsPageProps = {
+  collaborators: Collaborator[];
+  has_incoming_collaborators: boolean;
+} & CollaboratorPagesSharedProps;
+
 const CollaboratorsPage = () => {
   const loggedInUser = useLoggedInUser();
 
@@ -29,7 +34,7 @@ const CollaboratorsPage = () => {
 
   const remove = (collaboratorId: string) => {
     deleteForm.delete(Routes.collaborator_path(collaboratorId), {
-      only: ["collaborators", "flash"],
+      only: ["collaborators", "flash", "has_incoming_collaborators"],
       preserveUrl: true,
       onSuccess: () => {
         setSelectedCollaborator(null);

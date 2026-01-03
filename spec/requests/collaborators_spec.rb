@@ -12,6 +12,7 @@ describe "Collaborators", type: :system, js: true do
         it "displays a placeholder message" do
           visit collaborators_path
 
+          expect(page).to have_title("Collaborators")
           expect(page).to have_selector("h1", text: "Collaborators")
           expect(page).to have_selector("h2", text: "No collaborators yet")
           expect(page).to have_selector("h4", text: "Share your revenue with the people who helped create your products.")
@@ -123,6 +124,11 @@ describe "Collaborators", type: :system, js: true do
         expect do
           visit collaborators_path
           click_on "Add collaborator"
+
+          expect(page).to have_title("Collaborators")
+          expect(page).to have_selector("h1", text: "New collaborator")
+          expect(page).to_not have_tab_button("Collaborators")
+          expect(page).to_not have_tab_button("Collaborations")
 
           fill_in "email", with: "#{collaborating_user.email}  " # test trimming email
           uncheck "Show as co-creator", checked: true
@@ -445,7 +451,10 @@ describe "Collaborators", type: :system, js: true do
             click_on "Edit"
           end
 
-          expect(page).to have_text collaborator.affiliate_user.display_name
+          expect(page).to have_title("Collaborators")
+          expect(page).to have_selector("h1", text: collaborator.affiliate_user.display_name)
+          expect(page).to_not have_tab_button("Collaborators")
+          expect(page).to_not have_tab_button("Collaborations")
 
           # edit default commission
           within find(:table_row, { "Product" => "All products" }) do

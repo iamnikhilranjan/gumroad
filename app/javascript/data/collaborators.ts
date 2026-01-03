@@ -5,14 +5,12 @@ export type Collaborator = {
   avatar_url: string;
   percent_commission: number | null;
   setup_incomplete: boolean;
-  products: CollaboratorProduct[];
+  products: {
+    id: string;
+    name: string;
+    percent_commission: number;
+  }[];
   invitation_accepted: boolean;
-};
-
-export type CollaboratorProduct = {
-  id: string;
-  name: string;
-  percent_commission: number;
 };
 
 export type CollaboratorFormProduct = {
@@ -38,11 +36,6 @@ export type CollaboratorFormData = {
 export type CollaboratorPagesSharedProps = {
   collaborators_disabled_reason: string | null;
 };
-
-export type CollaboratorsPageProps = {
-  collaborators: Collaborator[];
-  has_incoming_collaborators: boolean;
-} & CollaboratorPagesSharedProps;
 
 export type CollaboratorFormPageMetaData = {
   default_percent_commission: number;

@@ -4,12 +4,10 @@ class Collaborators::MainController < Collaborators::BaseController
   prepend_before_action :set_collaborator, only: %i[edit update destroy]
 
   def index
-    @title = "Collaborators"
     render inertia: "Collaborators/Index", props: CollaboratorsPresenter.new(seller: current_seller).index_props
   end
 
   def new
-    @title = "New collaborator"
     render inertia: "Collaborators/New", props: CollaboratorPresenter.new(seller: current_seller).new_collaborator_props
   end
 
@@ -24,7 +22,6 @@ class Collaborators::MainController < Collaborators::BaseController
   end
 
   def edit
-    @title = "Edit collaborator"
     render inertia: "Collaborators/Edit", props: CollaboratorPresenter.new(seller: current_seller, collaborator: @collaborator).edit_collaborator_props
   end
 

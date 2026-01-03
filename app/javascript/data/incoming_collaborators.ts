@@ -1,5 +1,3 @@
-import type { CollaboratorPagesSharedProps } from "./collaborators";
-
 export type IncomingCollaborator = {
   id: string;
   seller_email: string;
@@ -17,7 +15,3 @@ export type IncomingCollaborator = {
     dont_show_as_co_creator: boolean;
   }[];
 };
-
-export type IncomingCollaboratorsPageProps = {
-  collaborators: IncomingCollaborator[];
-} & CollaboratorPagesSharedProps;

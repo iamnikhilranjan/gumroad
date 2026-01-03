@@ -19,12 +19,12 @@ class CollaboratorPresenter
 
   def edit_collaborator_props
     collaborator_form_props(
-      product_affiliates: collaborator.product_affiliates.includes(:product),
-      default_commission: collaborator.affiliate_percentage || DEFAULT_PERCENT_COMMISSION,
-      apply_to_all: collaborator.apply_to_all_products?,
+      apply_to_all_products: collaborator.apply_to_all_products?,
       collaborator_id: collaborator.external_id,
-      email: nil,
       dont_show_as_co_creator: collaborator.dont_show_as_co_creator?,
+      email: nil,
+      percent_commission: collaborator.affiliate_percentage,
+      product_affiliates: collaborator.product_affiliates.includes(:product),
       title: collaborator.affiliate_user.display_name(prefer_email_over_default_username: true)
     ).compact
   end
@@ -42,7 +42,7 @@ class CollaboratorPresenter
       dont_show_as_co_creator: collaborator.dont_show_as_co_creator,
       id: collaborator.external_id,
       invitation_accepted: collaborator.invitation_accepted?,
-      products: collaborator.product_affiliates.map do |product_affiliate|
+      products: collaborator.product_affiliates.includes(:product).map do |product_affiliate|
         {
           id: product_affiliate.product.external_id,
           url: product_affiliate.product.long_url,
@@ -60,15 +60,15 @@ class CollaboratorPresenter
   private
     attr_reader :seller, :collaborator
 
-    def collaborator_form_props(product_affiliates: [], default_commission: DEFAULT_PERCENT_COMMISSION, apply_to_all: true, collaborator_id: nil, email: "", dont_show_as_co_creator: false, title: "New collaborator")
+    def collaborator_form_props(apply_to_all_products: true, collaborator_id: nil, dont_show_as_co_creator: false, email: "", percent_commission: DEFAULT_PERCENT_COMMISSION, product_affiliates: [], title: "New collaborator")
       {
         form_data: {
           id: collaborator_id,
           email:,
-          apply_to_all_products: apply_to_all,
-          percent_commission: default_commission,
-          dont_show_as_co_creator: dont_show_as_co_creator,
-          products: all_products(product_affiliates:, default_commission:, apply_to_all:, collaborator_id:),
+          apply_to_all_products:,
+          percent_commission:,
+          dont_show_as_co_creator:,
+          products: all_products(product_affiliates:, percent_commission:, apply_to_all_products:, collaborator_id:),
         }.compact,
         page_metadata: {
           default_percent_commission: DEFAULT_PERCENT_COMMISSION,
@@ -90,7 +90,7 @@ class CollaboratorPresenter
       end
     end
 
-    def all_products(product_affiliates: [], default_commission: DEFAULT_PERCENT_COMMISSION, apply_to_all: true, collaborator_id: nil)
+    def all_products(apply_to_all_products: true, collaborator_id: nil,  percent_commission: DEFAULT_PERCENT_COMMISSION, product_affiliates: [])
       seller.products.includes(product_affiliates: :affiliate).visible_and_not_archived.map do |product|
         product_affiliate = collaborator_id && product_affiliates.find { _1.product.id == product.id }
         {
@@ -99,9 +99,9 @@ class CollaboratorPresenter
           has_another_collaborator: product.has_another_collaborator?(collaborator:),
           has_affiliates: product.direct_affiliates.alive.exists?,
           published: product.published?,
-          enabled: collaborator_id.present? ? product_affiliate.present? : (!product.has_another_collaborator?(collaborator:) && product.published?),
-          percent_commission: collaborator_id.present? ? (product_affiliate&.affiliate_percentage || default_commission) : DEFAULT_PERCENT_COMMISSION,
-          dont_show_as_co_creator: collaborator_id.present? ? (apply_to_all ? collaborator.dont_show_as_co_creator? : (product_affiliate&.dont_show_as_co_creator || false)) : false,
+          enabled: product_affiliate.present? || (!product.has_another_collaborator?(collaborator:) && product.published?),
+          percent_commission: product_affiliate&.affiliate_percentage || percent_commission,
+          dont_show_as_co_creator: product_affiliate && (apply_to_all_products ? collaborator.dont_show_as_co_creator? : product_affiliate.dont_show_as_co_creator?) || false,
           has_error: false,
         }
       end
