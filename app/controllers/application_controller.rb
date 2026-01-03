@@ -36,6 +36,7 @@ class ApplicationController < ActionController::Base
   before_action :set_paper_trail_whodunnit
   before_action :set_recommender_model_name
   before_action :track_utm_link_visit
+  after_action :coerce_303_for_inertia
 
   add_flash_types :warning
 
@@ -408,5 +409,13 @@ class ApplicationController < ActionController::Base
 
     def set_recommender_model_name
       session[:recommender_model_name] = RecommendedProductsService::MODELS.sample unless RecommendedProductsService::MODELS.include?(session[:recommender_model_name])
+    end
+
+    def coerce_303_for_inertia
+      return unless request.inertia?
+      return unless response.redirect?
+      return if request.get?
+
+      response.status = :see_other
     end
 end
