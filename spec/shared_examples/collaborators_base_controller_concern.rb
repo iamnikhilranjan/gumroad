@@ -8,7 +8,8 @@ RSpec.shared_examples_for "inherits from Collaborators::BaseController" do
 
   it "inherits from Collaborators::BaseController and uses inertia layout" do
     expect(controller.class.ancestors.include?(Collaborators::BaseController)).to eq(true)
-    expect(described_class._layout).to eq("inertia")
+    expect(Collaborators::BaseController._layout).to eq("inertia")
+    expect(controller.class._layout).to eq("inertia")
   end
 end
 
