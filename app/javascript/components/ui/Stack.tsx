@@ -7,25 +7,20 @@ type StackProps = React.PropsWithChildren<{
   className?: string | undefined;
   asChild?: boolean;
   borderless?: boolean;
-  main?: boolean;
 }> &
   React.HTMLAttributes<HTMLElement>;
 
 export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
-  ({ className, asChild, borderless = false, main, children, ...rest }, ref) => {
+  ({ className, asChild, borderless = false, children, ...rest }, ref) => {
     const Component = asChild ? Slot : "div";
-    const baseClasses = "grid bg-background border border-border rounded stack-component";
-
-    const mainStackClasses = main
-      ? "h-min my-4 mx-auto max-w-md w-[calc(100%-2*1rem)] [&>*]:flex-col [&>*]:items-stretch"
-      : "";
-
-    const borderlessClasses = borderless ? "border-none gap-4 [&>*]:p-0 [&>*]:border-none" : "";
-
     return (
       <Component
         ref={ref}
-        className={classNames(baseClasses, mainStackClasses, borderlessClasses, className)}
+        className={classNames(
+          "stack-component grid divide-y divide-solid divide-border rounded border border-border bg-background",
+          borderless && "gap-4 border-none [&>*]:border-none [&>*]:p-0",
+          className,
+        )}
         {...rest}
       >
         {children}
@@ -33,6 +28,8 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
     );
   },
 );
+
+Stack.displayName = "Stack";
 
 type StackItemProps = React.PropsWithChildren<{
   className?: string | undefined;
@@ -43,19 +40,17 @@ type StackItemProps = React.PropsWithChildren<{
 
 export const StackItem = React.forwardRef<HTMLDivElement, StackItemProps>(
   ({ className, asChild, details, children, ...rest }, ref) => {
-    const baseClasses =
-      "flex flex-wrap items-center p-4 gap-4 justify-between not-first:border-t not-first:border-border";
-
-    const detailsClasses = details ? "block" : "";
     const Component = asChild ? Slot : "div";
-
     return (
-      <Component ref={ref} className={classNames(baseClasses, detailsClasses, className)} {...rest}>
+      <Component
+        ref={ref}
+        className={classNames("flex flex-wrap items-center justify-between gap-4 p-4", details && "block", className)}
+        {...rest}
+      >
         {children}
       </Component>
     );
   },
 );
 
-Stack.displayName = "Stack";
 StackItem.displayName = "StackItem";

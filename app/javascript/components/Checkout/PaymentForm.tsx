@@ -217,11 +217,7 @@ const EmailAddress = ({ stack }: { stack: boolean }) => {
   };
 
   return (
-    <div
-      className={
-        stack ? "flex flex-wrap items-center justify-between gap-4 p-4 not-first:border-t not-first:border-border" : ""
-      }
-    >
+    <div className={stack ? "flex flex-wrap items-center justify-between gap-4 p-4" : ""}>
       <div className={`flex flex-col gap-4 ${stack ? "grow" : ""}`}>
         <fieldset className={cx({ danger: errors.has("email") })}>
           <legend>
@@ -699,9 +695,7 @@ const CreditCard = ({ stack }: { stack?: boolean }) => {
   return (
     <div
       style={{ borderTop: "none", paddingTop: "0" }}
-      className={
-        stack ? "flex flex-wrap items-center justify-between gap-4 p-4 not-first:border-t not-first:border-border" : ""
-      }
+      className={stack ? "flex flex-wrap items-center justify-between gap-4 p-4" : ""}
     >
       <div className={`flex flex-col gap-4 ${stack ? "grow" : ""}`}>
         {!useSavedCard ? (
@@ -1269,13 +1263,13 @@ export const PaymentForm = ({
       ) : null}
       <CustomerDetails
         showCustomFields={showCustomFields}
-        className="flex flex-wrap items-center justify-between gap-4 p-4 not-first:border-t not-first:border-border"
+        className="flex flex-wrap items-center justify-between gap-4 p-4"
       />
       {!isFreePurchase ? (
         <>
-          <PayPal className="flex flex-wrap items-center justify-between gap-4 p-4 not-first:border-t not-first:border-border" />
+          <PayPal className="flex flex-wrap items-center justify-between gap-4 p-4" />
           <StripeElementsProvider>
-            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 p-4 not-first:border-t not-first:border-border" />
+            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 p-4" />
           </StripeElementsProvider>
         </>
       ) : null}

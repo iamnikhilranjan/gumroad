@@ -850,7 +850,7 @@ const ContentTabContent = ({ selectedVariantId }: { selectedVariantId: string | 
                         purchaseId=""
                         review={null}
                         preview
-                        className="flex flex-wrap items-center justify-between gap-4 p-4 not-first:border-t not-first:border-border"
+                        className="flex flex-wrap items-center justify-between gap-4 p-4"
                       />
                     </Stack>
                     <Stack>

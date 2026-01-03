@@ -11,11 +11,13 @@ type EmailConfirmationProps = {
 };
 
 const GenerateInvoiceConfirmationPage = ({ invoice_url }: EmailConfirmationProps) => (
-  <Stack main asChild>
-    <main className="single-page-form horizontal-form">
-      <EmailConfirmation invoice_url={invoice_url} />
-    </main>
-  </Stack>
+  <div>
+    <Stack asChild>
+      <main className="single-page-form horizontal-form mx-auto my-4 h-min max-w-md [&>*]:flex-col [&>*]:items-stretch">
+        <EmailConfirmation invoice_url={invoice_url} />
+      </main>
+    </Stack>
+  </div>
 );
 
 const EmailConfirmation = ({ invoice_url }: EmailConfirmationProps) => (

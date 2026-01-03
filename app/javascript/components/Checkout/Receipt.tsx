@@ -222,7 +222,7 @@ export const CreateAccountForm = ({
         evt.preventDefault();
         void startAccountCreation();
       }}
-      className={`flex flex-col gap-4 ${className ? "grow" : ""}`}
+      className={`flex flex-col gap-4 ${className}`}
     >
       {status === "success" ? (
         <Alert variant="success">Done! Your account has been created. You'll get a confirmation email shortly.</Alert>

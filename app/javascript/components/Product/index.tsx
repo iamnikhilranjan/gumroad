@@ -710,6 +710,7 @@ const ExistingPurchaseStack = ({
             purchaseId={purchase.id}
             review={purchase.review}
             purchaseEmailDigest={purchase.email_digest}
+            className="flex flex-wrap items-center justify-between gap-4 p-4"
           />
         ) : null}
       </Stack>

@@ -131,7 +131,7 @@ export const Layout = ({
                 purchaseEmailDigest={purchase.email_digest}
                 review={purchase.review}
                 disabledStatus={disabledStatus}
-                className="stack-component grid rounded border border-border bg-background"
+                className="flex flex-wrap items-center justify-between gap-4 p-4"
               />
             </Stack>
           ) : null}
