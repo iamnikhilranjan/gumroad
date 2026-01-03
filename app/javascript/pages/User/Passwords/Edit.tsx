@@ -4,7 +4,7 @@ import * as React from "react";
 import { Layout } from "$app/components/Authentication/Layout";
 import { Button } from "$app/components/Button";
 import { PasswordInput } from "$app/components/PasswordInput";
-import { AuthAlert } from "$app/components/AuthAlertComponent";
+import { AuthAlert } from "$app/components/AuthAlert";
 
 type PageProps = {
   reset_password_token: string;

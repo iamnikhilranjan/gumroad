@@ -4,7 +4,7 @@ import * as React from "react";
 import { Layout } from "$app/components/Authentication/Layout";
 import { Button } from "$app/components/Button";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
-import { AuthAlert } from "$app/components/AuthAlertComponent";
+import { AuthAlert } from "$app/components/AuthAlert";
 
 type PageProps = {
   user_id: string;

@@ -6,7 +6,7 @@ import { SocialAuth } from "$app/components/Authentication/SocialAuth";
 import { Button } from "$app/components/Button";
 import { Separator } from "$app/components/Separator";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
-import { AuthAlert } from "$app/components/AuthAlertComponent";
+import { AuthAlert } from "$app/components/AuthAlert";
 
 type PageProps = {
   email: string | null;
