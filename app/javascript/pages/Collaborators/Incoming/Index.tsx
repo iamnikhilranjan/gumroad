@@ -177,11 +177,7 @@ const IncomingCollaboratorsPage = () => {
 
   const [selected, setSelected] = React.useState<IncomingCollaborator | null>(null);
 
-  const acceptForm = useForm({});
-  const declineForm = useForm({});
-  const removeForm = useForm({});
-
-  const isDisabled = acceptForm.processing || declineForm.processing || removeForm.processing;
+  const form = useForm({});
 
   return (
     <Layout
@@ -193,7 +189,9 @@ const IncomingCollaboratorsPage = () => {
           <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
             color="accent"
-            inert={!loggedInUser?.policies.collaborator.create || collaborators_disabled_reason !== null}
+            inert={
+              !loggedInUser?.policies.collaborator.create || collaborators_disabled_reason !== null || form.processing
+            }
           >
             Add collaborator
           </NavigationButtonInertia>
@@ -206,30 +204,26 @@ const IncomingCollaboratorsPage = () => {
         <IncomingCollaboratorsTable
           incomingCollaborators={incomingCollaborators}
           selected={selected}
-          disabled={isDisabled}
+          disabled={form.processing}
           onSelect={(collaborator) => setSelected(collaborator)}
           onAccept={(incomingCollaborator) =>
-            acceptForm.post(Routes.accept_collaborators_incoming_path(incomingCollaborator.id), {
+            form.post(Routes.accept_collaborators_incoming_path(incomingCollaborator.id), {
               only: ["collaborators", "flash"],
               preserveUrl: true,
             })
           }
           onReject={(incomingCollaborator) =>
-            declineForm.post(Routes.decline_collaborators_incoming_path(incomingCollaborator.id), {
+            form.post(Routes.decline_collaborators_incoming_path(incomingCollaborator.id), {
               only: ["collaborators", "flash"],
               preserveUrl: true,
             })
           }
           onRemove={(incomingCollaborator) =>
-            removeForm.delete(Routes.collaborators_incoming_path(incomingCollaborator.id), {
+            form.delete(Routes.collaborators_incoming_path(incomingCollaborator.id), {
               only: ["collaborators", "flash"],
               preserveUrl: true,
-              onSuccess: () => {
-                setSelected(null);
-              },
-              onError: () => {
-                showAlert("Sorry, something went wrong. Please try again.", "error");
-              },
+              onSuccess: () => setSelected(null),
+              onError: () => showAlert("Sorry, something went wrong. Please try again.", "error"),
             })
           }
         />

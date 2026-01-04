@@ -1,4 +1,4 @@
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import * as React from "react";
 import { cast } from "ts-safe-cast";
 
@@ -10,6 +10,7 @@ import CollaboratorDetailsSheet from "$app/components/Collaborators/Collaborator
 import { Layout } from "$app/components/Collaborators/Layout";
 import { Icon } from "$app/components/Icons";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Placeholder, PlaceholderImage } from "$app/components/ui/Placeholder";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$app/components/ui/Table";
@@ -54,13 +55,13 @@ const CollaboratorsPage = () => {
       showTabs={has_incoming_collaborators}
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <Link
+          <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
-            className="button accent"
+            color="accent"
             inert={disableActions || collaborators_disabled_reason !== null}
           >
             Add collaborator
-          </Link>
+          </NavigationButtonInertia>
         </WithTooltip>
       }
     >
@@ -117,14 +118,13 @@ const CollaboratorsPage = () => {
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-wrap gap-3 lg:justify-end">
-                        <Link
+                        <NavigationButtonInertia
                           href={Routes.edit_collaborator_path(collaborator.id)}
-                          className="button"
                           aria-label="Edit"
                           inert={disableActions}
                         >
                           <Icon name="pencil" />
-                        </Link>
+                        </NavigationButtonInertia>
 
                         <Button
                           type="submit"
@@ -149,20 +149,20 @@ const CollaboratorsPage = () => {
               showSetupWarning={selectedCollaborator.setup_incomplete}
               actions={
                 <>
-                  <Link
+                  <NavigationButtonInertia
                     href={Routes.edit_collaborator_path(selectedCollaborator.id)}
-                    className="button flex-1"
+                    className="flex-1"
                     aria-label="Edit"
-                    inert={!loggedInUser?.policies.collaborator.update || deleteForm.processing}
+                    inert={disableActions}
                   >
                     Edit
-                  </Link>
+                  </NavigationButtonInertia>
                   <Button
                     className="flex-1"
                     color="danger"
                     aria-label="Delete"
                     onClick={() => remove(selectedCollaborator.id)}
-                    disabled={!loggedInUser?.policies.collaborator.update || deleteForm.processing}
+                    disabled={disableActions}
                   >
                     {deleteForm.processing ? "Removing..." : "Remove"}
                   </Button>
