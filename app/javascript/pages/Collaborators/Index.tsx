@@ -58,7 +58,7 @@ const CollaboratorsPage = () => {
           <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
             color="accent"
-            inert={disableActions || collaborators_disabled_reason !== null}
+            disabled={disableActions || collaborators_disabled_reason !== null}
           >
             Add collaborator
           </NavigationButtonInertia>
@@ -121,7 +121,7 @@ const CollaboratorsPage = () => {
                         <NavigationButtonInertia
                           href={Routes.edit_collaborator_path(collaborator.id)}
                           aria-label="Edit"
-                          inert={disableActions}
+                          disabled={disableActions}
                         >
                           <Icon name="pencil" />
                         </NavigationButtonInertia>
@@ -153,7 +153,7 @@ const CollaboratorsPage = () => {
                     href={Routes.edit_collaborator_path(selectedCollaborator.id)}
                     className="flex-1"
                     aria-label="Edit"
-                    inert={disableActions}
+                    disabled={disableActions}
                   >
                     Edit
                   </NavigationButtonInertia>

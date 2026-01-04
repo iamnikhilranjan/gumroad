@@ -189,7 +189,7 @@ const IncomingCollaboratorsPage = () => {
           <NavigationButtonInertia
             href={Routes.new_collaborator_path()}
             color="accent"
-            inert={
+            disabled={
               !loggedInUser?.policies.collaborator.create || collaborators_disabled_reason !== null || form.processing
             }
           >
