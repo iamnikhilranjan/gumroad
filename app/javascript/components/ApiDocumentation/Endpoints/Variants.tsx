@@ -73,7 +73,7 @@ export const UpdateVariantCategory: React.FC = () => (
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories/mN7CdHiwHaR9FlxKvF-n-g== \\
   -d "access_token=ACCESS_TOKEN" \\
-  -d "title=sizes" \\
+  -d "title=colors" \\
   -X PUT`}
     </CodeSnippet>
     <CodeSnippet caption="Example response:">
@@ -81,8 +81,7 @@ export const UpdateVariantCategory: React.FC = () => (
   "success": true,
   "variant_category": {
     "id": "mN7CdHiwHaR9FlxKvF-n-g==",
-    "title": "sizes",
-    ...
+    "title": "colors"
   }
 }`}
     </CodeSnippet>
@@ -103,7 +102,7 @@ export const DeleteVariantCategory: React.FC = () => (
     <CodeSnippet caption="Example response:">
       {`{
   "success": true,
-  "message": "Variant category deleted"
+  "message": "The variant_category has been deleted successfully."
 }`}
     </CodeSnippet>
   </ApiEndpoint>
@@ -123,7 +122,13 @@ export const GetVariantCategories: React.FC = () => (
     <CodeSnippet caption="Example response:">
       {`{
   "success": true,
-  "variant_categories": [...]
+  "variant_categories": [
+    {
+      "id": "mN7CdHiwHaR9FlxKvF-n-g==",
+      "title": "colors"
+    },
+    { ..., ..., ... }
+  ]
 }`}
     </CodeSnippet>
   </ApiEndpoint>
@@ -207,10 +212,9 @@ export const UpdateVariant: React.FC = () => (
     <CodeSnippet caption="Example response:">
       {`{
   "success": true,
-  "variant": {
-    "id": "kuaXCPHTmRuoK13rNGVbxg==",
-    "price_difference_cents": 150,
-    ...
+  "variant_category": {
+    "id": "mN7CdHiwHaR9FlxKvF-n-g==",
+    "title": "sizes"
   }
 }`}
     </CodeSnippet>
