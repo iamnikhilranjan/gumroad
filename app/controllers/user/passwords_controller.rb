@@ -26,11 +26,11 @@ class User::PasswordsController < Devise::PasswordsController
     user = User.find_or_initialize_with_error_by(:reset_password_token,
                                                  Devise.token_generator.digest(User, :reset_password_token, reset_password_token))
     if user.errors.present?
-      return redirect_to root_url, warning: "That reset password token doesn't look valid (or may have expired)."
+      return redirect_to root_path, warning: "That reset password token doesn't look valid (or may have expired)."
     end
 
     @title = "Reset your password"
-    render inertia: "User/Password/Edit", props: {
+    render inertia: "User/Passwords/Edit", props: {
       reset_password_token: reset_password_token
     }
   end
@@ -51,11 +51,11 @@ class User::PasswordsController < Devise::PasswordsController
     else
       user.invalidate_active_sessions!
       sign_in user unless user.deleted?
-      redirect_to login_path_for(user), status: :see_other, notice: "Your password has been reset, and you're now logged in."
+      redirect_to root_path, status: :see_other, notice: "Your password has been reset, and you're now logged in."
     end
   end
 
   def after_sending_reset_password_instructions_path_for(_resource_name, _user)
-    root_url
+    root_path
   end
 end

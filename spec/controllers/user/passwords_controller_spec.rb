@@ -16,7 +16,7 @@ describe User::PasswordsController, type: :controller, inertia: true do
       get :new
 
       expect(response).to be_successful
-      expect(inertia.component).to eq("PasswordReset/New")
+      expect(inertia.component).to eq("User/Passwords/New")
       expect(inertia.props[:email]).to be_nil
       expect(inertia.props[:application_name]).to be_nil
       expect(inertia.props[:recaptcha_site_key]).to eq(GlobalConfig.get("RECAPTCHA_LOGIN_SITE_KEY"))
@@ -59,8 +59,8 @@ describe User::PasswordsController, type: :controller, inertia: true do
     describe "should fail when errors" do
       it "shows an error for an invalid token" do
         get :edit, params: { reset_password_token: "invalid" }
-        expect(flash[:alert]).to eq "That reset password token doesn't look valid (or may have expired)."
-        expect(response).to redirect_to root_url
+        expect(flash[:warning]).to eq "That reset password token doesn't look valid (or may have expired)."
+        expect(response).to redirect_to root_path
       end
     end
   end
@@ -73,7 +73,7 @@ describe User::PasswordsController, type: :controller, inertia: true do
       expect(@user.reload.valid_password?("password_new")).to be(true)
 
       expect(flash[:notice]).to eq "Your password has been reset, and you're now logged in."
-      expect(response).to redirect_to(controller.send(:login_path_for, @user))
+      expect(response).to redirect_to(root_path)
     end
 
     it "invalidates all active sessions after successful password reset" do
