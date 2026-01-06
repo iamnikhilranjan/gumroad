@@ -161,10 +161,9 @@ const Collaborators = () => {
       showTabs={has_incoming_collaborators}
       headerActions={
         <WithTooltip position="bottom" tip={collaborators_disabled_reason}>
-          <Button asChild>
+          <Button asChild color="accent">
             <Link
               to="/collaborators/new"
-              className="accent"
               inert={
                 !loggedInUser?.policies.collaborator.create ||
                 navigation.state !== "idle" ||

@@ -44,6 +44,7 @@ import { useGlobalEventListener } from "$app/components/useGlobalEventListener";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
 import { useUserAgentInfo } from "$app/components/UserAgent";
 import { useSortingTableDriver, Sort } from "$app/components/useSortingTableDriver";
+import { WithTooltip } from "$app/components/WithTooltip";
 
 import blackFridayIllustration from "$assets/images/illustrations/black_friday.svg";
 import placeholder from "$assets/images/placeholders/discounts.png";
@@ -305,9 +306,11 @@ const DiscountsPage = ({
               onToggle={setIsSearchPopoverOpen}
               aria-label="Search"
               trigger={
-                <Button asChild>
-                  <Icon name="solid-search" />
-                </Button>
+                <WithTooltip tip="Search" position="bottom">
+                  <div className={buttonVariants({ size: "default" })}>
+                    <Icon name="solid-search" />
+                  </div>
+                </WithTooltip>
               }
             >
               <div className="input">
