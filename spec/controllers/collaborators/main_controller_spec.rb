@@ -141,7 +141,7 @@ describe Collaborators::MainController, type: :controller, inertia: true do
       expect(response).to redirect_to(new_collaborator_path)
       get :new
       expect(inertia.component).to eq("Collaborators/New")
-      expect(inertia.props[:errors][:message]).to eq("Product affiliates affiliate basis points must be less than or equal to 5000")
+      expect(flash[:alert]).to eq("Product affiliates affiliate basis points must be less than or equal to 5000")
     end
   end
 
@@ -220,7 +220,8 @@ describe Collaborators::MainController, type: :controller, inertia: true do
     end
 
     it "redirects to edit collaborator page with errors when update fails" do
-      allow_any_instance_of(Collaborator::UpdateService).to receive(:process).and_return({ success: false, message: "an error" })
+      collaborator.errors.add(:base, "an error")
+      allow_any_instance_of(Collaborator::UpdateService).to receive(:process).and_return({ success: false, collaborator: })
 
       patch :update, params: params
 
@@ -228,7 +229,7 @@ describe Collaborators::MainController, type: :controller, inertia: true do
       expect(response).to redirect_to(edit_collaborator_path(collaborator.external_id))
       get :edit, params: { id: collaborator.external_id }
       expect(inertia.component).to eq("Collaborators/Edit")
-      expect(inertia.props[:errors][:message]).to eq("an error")
+      expect(flash[:alert]).to eq("an error")
     end
 
     it "redirects to edit collaborator page with errors when percent_commission is invalid" do
@@ -242,7 +243,7 @@ describe Collaborators::MainController, type: :controller, inertia: true do
       expect(response).to redirect_to(edit_collaborator_path(collaborator.external_id))
       get :edit, params: { id: collaborator.external_id }
       expect(inertia.component).to eq("Collaborators/Edit")
-      expect(inertia.props[:errors][:message]).to be_present
+      expect(flash[:alert]).to eq("Product affiliates affiliate basis points must be less than or equal to 5000")
     end
 
 

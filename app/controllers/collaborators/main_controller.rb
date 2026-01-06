@@ -17,7 +17,8 @@ class Collaborators::MainController < Collaborators::BaseController
     if response[:success]
       redirect_to collaborators_path, status: :see_other, notice: "Changes saved!"
     else
-      redirect_to new_collaborator_path, inertia: { errors: { message: response[:message] } }
+      errors_props = inertia_errors_props(response[:collaborator])
+      redirect_to new_collaborator_path, inertia: { errors: errors_props[:errors] }, alert: errors_props[:alert]
     end
   end
 
@@ -31,7 +32,8 @@ class Collaborators::MainController < Collaborators::BaseController
     if response[:success]
       redirect_to collaborators_path, status: :see_other, notice: "Changes saved!"
     else
-      redirect_to edit_collaborator_path(params[:id]), inertia: { errors: { message: response[:message] } }
+      errors_props = inertia_errors_props(response[:collaborator])
+      redirect_to edit_collaborator_path(params[:id]), inertia: { errors: errors_props[:errors] }, alert: errors_props[:alert]
     end
   end
 
@@ -41,8 +43,17 @@ class Collaborators::MainController < Collaborators::BaseController
     end
   end
 
+
   private
+    def inertia_errors_props(model)
+      errors_hash = model.errors.to_hash.transform_values(&:to_sentence)
+      {
+        errors: errors_hash,
+        alert: errors_hash[:base],
+      }
+    end
+
     def collaborator_params
-      params.require(:collaborator).permit(:email, :apply_to_all_products, :percent_commission, :dont_show_as_co_creator, products: [:id, :percent_commission, :dont_show_as_co_creator])
+      params.require(:collaborator).permit(:email, :apply_to_all_products, :percent_commission, :dont_show_as_co_creator, products: [:id, :percent_commission, :dont_show_as_co_creator, :product_index])
     end
 end

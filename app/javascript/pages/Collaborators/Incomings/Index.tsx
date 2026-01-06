@@ -209,19 +209,16 @@ const IncomingCollaboratorsPage = () => {
           onAccept={(incomingCollaborator) =>
             form.post(Routes.accept_collaborators_incoming_path(incomingCollaborator.id), {
               only: ["collaborators", "flash"],
-              preserveUrl: true,
             })
           }
           onReject={(incomingCollaborator) =>
             form.post(Routes.decline_collaborators_incoming_path(incomingCollaborator.id), {
               only: ["collaborators", "flash"],
-              preserveUrl: true,
             })
           }
           onRemove={(incomingCollaborator) =>
             form.delete(Routes.collaborators_incoming_path(incomingCollaborator.id), {
               only: ["collaborators", "flash"],
-              preserveUrl: true,
               onSuccess: () => setSelected(null),
               onError: () => showAlert("Sorry, something went wrong. Please try again.", "error"),
             })

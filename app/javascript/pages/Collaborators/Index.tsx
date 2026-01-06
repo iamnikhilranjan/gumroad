@@ -36,7 +36,6 @@ const CollaboratorsPage = () => {
   const remove = (collaboratorId: string) => {
     deleteForm.delete(Routes.collaborator_path(collaboratorId), {
       only: ["collaborators", "flash", "has_incoming_collaborators"],
-      preserveUrl: true,
       onSuccess: () => {
         setSelectedCollaborator(null);
       },

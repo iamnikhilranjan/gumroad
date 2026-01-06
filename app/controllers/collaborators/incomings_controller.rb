@@ -6,7 +6,7 @@ class Collaborators::IncomingsController < Collaborators::BaseController
   before_action :set_invitation!, only: [:accept, :decline]
 
   def index
-    render inertia: "Collaborators/Incoming/Index", props: IncomingCollaboratorsPresenter.new(seller: current_seller).index_props
+    render inertia: "Collaborators/Incomings/Index", props: IncomingCollaboratorsPresenter.new(seller: current_seller).index_props
   end
 
   def accept

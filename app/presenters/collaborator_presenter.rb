@@ -102,7 +102,6 @@ class CollaboratorPresenter
           enabled: product_affiliate.present? || (!product.has_another_collaborator?(collaborator:) && product.published?),
           percent_commission: product_affiliate&.affiliate_percentage || percent_commission,
           dont_show_as_co_creator: product_affiliate && (apply_to_all_products ? collaborator.dont_show_as_co_creator? : product_affiliate.dont_show_as_co_creator?) || false,
-          has_error: false,
         }
       end
     end

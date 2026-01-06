@@ -22,7 +22,6 @@ export type CollaboratorFormProduct = {
   enabled: boolean;
   percent_commission: number | null;
   dont_show_as_co_creator: boolean;
-  has_error: boolean;
 };
 
 export type CollaboratorFormData = {
