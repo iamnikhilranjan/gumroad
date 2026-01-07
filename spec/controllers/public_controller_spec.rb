@@ -14,7 +14,7 @@ describe PublicController, type: :controller, inertia: true do
       get :api
       expect(response).to be_successful
       expect(assigns(:title)).to eq("API")
-      expect(inertia).to render_component("ApiDocumentation/Index")
+      expect(inertia).to render_component("Public/Api")
     end
   end
 

@@ -190,7 +190,7 @@ export const GetSale = () => (
     "offer_code": {
       "name": "FLAT50",
       "displayed_amount_off": "50%"
-    }
+    },
     "quantity": 1
   }
 }`}
