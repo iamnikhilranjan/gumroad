@@ -136,7 +136,7 @@ const Menubar = ({ moreLabel, ...extraAriaAttrs }: { moreLabel?: string | undefi
         <MenubarItem
           key={menuItem.key}
           menuItem={menuItem}
-          isHighlighted={highlightedMenubarItem === menuItem}
+          isHighlighted={highlightedMenubarItem?.key === menuItem.key}
           onHighlightIn={() => setHighlightedMenubarItem(menuItem)}
           onHighlightOut={resetHighlightedMenubarItem}
           showAllItem
@@ -147,7 +147,8 @@ const Menubar = ({ moreLabel, ...extraAriaAttrs }: { moreLabel?: string | undefi
           menuItem={moreMenuItem}
           isHighlighted={
             highlightedMenubarItem?.key === moreMenuItem.key ||
-            (highlightedMenubarItem !== null && !!itemsUnderMore?.includes(highlightedMenubarItem))
+            (highlightedMenubarItem !== null &&
+              !!itemsUnderMore?.some((item) => item.key === highlightedMenubarItem.key))
           }
           onHighlightIn={() => setHighlightedMenubarItem(moreMenuItem)}
           onHighlightOut={resetHighlightedMenubarItem}
