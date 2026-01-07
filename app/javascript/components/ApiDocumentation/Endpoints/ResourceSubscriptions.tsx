@@ -187,10 +187,10 @@ export const GetResourceSubscriptions = () => (
     description="Show all active subscriptions of user for the input resource."
   >
     <ApiParameters>
-      <ApiParameter name="resource_name">
-        (string) - Currently there are 8 supported values - "sale", "refund", "dispute", "dispute_won", "cancellation",
-        "subscription_updated", "subscription_ended", and "subscription_restarted".
-      </ApiParameter>
+      <ApiParameter
+        name="resource_name"
+        description='(string) - Currently there are 8 supported values - "sale", "refund", "dispute", "dispute_won", "cancellation", "subscription_updated", "subscription_ended", and "subscription_restarted".'
+      />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/resource_subscriptions \\

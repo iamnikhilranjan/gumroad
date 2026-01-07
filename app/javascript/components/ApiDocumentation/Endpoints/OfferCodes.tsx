@@ -74,11 +74,11 @@ export const CreateOfferCode = () => (
     description="Create a new offer code for a product. Default offer code is in cents. A universal offer code is one that applies to all products."
   >
     <ApiParameters>
-      <ApiParameter name="name">(the coupon code used at checkout)</ApiParameter>
+      <ApiParameter name="name" description="(the coupon code used at checkout)" />
       <ApiParameter name="amount_off" />
-      <ApiParameter name="offer_type">(optional, "cents" or "percent") Default: "cents"</ApiParameter>
-      <ApiParameter name="max_purchase_count">(optional)</ApiParameter>
-      <ApiParameter name="universal">(optional, true or false) Default: false</ApiParameter>
+      <ApiParameter name="offer_type" description='(optional, "cents" or "percent") Default: "cents"' />
+      <ApiParameter name="max_purchase_count" description="(optional)" />
+      <ApiParameter name="universal" description="(optional, true or false) Default: false" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/offer_codes \\

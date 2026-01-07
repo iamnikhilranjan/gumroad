@@ -12,16 +12,21 @@ export const GetSales = () => (
     description="Retrieves all of the successful sales by the authenticated user. Available with the 'view_sales' scope."
   >
     <ApiParameters>
-      <ApiParameter name="after">(optional, date in form YYYY-MM-DD) - Only return sales after this date</ApiParameter>
-      <ApiParameter name="before">
-        (optional, date in form YYYY-MM-DD) - Only return sales before this date
-      </ApiParameter>
-      <ApiParameter name="product_id">(optional) - Filter sales by this product</ApiParameter>
-      <ApiParameter name="email">(optional) - Filter sales by this email</ApiParameter>
-      <ApiParameter name="order_id">(optional) - Filter sales by this Order ID</ApiParameter>
-      <ApiParameter name="page_key">
-        (optional) - A key representing a page of results. It is given in the response as `next_page_key`.
-      </ApiParameter>
+      <ApiParameter
+        name="after"
+        description="(optional, date in form YYYY-MM-DD) - Only return sales after this date"
+      />
+      <ApiParameter
+        name="before"
+        description="(optional, date in form YYYY-MM-DD) - Only return sales before this date"
+      />
+      <ApiParameter name="product_id" description="(optional) - Filter sales by this product" />
+      <ApiParameter name="email" description="(optional) - Filter sales by this email" />
+      <ApiParameter name="order_id" description="(optional) - Filter sales by this Order ID" />
+      <ApiParameter
+        name="page_key"
+        description="(optional) - A key representing a page of results. It is given in the response as `next_page_key`."
+      />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/sales \\
@@ -200,7 +205,7 @@ export const MarkSaleAsShipped = () => (
     description="Marks a sale as shipped. Available with the 'mark_sales_as_shipped' scope."
   >
     <ApiParameters>
-      <ApiParameter name="tracking_url">(optional)</ApiParameter>
+      <ApiParameter name="tracking_url" description="(optional)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/sales/A-m3CDDC5dlrSdKZp0RFhA==/mark_as_shipped \\
@@ -292,11 +297,10 @@ export const RefundSale = () => (
     description="Refunds a sale. Available with the 'edit_sales' scope."
   >
     <ApiParameters>
-      <ApiParameter name="amount_cents">
-        (optional) - Amount in cents (in currency of the sale) to be refunded. If set, issue partial refund by this
-        amount. If not set, issue full refund. You can issue multiple partial refunds per sale until it is fully
-        refunded.
-      </ApiParameter>
+      <ApiParameter
+        name="amount_cents"
+        description="(optional) - Amount in cents (in currency of the sale) to be refunded. If set, issue partial refund by this amount. If not set, issue full refund. You can issue multiple partial refunds per sale until it is fully refunded."
+      />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/sales/A-m3CDDC5dlrSdKZp0RFhA==/refund \\

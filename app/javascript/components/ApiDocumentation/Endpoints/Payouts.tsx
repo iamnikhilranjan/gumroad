@@ -12,18 +12,22 @@ export const GetPayouts = () => (
     description="Retrieves all of the payouts for the authenticated user. Available with the 'view_payouts' scope."
   >
     <ApiParameters>
-      <ApiParameter name="after">
-        (optional, date in form YYYY-MM-DD) - Only return payouts after this date
-      </ApiParameter>
-      <ApiParameter name="before">
-        (optional, date in form YYYY-MM-DD) - Only return payouts before this date
-      </ApiParameter>
-      <ApiParameter name="page_key">
-        (optional) - A key representing a page of results. It is given in the response as `next_page_key`.
-      </ApiParameter>
-      <ApiParameter name="include_upcoming">
-        (optional, default: "true") - Set to "false" to exclude the upcoming payout from the response.
-      </ApiParameter>
+      <ApiParameter
+        name="after"
+        description="(optional, date in form YYYY-MM-DD) - Only return payouts after this date"
+      />
+      <ApiParameter
+        name="before"
+        description="(optional, date in form YYYY-MM-DD) - Only return payouts before this date"
+      />
+      <ApiParameter
+        name="page_key"
+        description="(optional) - A key representing a page of results. It is given in the response as `next_page_key`."
+      />
+      <ApiParameter
+        name="include_upcoming"
+        description='(optional, default: "true") - Set to "false" to exclude the upcoming payout from the response.'
+      />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/payouts \\

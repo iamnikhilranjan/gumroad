@@ -27,16 +27,15 @@ export const GetSubscribers = () => (
     }
   >
     <ApiParameters>
-      <ApiParameter name="email">(optional) - Filter subscribers by this email</ApiParameter>
-      <ApiParameter name="paginated">
-        {" "}
-        (optional, default: "false") - Set to "true" to limit the number of subscribers returned to 100.
-      </ApiParameter>
-      <ApiParameter name="page_key">
-        {" "}
-        (optional) - A key representing a page of results. It is given in the paginated response of the previous page as
-        `next_page_key`.
-      </ApiParameter>
+      <ApiParameter name="email" description="(optional) - Filter subscribers by this email" />
+      <ApiParameter
+        name="paginated"
+        description='(optional, default: "false") - Set to "true" to limit the number of subscribers returned to 100.'
+      />
+      <ApiParameter
+        name="page_key"
+        description="(optional) - A key representing a page of results. It is given in the paginated response of the previous page as `next_page_key`."
+      />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/0ssD7adjRklGBjS5cwlWPq==/subscribers \\

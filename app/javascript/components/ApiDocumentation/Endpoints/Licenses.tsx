@@ -8,9 +8,9 @@ import { ApiParameter, ApiParameters } from "../ApiParameters";
 export const VerifyLicense = () => (
   <ApiEndpoint method="post" path="/licenses/verify" description="Verify a license">
     <ApiParameters>
-      <ApiParameter name="product_id">(the unique ID of the product, available on product's edit page)</ApiParameter>
-      <ApiParameter name="license_key">(the license key provided by your customer)</ApiParameter>
-      <ApiParameter name="increment_uses_count">("true"/"false", optional, default: "true")</ApiParameter>
+      <ApiParameter name="product_id" description="(the unique ID of the product, available on product's edit page)" />
+      <ApiParameter name="license_key" description="(the license key provided by your customer)" />
+      <ApiParameter name="increment_uses_count" description='("true"/"false", optional, default: "true")' />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/licenses/verify \\
@@ -70,8 +70,8 @@ export const VerifyLicense = () => (
 export const EnableLicense = () => (
   <ApiEndpoint method="put" path="/licenses/enable" description="Enable a license">
     <ApiParameters>
-      <ApiParameter name="product_id">(the unique ID of the product, available on product's edit page)</ApiParameter>
-      <ApiParameter name="license_key">(the license key provided by your customer)</ApiParameter>
+      <ApiParameter name="product_id" description="(the unique ID of the product, available on product's edit page)" />
+      <ApiParameter name="license_key" description="(the license key provided by your customer)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/licenses/enable \\
@@ -132,8 +132,8 @@ export const EnableLicense = () => (
 export const DisableLicense = () => (
   <ApiEndpoint method="put" path="/licenses/disable" description="Disable a license">
     <ApiParameters>
-      <ApiParameter name="product_id">(the unique ID of the product, available on product's edit page)</ApiParameter>
-      <ApiParameter name="license_key">(the license key provided by your customer)</ApiParameter>
+      <ApiParameter name="product_id" description="(the unique ID of the product, available on product's edit page)" />
+      <ApiParameter name="license_key" description="(the license key provided by your customer)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/licenses/disable \\
@@ -194,8 +194,8 @@ export const DisableLicense = () => (
 export const DecrementUsesCount = () => (
   <ApiEndpoint method="put" path="/licenses/decrement_uses_count" description="Decrement the uses count of a license">
     <ApiParameters>
-      <ApiParameter name="product_id">(the unique ID of the product, available on product's edit page)</ApiParameter>
-      <ApiParameter name="license_key">(the license key provided by your customer)</ApiParameter>
+      <ApiParameter name="product_id" description="(the unique ID of the product, available on product's edit page)" />
+      <ApiParameter name="license_key" description="(the license key provided by your customer)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/licenses/decrement_uses_count \\
@@ -260,8 +260,8 @@ export const RotateLicense = () => (
     description="Rotate a license key. The old license key will no longer be valid."
   >
     <ApiParameters>
-      <ApiParameter name="product_id">(the unique ID of the product, available on product's edit page)</ApiParameter>
-      <ApiParameter name="license_key">(the license key provided by your customer)</ApiParameter>
+      <ApiParameter name="product_id" description="(the unique ID of the product, available on product's edit page)" />
+      <ApiParameter name="license_key" description="(the license key provided by your customer)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/licenses/rotate \\

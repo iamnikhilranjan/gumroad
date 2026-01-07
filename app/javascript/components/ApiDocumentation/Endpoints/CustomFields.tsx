@@ -36,8 +36,8 @@ export const CreateCustomField = () => (
   >
     <ApiParameters>
       <ApiParameter name="variant" />
-      <ApiParameter name="name" required />
-      <ApiParameter name="required">(true or false)</ApiParameter>
+      <ApiParameter name="name" />
+      <ApiParameter name="required" description="(true or false)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/custom_fields \\
@@ -66,7 +66,7 @@ export const UpdateCustomField = () => (
   >
     <ApiParameters>
       <ApiParameter name="variant" />
-      <ApiParameter name="required">(true or false)</ApiParameter>
+      <ApiParameter name="required" description="(true or false)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/custom_fields/phone%20number \\

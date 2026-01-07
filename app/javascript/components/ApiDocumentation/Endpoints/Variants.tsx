@@ -12,8 +12,8 @@ export const CreateVariantCategory = () => (
     description="Create a new variant category on a product."
   >
     <ApiParameters>
-      <ApiParameter name="variant_category" required />
-      <ApiParameter name="title" required />
+      <ApiParameter name="variant_category" />
+      <ApiParameter name="title" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories \\
@@ -63,8 +63,8 @@ export const UpdateVariantCategory = () => (
     description="Edit a variant category of an existing product."
   >
     <ApiParameters>
-      <ApiParameter name="variant_category" required />
-      <ApiParameter name="title" required />
+      <ApiParameter name="variant_category" />
+      <ApiParameter name="title" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories/mN7CdHiwHaR9FlxKvF-n-g== \\
@@ -135,9 +135,9 @@ export const CreateVariant = () => (
   >
     <ApiParameters>
       <ApiParameter name="variant" />
-      <ApiParameter name="name" required />
+      <ApiParameter name="name" />
       <ApiParameter name="price_difference_cents" />
-      <ApiParameter name="max_purchase_count">(optional)</ApiParameter>
+      <ApiParameter name="max_purchase_count" description="(optional)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories/mN7CdHiwHaR9FlxKvF-n-g==/variants \\
@@ -192,9 +192,9 @@ export const UpdateVariant = () => (
   >
     <ApiParameters>
       <ApiParameter name="variant" />
-      <ApiParameter name="name" required />
+      <ApiParameter name="name" />
       <ApiParameter name="price_difference_cents" />
-      <ApiParameter name="max_purchase_count">(optional)</ApiParameter>
+      <ApiParameter name="max_purchase_count" description="(optional)" />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/products/A-m3CDDC5dlrSdKZp0RFhA==/variant_categories/mN7CdHiwHaR9FlxKvF-n-g==/variants/kuaXCPHTmRuoK13rNGVbxg== \\
