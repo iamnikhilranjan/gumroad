@@ -94,7 +94,7 @@ export default function FollowersPage() {
   const updateSearch = useDebouncedCallback((email: string) => {
     router.reload({
       data: { email: email || undefined, page: 1 },
-      reset: ["followers"],
+      reset: ["followers", "has_more"],
       preserveUrl: true,
     });
   }, 500);
