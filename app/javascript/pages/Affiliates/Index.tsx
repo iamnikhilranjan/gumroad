@@ -123,10 +123,10 @@ const ApproveAllButton = () => {
 const AffiliateRequestRow = ({ affiliateRequest }: { affiliateRequest: AffiliateRequest }) => {
   const loggedInUser = useLoggedInUser();
   const userAgentInfo = useUserAgentInfo();
-  const { patch, processing, setData } = useForm({});
+  const { processing, transform, patch } = useForm({});
 
   const handleAction = (action: "approve" | "ignore") => {
-    setData({ affiliate_request: { action } });
+    transform(() => ({ affiliate_request: { action } }));
     patch(Routes.affiliate_request_path(affiliateRequest.id), {
       preserveScroll: true,
     });
