@@ -143,7 +143,7 @@ class LinksController < ApplicationController
       else
         "Sorry, something went wrong."
       end
-      return redirect_to new_product_path, inertia: { errors: { "link.base" => @error_message } }
+      return redirect_to new_product_path, inertia: { errors: { base: [@error_message] } }
     end
 
     create_user_event("add_product")

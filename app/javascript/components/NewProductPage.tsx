@@ -207,9 +207,12 @@ const NewProductPage = ({
     if (validationErrors.size > 0) return;
 
     post(Routes.links_path(), {
-      onError: (submitErrors) => {
-        const firstError = Object.values(submitErrors)[0];
-        const message = Array.isArray(firstError) ? firstError[0] : firstError;
+      onError: (errors: Record<string, string | string[]>) => {
+        const message = errors.base
+          ? Array.isArray(errors.base)
+            ? errors.base[0]
+            : errors.base
+          : "Failed to create product";
         if (message) showAlert(message, "error");
       },
     });
