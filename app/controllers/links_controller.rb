@@ -143,19 +143,12 @@ class LinksController < ApplicationController
       else
         "Sorry, something went wrong."
       end
-      return respond_to do |format|
-        response = { success: false, error_message: @error_message }
-        format.json { render json: response }
-        format.html { render html: "<textarea>#{response.to_json}</textarea>" }
-      end
+      return redirect_to new_product_path, inertia: { errors: { "link.base" => @error_message } }
     end
 
     create_user_event("add_product")
-    respond_to do |format|
-      response = { success: true, redirect_to: edit_link_path(@product) }
-      format.html { render plain: response.to_json.to_s }
-      format.json { render json: response }
-    end
+    anchor = params[:link][:ai_prompt].present? ? "ai-generated" : nil
+    redirect_to edit_link_path(@product, anchor:), status: :see_other
   end
 
   def show
