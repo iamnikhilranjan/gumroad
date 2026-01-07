@@ -53,7 +53,6 @@ describe AffiliateRequestsController do
           get :new, params: { username: creator.username }
 
           expect(response).to have_http_status(:ok)
-          expect(response).to render_template(:new)
           expect(assigns[:title]).to eq("Become an affiliate for #{creator.display_name}")
         end
       end
@@ -69,7 +68,6 @@ describe AffiliateRequestsController do
           get :new, params: { username: creator.username }
 
           expect(response).to have_http_status(:ok)
-          expect(response).to render_template(:new)
           expect(assigns[:title]).to eq("Become an affiliate for #{creator.display_name}")
         end
       end
@@ -83,7 +81,6 @@ describe AffiliateRequestsController do
           get :new, params: { username: creator.username }
 
           expect(response).to be_successful
-          expect(response).to render_template(:new)
 
           expect(assigns[:title]).to eq("Become an affiliate for #{creator.display_name}")
           expect(assigns[:hide_layouts]).to be(true)
@@ -101,11 +98,10 @@ describe AffiliateRequestsController do
     let!(:product) { create(:product, user: creator) }
 
     context "when the creator has not enabled affiliate requests" do
-      it "responds with an error" do
-        post :create, params: { username: creator.username }, format: :json
-
-        expect(response).to have_http_status(:not_found)
-        expect(response.parsed_body["success"]).to eq false
+      it "responds with 404" do
+        expect do
+          post :create, params: { username: creator.username }
+        end.to raise_error(ActionController::RoutingError, "Not Found")
       end
     end
 
@@ -113,11 +109,11 @@ describe AffiliateRequestsController do
       let!(:enabled_self_service_affiliate_product) { create(:self_service_affiliate_product, enabled: true, seller: creator, product:) }
 
       context "when the request payload is invalid" do
-        it "responds with an error" do
-          post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "foobar", promotion_text: "hello" } }, format: :json
+        it "redirects with a warning" do
+          post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "foobar", promotion_text: "hello" } }
 
-          expect(response.parsed_body["success"]).to eq false
-          expect(response.parsed_body["error"]).to eq "Email is invalid"
+          expect(response).to redirect_to(custom_domain_new_affiliate_request_path)
+          expect(flash[:warning]).to eq "Email is invalid"
         end
       end
 
@@ -126,7 +122,7 @@ describe AffiliateRequestsController do
           expect_any_instance_of(AffiliateRequest).to receive(:notify_requester_and_seller_of_submitted_request).and_call_original
 
           expect do
-            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "john@example.com", promotion_text: "hello" } }, format: :json
+            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "john@example.com", promotion_text: "hello" } }
           end.to change { AffiliateRequest.count }.by(1)
 
           affiliate_request = AffiliateRequest.last
@@ -140,20 +136,18 @@ describe AffiliateRequestsController do
         context "when the requester already has an account" do
           let(:requester) { create(:user) }
 
-          it "responds with 'requestor_has_account: true'" do
-            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: requester.email, promotion_text: "hello" } }, format: :json
+          it "redirects with requester_has_existing_account: true" do
+            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: requester.email, promotion_text: "hello" } }
 
-            expect(response.parsed_body["success"]).to eq(true)
-            expect(response.parsed_body["requester_has_existing_account"]).to eq(true)
+            expect(response).to redirect_to(custom_domain_new_affiliate_request_path(success: true, requester_has_existing_account: true, email: requester.email))
           end
         end
 
         context "when the requester does not have an account" do
-          it "responds with 'requestor_has_account: false'" do
-            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "john@example.com", promotion_text: "hello" } }, format: :json
+          it "redirects with requester_has_existing_account: false" do
+            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "john@example.com", promotion_text: "hello" } }
 
-            expect(response.parsed_body["success"]).to eq(true)
-            expect(response.parsed_body["requester_has_existing_account"]).to eq(false)
+            expect(response).to redirect_to(custom_domain_new_affiliate_request_path(success: true, requester_has_existing_account: false, email: "john@example.com"))
           end
         end
 
@@ -161,7 +155,7 @@ describe AffiliateRequestsController do
           it "approves the affiliate automatically" do
             Feature.activate_user(:auto_approve_affiliates, creator)
 
-            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "john@example.com", promotion_text: "hello" } }, format: :json
+            post :create, params: { username: creator.username, affiliate_request: { name: "John Doe", email: "john@example.com", promotion_text: "hello" } }
 
             affiliate_request = AffiliateRequest.find_by(email: "john@example.com")
             expect(affiliate_request).to be_approved
