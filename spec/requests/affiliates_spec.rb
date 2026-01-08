@@ -671,40 +671,49 @@ describe "Affiliates", type: :system, js: true do
         expect(page).to have_text("Will")
 
         # Ignore Will's request
-        click_on("Ignore")
+        expect do
+          click_on("Ignore")
+          wait_until_true { request_three.reload.state == "ignored" }
+        end.to change { request_three.reload.state }.to("ignored")
       end
-      expect(page).to_not have_text("Will") # Capybara waits for UI to update
-      expect(request_three.reload.state).to eq("ignored")
+      expect(page).to_not have_text("Will")
 
       # Ignore Jane's request
       within all("tr")[1] do
-        click_on("Ignore")
+        expect do
+          click_on("Ignore")
+          wait_until_true { request_two.reload.state == "ignored" }
+        end.to change { request_two.reload.state }.to("ignored")
       end
       expect(page).to_not have_text("Jane")
-      expect(request_two.reload.state).to eq("ignored")
 
       # Approve John's request
       within all("tr")[1] do
-        click_on("Approve")
+        expect do
+          click_on("Approve")
+          wait_until_true { request_one.reload.state == "approved" }
+        end.to change { request_one.reload.state }.to("approved")
       end
       expect(page).to_not have_text("John")
-      expect(request_one.reload.state).to eq("approved")
 
       # Approve Rob's request
       within all("tr")[1] do
-        click_on("Approve")
+        expect do
+          click_on("Approve")
+          wait_until_true { request_four.reload.state == "approved" }
+        end.to change { request_four.reload.state }.to("approved")
         # But because Rob doesn't have an account yet, his request won't go away
-        # Wait for the button to change to indicate action completed
         expect(page).to have_button("Approved", disabled: true)
       end
-      expect(request_four.reload.state).to eq("approved")
 
       # Ignore Rob's request
       within all("tr")[1] do
-        click_on("Ignore")
+        expect do
+          click_on("Ignore")
+          wait_until_true { request_four.reload.state == "ignored" }
+        end.to change { request_four.reload.state }.to("ignored")
       end
       expect(page).to_not have_text("Rob")
-      expect(request_four.reload.state).to eq("ignored")
 
       # After all requests are processed, redirects to onboarding since seller has no products
       expect(page).to have_text("You need a published product to add affiliates.")

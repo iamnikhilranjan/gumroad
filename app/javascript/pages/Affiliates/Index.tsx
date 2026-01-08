@@ -120,62 +120,6 @@ const ApproveAllButton = () => {
   );
 };
 
-const AffiliateRequestRow = ({ affiliateRequest }: { affiliateRequest: AffiliateRequest }) => {
-  const loggedInUser = useLoggedInUser();
-  const userAgentInfo = useUserAgentInfo();
-  const { processing, transform, patch } = useForm({});
-
-  const handleAction = (action: "approve" | "ignore") => {
-    transform(() => ({ affiliate_request: { action } }));
-    patch(Routes.affiliate_request_path(affiliateRequest.id), {
-      preserveScroll: true,
-    });
-  };
-
-  return (
-    <TableRow>
-      <TableCell>
-        {affiliateRequest.name}
-        <small>{affiliateRequest.email}</small>
-      </TableCell>
-
-      <TableCell>{affiliateRequest.promotion}</TableCell>
-
-      <TableCell>{parseISO(affiliateRequest.date).toLocaleDateString(userAgentInfo.locale)}</TableCell>
-
-      <TableCell>
-        <div className="flex flex-wrap gap-3 lg:justify-end">
-          <Button
-            disabled={!loggedInUser?.policies.direct_affiliate.update || processing}
-            onClick={() => handleAction("ignore")}
-          >
-            {processing ? "Processing..." : "Ignore"}
-          </Button>
-
-          <WithTooltip
-            tip={
-              affiliateRequest.state === "approved"
-                ? "You have approved this request but the affiliate hasn't created a Gumroad account yet"
-                : null
-            }
-            position="bottom"
-          >
-            <Button
-              color="primary"
-              onClick={() => handleAction("approve")}
-              disabled={
-                !loggedInUser?.policies.direct_affiliate.update || affiliateRequest.state === "approved" || processing
-              }
-            >
-              {affiliateRequest.state === "approved" ? "Approved" : processing ? "Processing..." : "Approve"}
-            </Button>
-          </WithTooltip>
-        </div>
-      </TableCell>
-    </TableRow>
-  );
-};
-
 const AffiliateRequestsTable = ({
   affiliateRequests,
   allowApproveAll,
@@ -183,8 +127,23 @@ const AffiliateRequestsTable = ({
   affiliateRequests: AffiliateRequest[];
   allowApproveAll: boolean;
 }) => {
+  const loggedInUser = useLoggedInUser();
+  const userAgentInfo = useUserAgentInfo();
   const { items, thProps } = useClientSortingTableDriver(affiliateRequests, { key: "date", direction: "asc" });
   const { items: visibleItems, showMoreItems } = useLocalPagination(items, 20);
+  const [processingId, setProcessingId] = React.useState<string | null>(null);
+
+  const updateAffiliateRequest = (id: string, action: "approve" | "ignore") => {
+    router.patch(
+      Routes.affiliate_request_path(id),
+      { affiliate_request: { action } },
+      {
+        preserveScroll: true,
+        onStart: () => setProcessingId(id),
+        onFinish: () => setProcessingId(null),
+      },
+    );
+  };
 
   return (
     <>
@@ -207,7 +166,52 @@ const AffiliateRequestsTable = ({
 
           <TableBody>
             {visibleItems.map((affiliateRequest) => (
-              <AffiliateRequestRow key={affiliateRequest.id} affiliateRequest={affiliateRequest} />
+              <TableRow key={affiliateRequest.id}>
+                <TableCell>
+                  {affiliateRequest.name}
+                  <small>{affiliateRequest.email}</small>
+                </TableCell>
+
+                <TableCell>{affiliateRequest.promotion}</TableCell>
+
+                <TableCell>{parseISO(affiliateRequest.date).toLocaleDateString(userAgentInfo.locale)}</TableCell>
+
+                <TableCell>
+                  <div className="flex flex-wrap gap-3 lg:justify-end">
+                    <Button
+                      disabled={!loggedInUser?.policies.direct_affiliate.update || processingId !== null}
+                      onClick={() => updateAffiliateRequest(affiliateRequest.id, "ignore")}
+                    >
+                      {processingId === affiliateRequest.id ? "Ignoring..." : "Ignore"}
+                    </Button>
+
+                    <WithTooltip
+                      tip={
+                        affiliateRequest.state === "approved"
+                          ? "You have approved this request but the affiliate hasn't created a Gumroad account yet"
+                          : null
+                      }
+                      position="bottom"
+                    >
+                      <Button
+                        color="primary"
+                        onClick={() => updateAffiliateRequest(affiliateRequest.id, "approve")}
+                        disabled={
+                          !loggedInUser?.policies.direct_affiliate.update ||
+                          affiliateRequest.state === "approved" ||
+                          processingId !== null
+                        }
+                      >
+                        {affiliateRequest.state === "approved"
+                          ? "Approved"
+                          : processingId === affiliateRequest.id
+                            ? "Approving..."
+                            : "Approve"}
+                      </Button>
+                    </WithTooltip>
+                  </div>
+                </TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
