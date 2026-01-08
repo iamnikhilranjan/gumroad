@@ -339,7 +339,8 @@ Rails.application.routes.draw do
       get "/oauth/login" => "logins#new"
 
       post "login", to: "logins#create"
-      get "logout", to: "logins#destroy" # TODO: change the method to DELETE to conform to REST
+      get "logout", to: "logins#destroy"
+      delete "logout", to: "logins#destroy"
       scope "/users" do
         get "/check_twitter_link", to: "users/oauth#check_twitter_link"
         get "/unsubscribe/:id", to: "users#email_unsubscribe", as: :user_unsubscribe
