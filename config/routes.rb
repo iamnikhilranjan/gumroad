@@ -327,7 +327,7 @@ Rails.application.routes.draw do
                  omniauth_callbacks: "user/omniauth_callbacks",
                  passwords: "user/passwords",
                },
-               path_names: { password: 'forgot_password' })
+               path_names: { password: "forgot_password" })
 
     devise_scope :user do
       get "signup", to: "signup#new", as: :signup
