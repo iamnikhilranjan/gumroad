@@ -1,6 +1,6 @@
 <% formatted_total_amount = Money.new(@analytics_data[:total_amount_cents] * get_rate(@seller.currency_type).to_f, @seller.currency_type.to_sym).format(no_cents_if_whole: true, symbol: true) %>
 
-<div>
+<div style="background-color: #FFC900;">
   <%= image_tag("email/badge_year_#{@year}.png", alt: @year, class: "header-badge") %>
   <h2 style="text-align: center;">Your year on Gumroad in review</h2>
 </div>
@@ -65,16 +65,22 @@
 
 <div>
   <table class="reset list">
+    <colgroup>
+      <col style="width: 45%;">
+      <col style="width: 18%;">
+      <col style="width: 18%;">
+      <col style="width: 19%;">
+    </colgroup>
     <thead>
       <tr>
-        <th>Country</th>
-        <th style="text-align: center; white-space: nowrap;">
+        <th style="text-align: left;">Country</th>
+        <th style="text-align: right; white-space: nowrap;">
           Views
         </th>
-        <th style="text-align: center; white-space: nowrap;">
+        <th style="text-align: right; white-space: nowrap;">
           Sales
         </th>
-        <th>Total</th>
+        <th style="text-align: right;">Total</th>
       </tr>
     </thead>
     <tbody>
@@ -82,14 +88,14 @@
         money = Money.new(total * 100 * get_rate(@seller.currency_type).to_f, @seller.currency_type.to_sym)
       %>
         <tr>
-          <td><%= country %></td>
-          <td style="text-align: center; white-space: nowrap;">
+          <td style="text-align: left;"><%= country %></td>
+          <td style="text-align: right; white-space: nowrap;">
             <%= number_to_si(views) %>
           </td>
-          <td style="text-align: center; white-space: nowrap;">
+          <td style="text-align: right; white-space: nowrap;">
             <%= number_to_si(sales) %>
           </td>
-          <td style="white-space: nowrap">
+          <td style="text-align: right; white-space: nowrap;">
             <%= "#{money.symbol}#{number_to_si(money.dollars)}" %>
           </td>
         </tr>
