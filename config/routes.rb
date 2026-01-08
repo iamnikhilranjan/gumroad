@@ -326,7 +326,8 @@ Rails.application.routes.draw do
                  confirmations: "confirmations",
                  omniauth_callbacks: "user/omniauth_callbacks",
                  passwords: "user/passwords",
-               })
+               },
+               path_names: { password: 'forgot_password' })
 
     devise_scope :user do
       # Custom /forgot_password URL instead of Devise's /users/password/new
