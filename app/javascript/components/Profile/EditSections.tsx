@@ -31,7 +31,7 @@ import { RichTextEditorToolbar, useImageUploadSettings, useRichTextEditor } from
 import { Select } from "$app/components/Select";
 import { showAlert } from "$app/components/server-components/Alert";
 import { TypeSafeOptionSelect } from "$app/components/TypeSafeOptionSelect";
-import { Card, CardContent } from "$app/components/ui/Card";
+import { CardContent } from "$app/components/ui/Card";
 import { Row, RowActions, RowContent, RowDragHandle, Rows } from "$app/components/ui/Rows";
 import { useOnChange } from "$app/components/useOnChange";
 import { useRefToLatest } from "$app/components/useRefToLatest";
@@ -178,7 +178,10 @@ export const EditorMenu = ({
           {activeSubmenu}
         </div>
       ) : (
-        <Card style={{ width: "300px" }}>
+        <div
+          style={{ width: "300px" }}
+          className="-m-4 grid max-w-[calc(100%+2rem)] !divide-y !divide-solid !divide-border rounded border border-none border-border bg-background shadow-none"
+        >
           {items.map((item, key) =>
             isSubmenu(item) ? (
               <CardContent asChild key={key}>
@@ -193,7 +196,7 @@ export const EditorMenu = ({
               item
             ),
           )}
-        </Card>
+        </div>
       )}
     </Popover>
   );

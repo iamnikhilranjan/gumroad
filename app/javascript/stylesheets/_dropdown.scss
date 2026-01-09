@@ -21,8 +21,7 @@
     left: spacer(3);
   }
 
-  > [role="menu"],
-  > .card-component {
+  > [role="menu"] {
     &:only-child {
       box-shadow: none;
       margin: -(spacer(4));

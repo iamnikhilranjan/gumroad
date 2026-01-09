@@ -23,7 +23,7 @@ export const ProductsPopover = ({
       </span>
     }
   >
-    <Card>
+    <Card className="-m-4 max-w-[calc(100%+2rem)] border-none shadow-none">
       <CardContent>
         <fieldset className="grow basis-0">
           <label>
