@@ -9,9 +9,9 @@ class UrlRedirectsController < ApplicationController
     audio_durations
   ]
   before_action :redirect_to_custom_domain_if_needed, only: :download_page
+  before_action :sign_in_mobile_app_user, only: :mobile_download_page
   before_action :redirect_bundle_purchase_to_library_if_needed, only: %i[download_page mobile_download_page]
   before_action :redirect_to_coffee_page_if_needed, only: %i[download_page mobile_download_page]
-  before_action :sign_in_mobile_app_user, only: :mobile_download_page
   before_action :check_permissions, only: %i[show stream download_page mobile_download_page
                                              hls_playlist download_subtitle_file read
                                              download_archive latest_media_locations download_product_files audio_durations]
