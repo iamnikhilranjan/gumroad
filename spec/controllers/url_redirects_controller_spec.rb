@@ -1836,4 +1836,3 @@ describe UrlRedirectsController do
     end
   end
 end
-
