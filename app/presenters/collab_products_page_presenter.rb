@@ -4,7 +4,7 @@ class CollabProductsPagePresenter
   include ProductsHelper
   include Rails.application.routes.url_helpers
 
-  PER_PAGE = 10
+  PER_PAGE = 50
 
   attr_reader :products_sort, :memberships_sort
 
