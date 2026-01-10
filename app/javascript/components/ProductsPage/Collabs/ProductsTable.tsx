@@ -1,14 +1,12 @@
+import { router } from "@inertiajs/react";
 import * as React from "react";
 
-import { getPagedProducts, ProductsParams, Product } from "$app/data/collabs";
+import { Product } from "$app/data/collabs";
 import { classNames } from "$app/utils/classNames";
 import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
-import { asyncVoid } from "$app/utils/promise";
-import { AbortError, assertResponseError } from "$app/utils/request";
 
 import { Pagination, PaginationProps } from "$app/components/Pagination";
 import { ProductIconCell } from "$app/components/ProductsPage/ProductIconCell";
-import { showAlert } from "$app/components/server-components/Alert";
 import {
   Table,
   TableBody,
@@ -20,59 +18,48 @@ import {
   TableRow,
 } from "$app/components/ui/Table";
 import { useUserAgentInfo } from "$app/components/UserAgent";
-import { useClientSortingTableDriver } from "$app/components/useSortingTableDriver";
+import { Sort, useSortingTableDriver } from "$app/components/useSortingTableDriver";
 
-type State = {
-  entries: readonly Product[];
+type ProductSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
+
+export const CollabsProductsTable = (props: {
+  entries: Product[];
   pagination: PaginationProps;
-  isLoading: boolean;
-  query: string | null;
-};
-
-export const CollabsProductsTable = (props: { entries: Product[]; pagination: PaginationProps }) => {
-  const [state, setState] = React.useState<State>({
-    entries: props.entries,
-    pagination: props.pagination,
-    isLoading: false,
-    query: null,
-  });
-  const activeRequest = React.useRef<{ cancel: () => void } | null>(null);
-  const tableRef = React.useRef<HTMLTableElement>(null);
+  sort: Sort<ProductSortKey> | null;
+}) => {
+  const [isLoading, setIsLoading] = React.useState(false);
   const userAgentInfo = useUserAgentInfo();
+  const [sort, setSort] = React.useState<Sort<ProductSortKey> | null>(props.sort);
+  const items = props.entries;
 
-  const { entries: products, pagination, isLoading } = state;
+  const onSetSort = (newSort: Sort<ProductSortKey> | null) => {
+    setSort(newSort);
+    setIsLoading(true);
+    router.reload({
+      data: {
+        products_sort_key: newSort?.key,
+        products_sort_direction: newSort?.direction,
+        products_page: undefined,
+      },
+      only: ["products", "products_pagination", "products_sort"],
+      onFinish: () => setIsLoading(false),
+    });
+  };
 
-  const loadProducts = asyncVoid(async ({ page, query }: ProductsParams) => {
-    setState((prevState) => ({ ...prevState, isLoading: true }));
-    try {
-      activeRequest.current?.cancel();
+  const thProps = useSortingTableDriver<ProductSortKey>(sort, onSetSort);
 
-      const request = getPagedProducts({
-        page,
-        query,
-      });
-      activeRequest.current = request;
-
-      setState({
-        ...(await request.response),
-        isLoading: false,
-        query,
-      });
-      activeRequest.current = null;
-      tableRef.current?.scrollIntoView({ behavior: "smooth" });
-    } catch (e) {
-      if (e instanceof AbortError) return;
-      assertResponseError(e);
-      setState((prevState) => ({ ...prevState, isLoading: false }));
-      showAlert(e.message, "error");
-    }
-  });
-
-  const { items, thProps } = useClientSortingTableDriver<Product>(state.entries);
+  const handlePageChange = (page: number) => {
+    setIsLoading(true);
+    router.reload({
+      data: { products_page: page },
+      only: ["products", "products_pagination", "products_sort"],
+      onFinish: () => setIsLoading(false),
+    });
+  };
 
   return (
     <div className="flex flex-col gap-4">
-      <Table aria-live="polite" className={classNames(isLoading && "pointer-events-none opacity-50")} ref={tableRef}>
+      <Table aria-live="polite" className={classNames(isLoading && "pointer-events-none opacity-50")}>
         <TableCaption>Products</TableCaption>
         <TableHeader>
           <TableRow>
@@ -133,7 +120,7 @@ export const CollabsProductsTable = (props: { entries: Product[]; pagination: Pa
           <TableRow>
             <TableCell colSpan={4}>Totals</TableCell>
             <TableCell label="Sales">
-              {products
+              {items
                 .reduce((sum, product) => sum + product.successful_sales_count, 0)
                 .toLocaleString(userAgentInfo.locale)}
             </TableCell>
@@ -141,7 +128,7 @@ export const CollabsProductsTable = (props: { entries: Product[]; pagination: Pa
             <TableCell label="Revenue">
               {formatPriceCentsWithCurrencySymbol(
                 "usd",
-                products.reduce((sum, product) => sum + product.revenue, 0),
+                items.reduce((sum, product) => sum + product.revenue, 0),
                 { symbolFormat: "short" },
               )}
             </TableCell>
@@ -149,9 +136,7 @@ export const CollabsProductsTable = (props: { entries: Product[]; pagination: Pa
         </TableFooter>
       </Table>
 
-      {pagination.pages > 1 ? (
-        <Pagination onChangePage={(page) => loadProducts({ page, query: state.query })} pagination={pagination} />
-      ) : null}
+      {props.pagination.pages > 1 ? <Pagination onChangePage={handlePageChange} pagination={props.pagination} /> : null}
     </div>
   );
 };

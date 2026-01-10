@@ -3,7 +3,7 @@ import * as React from "react";
 import { Membership, Product } from "$app/data/collabs";
 import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
 
-import { NavigationButton } from "$app/components/Button";
+import { NavigationButtonInertia } from "$app/components/NavigationButton";
 import { PaginationProps } from "$app/components/Pagination";
 import { ProductsLayout } from "$app/components/ProductsLayout";
 import { CollabsMembershipsTable } from "$app/components/ProductsPage/Collabs/MembershipsTable";
@@ -11,15 +11,21 @@ import { CollabsProductsTable } from "$app/components/ProductsPage/Collabs/Produ
 import { Stats as StatsComponent } from "$app/components/Stats";
 import { Placeholder, PlaceholderImage } from "$app/components/ui/Placeholder";
 import { useUserAgentInfo } from "$app/components/UserAgent";
+import { Sort } from "$app/components/useSortingTableDriver";
 import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/affiliated.png";
 
+type ProductSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
+type MembershipSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
+
 export type CollabsPageProps = {
   memberships: Membership[];
   memberships_pagination: PaginationProps;
+  memberships_sort: Sort<MembershipSortKey> | null;
   products: Product[];
   products_pagination: PaginationProps;
+  products_sort: Sort<ProductSortKey> | null;
   stats: {
     total_revenue: number;
     total_customers: number;
@@ -33,8 +39,10 @@ export type CollabsPageProps = {
 const CollabsPage = ({
   memberships,
   memberships_pagination: membershipsPagination,
+  memberships_sort: membershipsSort,
   products,
   products_pagination: productsPagination,
+  products_sort: productsSort,
   stats,
   archived_tab_visible: archivedTabVisible,
   collaborators_disabled_reason: collaboratorsDisabledReason,
@@ -50,13 +58,13 @@ const CollabsPage = ({
             <h2>Create your first collab!</h2>
             Offer a product in collaboration with another Gumroad creator to grow your audience.
             <WithTooltip position="top" tip={collaboratorsDisabledReason}>
-              <NavigationButton
+              <NavigationButtonInertia
                 disabled={collaboratorsDisabledReason !== null}
                 href="/collaborators/new"
                 color="accent"
               >
                 Add a collab
-              </NavigationButton>
+              </NavigationButtonInertia>
             </WithTooltip>
             <p>
               or{" "}
@@ -91,10 +99,16 @@ const CollabsPage = ({
             </div>
             <div style={{ display: "grid", gap: "var(--spacer-7)" }}>
               {memberships.length ? (
-                <CollabsMembershipsTable entries={memberships} pagination={membershipsPagination} />
+                <CollabsMembershipsTable
+                  entries={memberships}
+                  pagination={membershipsPagination}
+                  sort={membershipsSort}
+                />
               ) : null}
 
-              {products.length ? <CollabsProductsTable entries={products} pagination={productsPagination} /> : null}
+              {products.length ? (
+                <CollabsProductsTable entries={products} pagination={productsPagination} sort={productsSort} />
+              ) : null}
             </div>
           </div>
         )}

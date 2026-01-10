@@ -170,16 +170,16 @@ describe Products::CollabsController, :vcr, :sidekiq_inline, :elasticsearch_wait
       products = inertia.props[:products]
 
       [membership_collab_1, membership_collab_2].each do |product|
-        expect(memberships.any? { |m| m[:id] == product.id }).to be(true)
+        expect(memberships.any? { |m| m["id"] == product.id }).to be(true)
       end
 
       [collab_1, collab_2, collab_3].each do |product|
-        expect(products.any? { |p| p[:id] == product.id }).to be(true)
+        expect(products.any? { |p| p["id"] == product.id }).to be(true)
       end
 
       [non_collab_product, pending_collab_1, pending_collab_2].each do |product|
-        expect(memberships.any? { |m| m[:id] == product.id }).to be(false)
-        expect(products.any? { |p| p[:id] == product.id }).to be(false)
+        expect(memberships.any? { |m| m["id"] == product.id }).to be(false)
+        expect(products.any? { |p| p["id"] == product.id }).to be(false)
       end
     end
 
@@ -193,49 +193,86 @@ describe Products::CollabsController, :vcr, :sidekiq_inline, :elasticsearch_wait
       memberships = inertia.props[:memberships]
       products = inertia.props[:products]
 
-      expect(memberships.any? { |m| m[:id] == membership_collab_2.id }).to be(true)
-      expect(products.any? { |p| p[:id] == collab_2.id }).to be(true)
+      expect(memberships.any? { |m| m["id"] == membership_collab_2.id }).to be(true)
+      expect(products.any? { |p| p["id"] == collab_2.id }).to be(true)
 
       [collab_1, collab_3, membership_collab_1].each do |product|
-        expect(memberships.any? { |m| m[:id] == product.id }).to be(false)
-        expect(products.any? { |p| p[:id] == product.id }).to be(false)
+        expect(memberships.any? { |m| m["id"] == product.id }).to be(false)
+        expect(products.any? { |p| p["id"] == product.id }).to be(false)
       end
     end
   end
 
-  describe "GET memberships_paged" do
+  describe "GET index with pagination" do
     before { stub_const("CollabProductsPagePresenter::PER_PAGE", 1) }
 
-    it "returns paginated membership collabs" do
-      get :memberships_paged
+    it "paginates memberships via memberships_page param" do
+      get :index, params: { memberships_page: 1 }
 
-      expect(response).to be_successful
-      expect(response.parsed_body["entries"].map { _1["id"] }).to contain_exactly membership_collab_1.id
-      expect(response.parsed_body["pagination"]).to match({ "page" => 1, "pages" => 2 })
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:memberships].map { _1["id"] }).to contain_exactly membership_collab_1.id
+      expect(inertia.props[:memberships_pagination]).to match({ page: 1, pages: 2 })
 
-      get :memberships_paged, params: { page: 2 }
+      get :index, params: { memberships_page: 2 }
 
-      expect(response).to be_successful
-      expect(response.parsed_body["entries"].map { _1["id"] }).to contain_exactly membership_collab_2.id
-      expect(response.parsed_body["pagination"]).to match({ "page" => 2, "pages" => 2 })
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:memberships].map { _1["id"] }).to contain_exactly membership_collab_2.id
+      expect(inertia.props[:memberships_pagination]).to match({ page: 2, pages: 2 })
+    end
+
+    it "paginates products via products_page param" do
+      get :index, params: { products_page: 1 }
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:products].map { _1["id"] }).to contain_exactly collab_1.id
+      expect(inertia.props[:products_pagination]).to match({ page: 1, pages: 3 })
+
+      get :index, params: { products_page: 2 }
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:products].map { _1["id"] }).to contain_exactly collab_2.id
+      expect(inertia.props[:products_pagination]).to match({ page: 2, pages: 3 })
     end
   end
 
-  describe "GET products_paged" do
-    before { stub_const("CollabProductsPagePresenter::PER_PAGE", 1) }
+  describe "GET index with sorting" do
+    it "sorts products via products_sort_key and products_sort_direction params" do
+      get :index, params: { products_sort_key: "name", products_sort_direction: "asc" }
 
-    it "returns paginated non-membership collabs" do
-      get :products_paged
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:products_sort]).to eq({ key: "name", direction: "asc" })
 
-      expect(response).to be_successful
-      expect(response.parsed_body["entries"].map { _1["id"] }).to contain_exactly collab_1.id
-      expect(response.parsed_body["pagination"]).to match({ "page" => 1, "pages" => 3 })
+      get :index, params: { products_sort_key: "revenue", products_sort_direction: "desc" }
 
-      get :products_paged, params: { page: 2 }
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:products_sort]).to eq({ key: "revenue", direction: "desc" })
+    end
 
-      expect(response).to be_successful
-      expect(response.parsed_body["entries"].map { _1["id"] }).to contain_exactly collab_2.id
-      expect(response.parsed_body["pagination"]).to match({ "page" => 2, "pages" => 3 })
+    it "sorts memberships via memberships_sort_key and memberships_sort_direction params" do
+      get :index, params: { memberships_sort_key: "name", memberships_sort_direction: "asc" }
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:memberships_sort]).to eq({ key: "name", direction: "asc" })
+
+      get :index, params: { memberships_sort_key: "revenue", memberships_sort_direction: "desc" }
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:memberships_sort]).to eq({ key: "revenue", direction: "desc" })
+    end
+
+    it "returns nil for sort when no sort params provided" do
+      get :index
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:products_sort]).to be_nil
+      expect(inertia.props[:memberships_sort]).to be_nil
+    end
+
+    it "returns nil for sort when invalid sort key provided" do
+      get :index, params: { products_sort_key: "invalid_key", products_sort_direction: "asc" }
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia.props[:products_sort]).to be_nil
     end
   end
 end

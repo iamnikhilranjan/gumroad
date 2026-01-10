@@ -1,14 +1,12 @@
+import { router } from "@inertiajs/react";
 import * as React from "react";
 
-import { getPagedMemberships, MembershipsParams, Membership } from "$app/data/collabs";
+import { Membership } from "$app/data/collabs";
 import { classNames } from "$app/utils/classNames";
 import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
-import { asyncVoid } from "$app/utils/promise";
-import { AbortError, assertResponseError } from "$app/utils/request";
 
 import { Pagination, PaginationProps } from "$app/components/Pagination";
 import { ProductIconCell } from "$app/components/ProductsPage/ProductIconCell";
-import { showAlert } from "$app/components/server-components/Alert";
 import {
   Table,
   TableBody,
@@ -20,47 +18,44 @@ import {
   TableRow,
 } from "$app/components/ui/Table";
 import { useUserAgentInfo } from "$app/components/UserAgent";
-import { useClientSortingTableDriver } from "$app/components/useSortingTableDriver";
+import { Sort, useSortingTableDriver } from "$app/components/useSortingTableDriver";
 
-type State = {
-  entries: readonly Membership[];
+type MembershipSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
+
+export const CollabsMembershipsTable = (props: {
+  entries: Membership[];
   pagination: PaginationProps;
-  isLoading: boolean;
-  query: string | null;
-};
-
-export const CollabsMembershipsTable = (props: { entries: Membership[]; pagination: PaginationProps }) => {
-  const [state, setState] = React.useState<State>({
-    entries: props.entries,
-    pagination: props.pagination,
-    isLoading: false,
-    query: null,
-  });
-  const { entries, pagination, isLoading } = state;
-  const { items: memberships, thProps } = useClientSortingTableDriver<Membership>(entries);
+  sort: Sort<MembershipSortKey> | null;
+}) => {
+  const [isLoading, setIsLoading] = React.useState(false);
   const { locale } = useUserAgentInfo();
+  const [sort, setSort] = React.useState<Sort<MembershipSortKey> | null>(props.sort);
+  const memberships = props.entries;
 
-  const activeRequest = React.useRef<{ cancel: () => void } | null>(null);
-  const loadMemberships = asyncVoid(async ({ query, page }: MembershipsParams) => {
-    setState((prevState) => ({ ...prevState, isLoading: true }));
-    try {
-      activeRequest.current?.cancel();
-      const request = getPagedMemberships({ page, query });
-      activeRequest.current = request;
+  const onSetSort = (newSort: Sort<MembershipSortKey> | null) => {
+    setSort(newSort);
+    setIsLoading(true);
+    router.reload({
+      data: {
+        memberships_sort_key: newSort?.key,
+        memberships_sort_direction: newSort?.direction,
+        memberships_page: undefined,
+      },
+      only: ["memberships", "memberships_pagination", "memberships_sort"],
+      onFinish: () => setIsLoading(false),
+    });
+  };
 
-      setState({
-        ...(await request.response),
-        isLoading: false,
-        query,
-      });
-      activeRequest.current = null;
-    } catch (e) {
-      if (e instanceof AbortError) return;
-      assertResponseError(e);
-      showAlert(e.message, "error");
-      setState((prevState) => ({ ...prevState, isLoading: false }));
-    }
-  });
+  const thProps = useSortingTableDriver<MembershipSortKey>(sort, onSetSort);
+
+  const handlePageChange = (page: number) => {
+    setIsLoading(true);
+    router.reload({
+      data: { memberships_page: page },
+      only: ["memberships", "memberships_pagination", "memberships_sort"],
+      onFinish: () => setIsLoading(false),
+    });
+  };
 
   return (
     <section className="flex flex-col gap-4">
@@ -164,9 +159,7 @@ export const CollabsMembershipsTable = (props: { entries: Membership[]; paginati
         </TableFooter>
       </Table>
 
-      {pagination.pages > 1 ? (
-        <Pagination onChangePage={(page) => loadMemberships({ query: state.query, page })} pagination={pagination} />
-      ) : null}
+      {props.pagination.pages > 1 ? <Pagination onChangePage={handlePageChange} pagination={props.pagination} /> : null}
     </section>
   );
 };
