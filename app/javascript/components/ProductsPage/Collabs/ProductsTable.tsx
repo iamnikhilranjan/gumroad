@@ -28,6 +28,7 @@ export const CollabsProductsTable = (props: {
   sort: Sort<ProductSortKey> | null;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
+  const tableRef = React.useRef<HTMLTableElement>(null);
   const userAgentInfo = useUserAgentInfo();
   const [sort, setSort] = React.useState<Sort<ProductSortKey> | null>(props.sort);
   const items = props.entries;
@@ -53,13 +54,16 @@ export const CollabsProductsTable = (props: {
     router.reload({
       data: { products_page: page },
       only: ["products", "products_pagination", "products_sort"],
-      onFinish: () => setIsLoading(false),
+      onFinish: () => {
+        setIsLoading(false);
+        tableRef.current?.scrollIntoView({ behavior: "smooth" });
+      },
     });
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <Table aria-live="polite" className={classNames(isLoading && "pointer-events-none opacity-50")}>
+      <Table ref={tableRef} aria-live="polite" className={classNames(isLoading && "pointer-events-none opacity-50")}>
         <TableCaption>Products</TableCaption>
         <TableHeader>
           <TableRow>

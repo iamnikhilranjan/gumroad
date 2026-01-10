@@ -28,6 +28,7 @@ export const CollabsMembershipsTable = (props: {
   sort: Sort<MembershipSortKey> | null;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
+  const tableRef = React.useRef<HTMLTableElement>(null);
   const { locale } = useUserAgentInfo();
   const [sort, setSort] = React.useState<Sort<MembershipSortKey> | null>(props.sort);
   const memberships = props.entries;
@@ -53,13 +54,16 @@ export const CollabsMembershipsTable = (props: {
     router.reload({
       data: { memberships_page: page },
       only: ["memberships", "memberships_pagination", "memberships_sort"],
-      onFinish: () => setIsLoading(false),
+      onFinish: () => {
+        setIsLoading(false);
+        tableRef.current?.scrollIntoView({ behavior: "smooth" });
+      },
     });
   };
 
   return (
     <section className="flex flex-col gap-4">
-      <Table aria-live="polite" className={classNames(isLoading && "pointer-events-none opacity-50")}>
+      <Table ref={tableRef} aria-live="polite" className={classNames(isLoading && "pointer-events-none opacity-50")}>
         <TableCaption>Memberships</TableCaption>
         <TableHeader>
           <TableRow>
