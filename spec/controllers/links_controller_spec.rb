@@ -41,17 +41,17 @@ describe LinksController, :vcr, inertia: true do
       it "returns seller's products" do
         get :index
 
-        memberships = assigns(:memberships)
-        expect(memberships).to include(@membership1)
-        expect(memberships).to include(@membership2)
-        expect(memberships).to include(@unpublished_membership)
-        expect(memberships).to_not include(@other_membership)
+        membership_ids = inertia.props[:memberships].map { |m| m["id"] }
+        expect(membership_ids).to include(@membership1.id)
+        expect(membership_ids).to include(@membership2.id)
+        expect(membership_ids).to include(@unpublished_membership.id)
+        expect(membership_ids).to_not include(@other_membership.id)
 
-        products = assigns(:products)
-        expect(products).to include(@product1)
-        expect(products).to include(@product2)
-        expect(products).to include(@unpublished_product)
-        expect(products).to_not include(@other_product)
+        product_ids = inertia.props[:products].map { |p| p["id"] }
+        expect(product_ids).to include(@product1.id)
+        expect(product_ids).to include(@product2.id)
+        expect(product_ids).to include(@unpublished_product.id)
+        expect(product_ids).to_not include(@other_product.id)
       end
 
       it "does not return the deleted products" do
@@ -59,8 +59,10 @@ describe LinksController, :vcr, inertia: true do
         @product2.update!(deleted_at: Time.current)
         get :index
 
-        expect(assigns(:memberships)).to_not include(@membership2)
-        expect(assigns(:products)).to_not include(@product2)
+        membership_ids = inertia.props[:memberships].map { |m| m["id"] }
+        product_ids = inertia.props[:products].map { |p| p["id"] }
+        expect(membership_ids).to_not include(@membership2.id)
+        expect(product_ids).to_not include(@product2.id)
       end
 
       it "does not return archived products" do
@@ -69,15 +71,17 @@ describe LinksController, :vcr, inertia: true do
 
         get :index
 
-        expect(assigns(:memberships)).to_not include(@membership2)
-        expect(assigns(:products)).to_not include(@product2)
+        membership_ids = inertia.props[:memberships].map { |m| m["id"] }
+        product_ids = inertia.props[:products].map { |p| p["id"] }
+        expect(membership_ids).to_not include(@membership2.id)
+        expect(product_ids).to_not include(@product2.id)
       end
 
       describe "shows the correct number of sales" do
         def expect_sales_count_in_inertia_response(expected_count)
-          products = inertia.props[:react_products_page_props][:products]
+          products = inertia.props[:products]
           expect(products).to be_present, "Expected products in Inertia.js response"
-          expect(products.first[:successful_sales_count]).to eq(expected_count)
+          expect(products.first["successful_sales_count"]).to eq(expected_count)
         end
 
         it "with a single sale" do
@@ -132,225 +136,9 @@ describe LinksController, :vcr, inertia: true do
 
           expect(inertia).to render_component("Products/Index")
 
-          products = inertia.props[:react_products_page_props][:products]
+          products = inertia.props[:products]
           expect(products).to be_present
-          expect(products.first[:url_without_protocol]).to be_present
-        end
-      end
-    end
-
-    describe "GET memberships_paged" do
-      before do
-        @memberships_per_page = 2
-        stub_const("LinksController::PER_PAGE", @memberships_per_page)
-      end
-
-      it_behaves_like "authorize called for action", :get, :memberships_paged do
-        let(:record) { Link }
-        let(:policy_method) { :index? }
-      end
-
-      describe "membership sorting + pagination", :elasticsearch_wait_for_refresh do
-        include_context "with products and memberships"
-
-        it_behaves_like "an API for sorting and pagination", :memberships_paged do
-          let!(:default_order) { [membership2, membership3, membership4, membership1] }
-          let!(:columns) do
-            {
-              "name" => [membership1, membership2, membership3, membership4],
-              "successful_sales_count" => [membership4, membership1, membership3, membership2],
-              "revenue" => [membership4, membership1, membership3, membership2],
-              "display_price_cents" => [membership4, membership3, membership2, membership1]
-            }
-          end
-          let!(:boolean_columns) { { "status" => [membership3, membership4, membership2, membership1] } }
-        end
-      end
-
-      describe "more than 2n visible memberships" do
-        before do
-          @memberships_count = 2 * @memberships_per_page + 1
-          @memberships_count.times { create(:subscription_product, user: seller) }
-        end
-
-        it "returns success on page 1" do
-          get :memberships_paged, params: { page: 1 }
-          expect(response.parsed_body["entries"].length).to eq @memberships_per_page
-        end
-
-        it "returns success on page 2" do
-          get :memberships_paged, params: { page: 2 }
-          expect(response.parsed_body["entries"].length).to eq @memberships_per_page
-        end
-
-        it "returns success on page 3" do
-          get :memberships_paged, params: { page: 3 }
-          expect(response.parsed_body["entries"].length).to eq 1
-        end
-      end
-
-      describe "between n and 2n visible memberships" do
-        before do
-          @memberships_count = @memberships_per_page + 1
-          @memberships_count.times { create(:subscription_product, user: seller) }
-        end
-
-        it "returns correctly on page 1" do
-          get :memberships_paged, params: { page: 1 }
-          expect(response.parsed_body["entries"].length).to eq @memberships_per_page
-        end
-
-        it "returns correctly on page 2" do
-          get :memberships_paged, params: { page: 2 }
-          expect(response.parsed_body["entries"].length).to eq 1
-        end
-
-        it "raises on page overflow" do
-          expect { get :memberships_paged, params: { page: 3 } }.to raise_error(Pagy::OverflowError)
-        end
-
-        describe "has some deleted memberships" do
-          before do
-            3.times { create(:subscription_product, user: seller, deleted_at: Time.current) }
-          end
-
-          it "returns correctly on page 1" do
-            get :memberships_paged, params: { page: 1 }
-            expect(response.parsed_body["entries"].length).to eq @memberships_per_page
-          end
-
-          it "returns correctly on page 2" do
-            get :memberships_paged, params: { page: 2 }
-            expect(response.parsed_body["entries"].length).to eq 1
-          end
-
-          it "raises on page overflow" do
-            expect { get :memberships_paged, params: { page: 3 } }.to raise_error(Pagy::OverflowError)
-          end
-        end
-      end
-
-      describe "< n visible memberships" do
-        before do
-          @published_count = @memberships_per_page - 1
-          @published_count.times { create(:subscription_product, user: seller) }
-        end
-
-        it "returns correctly on page 1" do
-          get :memberships_paged, params: { page: 1 }
-          expect(response.parsed_body["entries"].length).to eq @memberships_per_page - 1
-        end
-
-        it "raises on page overflow" do
-          expect { get :memberships_paged, params: { page: 2 } }.to raise_error(Pagy::OverflowError)
-        end
-      end
-    end
-
-    describe "GET products_paged" do
-      before do
-        @products_per_page = 2
-        stub_const("LinksController::PER_PAGE", @products_per_page)
-      end
-
-      it_behaves_like "authorize called for action", :get, :products_paged do
-        let(:record) { Link }
-        let(:policy_method) { :index? }
-      end
-
-      describe "non-membership sorting + pagination", :elasticsearch_wait_for_refresh do
-        include_context "with products and memberships"
-
-        it_behaves_like "an API for sorting and pagination", :products_paged do
-          let!(:default_order) { [product1, product3, product4, product2] }
-          let!(:columns) do
-            {
-              "name" => [product1, product2, product3, product4],
-              "successful_sales_count" => [product1, product2, product3, product4],
-              "revenue" => [product3, product2, product1, product4],
-              "display_price_cents" => [product3, product4, product2, product1]
-            }
-          end
-          let!(:boolean_columns) { { "status" => [product3, product4, product1, product2] } }
-        end
-      end
-
-      describe "more than 2n visible products" do
-        before do
-          @products_count = 2 * @products_per_page + 1
-          @products_count.times { create(:product, user: seller) }
-        end
-
-        it "returns success on page 1" do
-          get :products_paged, params: { page: 1 }
-          expect(response.parsed_body["entries"].length).to eq @products_per_page
-        end
-
-        it "returns success on page 2" do
-          get :products_paged, params: { page: 2 }
-          expect(response.parsed_body["entries"].length).to eq @products_per_page
-        end
-
-        it "returns success on page 3" do
-          get :products_paged, params: { page: 3 }
-          expect(response.parsed_body["entries"].length).to eq 1
-        end
-      end
-
-      describe "between n and 2n visible products" do
-        before do
-          @products_count = @products_per_page + 1
-          @products_count.times { create(:product, user: seller) }
-        end
-
-        it "returns correctly on page 1" do
-          get :products_paged, params: { page: 1 }
-          expect(response.parsed_body["entries"].length).to eq @products_per_page
-        end
-
-        it "returns correctly on page 2" do
-          get :products_paged, params: { page: 2 }
-          expect(response.parsed_body["entries"].length).to eq 1
-        end
-
-        it "raises on page overflow" do
-          expect { get :products_paged, params: { page: 3 } }.to raise_error(Pagy::OverflowError)
-        end
-
-        describe "has some deleted products" do
-          before do
-            3.times { create(:product, user: seller, deleted_at: Time.current) }
-          end
-
-          it "returns correctly on page 1" do
-            get :products_paged, params: { page: 1 }
-            expect(response.parsed_body["entries"].length).to eq @products_per_page
-          end
-
-          it "returns correctly on page 2" do
-            get :products_paged, params: { page: 2 }
-            expect(response.parsed_body["entries"].length).to eq 1
-          end
-
-          it "raises on page overflow" do
-            expect { get :products_paged, params: { page: 3 } }.to raise_error(Pagy::OverflowError)
-          end
-        end
-      end
-
-      describe "< n visible products" do
-        before do
-          @published_count = @products_per_page - 1
-          @published_count.times { create(:product, user: seller) }
-        end
-
-        it "returns correctly on page 1" do
-          get :products_paged, params: { page: 1 }
-          expect(response.parsed_body["entries"].length).to eq @products_per_page - 1
-        end
-
-        it "raises on page overflow" do
-          expect { get :products_paged, params: { page: 2 } }.to raise_error(Pagy::OverflowError)
+          expect(products.first["url_without_protocol"]).to be_present
         end
       end
     end
