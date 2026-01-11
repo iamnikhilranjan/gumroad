@@ -21,13 +21,13 @@ const AdminDashboard = () => {
           />
           <div className="flex gap-4">
             <a
-              className={buttonVariants({ size: "default" }) + " w-auto flex-1"}
+              className={`${buttonVariants({ size: "default" })} w-auto flex-1`}
               href={Routes.admin_impersonate_path({ user_identifier: userIdentifier })}
             >
               Impersonate user
             </a>
             <a
-              className={buttonVariants({ size: "default" }) + " w-auto flex-1"}
+              className={`${buttonVariants({ size: "default" })} w-auto flex-1`}
               href={Routes.admin_redirect_to_stripe_dashboard_path({ user_identifier: userIdentifier })}
             >
               View Stripe account

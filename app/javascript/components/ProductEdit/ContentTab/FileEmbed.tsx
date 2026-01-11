@@ -399,7 +399,10 @@ const FileEmbedNodeView = ({ node, editor, getPos, updateAttributes }: NodeViewP
                   </button>
                   <div style={{ position: "absolute", top: "var(--spacer-5)", right: "var(--spacer-5)" }}>
                     <WithTooltip tip="Replace thumbnail">
-                      <label className={buttonVariants({ size: "default", color: "primary" })} aria-label="Replace thumbnail">
+                      <label
+                        className={buttonVariants({ size: "default", color: "primary" })}
+                        aria-label="Replace thumbnail"
+                      >
                         {thumbnailInput}
                         <Icon name="upload-fill" />
                       </label>
@@ -677,7 +680,11 @@ const FileEmbedNodeView = ({ node, editor, getPos, updateAttributes }: NodeViewP
       </Row>
       {isDropZone ? (
         <div className="absolute inset-0 bg-backdrop">
-          <div className={buttonVariants({ size: "default", color: "primary" }) + " absolute top-1/2 left-1/2 -translate-1/2"}>Create folder with 2 items</div>
+          <div
+            className={`${buttonVariants({ size: "default", color: "primary" })} absolute top-1/2 left-1/2 -translate-1/2`}
+          >
+            Create folder with 2 items
+          </div>
         </div>
       ) : null}
     </NodeViewWrapper>

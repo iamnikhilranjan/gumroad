@@ -120,7 +120,12 @@ const AdminSalesReportsPage = ({ countries, sales_types, job_history, form_actio
                   <TableCell>{job.status}</TableCell>
                   <TableCell>
                     {job.status === "completed" && job.download_url ? (
-                      <a href={job.download_url} className={buttonVariants({ size: "sm" })} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={job.download_url}
+                        className={buttonVariants({ size: "sm" })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         Download CSV
                       </a>
                     ) : (

@@ -1,7 +1,7 @@
 import React from "react";
 
-import { buttonVariants } from "$app/components/Button";
 import { type Product, type ActiveIntegration } from "$app/components/Admin/Products/Product";
+import { buttonVariants } from "$app/components/Button";
 
 type JoinDiscordActionProps = {
   product: Product;

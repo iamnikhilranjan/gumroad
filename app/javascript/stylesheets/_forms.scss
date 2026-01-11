@@ -209,7 +209,7 @@ input[type="checkbox"]:not([role="switch"]) {
     font-weight: bold;
   }
 
-  &> :first-child {
+  & > :first-child {
     flex-shrink: 0;
   }
 

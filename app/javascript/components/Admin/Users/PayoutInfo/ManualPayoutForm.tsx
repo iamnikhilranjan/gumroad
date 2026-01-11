@@ -2,8 +2,8 @@ import * as React from "react";
 
 import { formatPriceCentsWithCurrencySymbol } from "$app/utils/currency";
 
-import { Button } from "$app/components/Button";
 import { Form } from "$app/components/Admin/Form";
+import { Button } from "$app/components/Button";
 import { showAlert } from "$app/components/server-components/Alert";
 
 export const AdminManualPayoutForm = ({
@@ -65,7 +65,7 @@ export const AdminManualPayoutForm = ({
         <div className="flex flex-wrap gap-2">
           <Button type="submit" disabled={isLoading} small>
             {isLoading ? "Issuing Payout..." : "Issue Payout"}
-            </Button>
+          </Button>
         </div>
         <small>
           Balance that will be paid by clicking this button:{" "}
