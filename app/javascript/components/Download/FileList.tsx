@@ -317,6 +317,7 @@ export const FileRow = ({
             {file.kindle_data != null ? (
               <TrackClick eventName="send_to_kindle_click" resourceId={file.id}>
                 <Button color="kindle" onClick={toggleKindleDrawer}>
+                  <span className="brand-icon brand-icon-kindle" />
                   Send to Kindle
                 </Button>
               </TrackClick>

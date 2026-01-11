@@ -864,6 +864,7 @@ const BraintreePayPal = ({ token }: { token: string }) => {
 
   return (
     <Button color="paypal" onClick={() => dispatch({ type: "offer" })} disabled={isSubmitDisabled(state)}>
+      <span className="brand-icon brand-icon-paypal" />
       {payLabel}
     </Button>
   );

@@ -24,6 +24,7 @@ export const TwitterShareButton = ({ url, text = "Join me on @Gumroad!" }: { url
       target="_blank"
       rel="noopener noreferrer"
     >
+      <span className="brand-icon brand-icon-twitter" />
       Share on X
     </NavigationButton>
   );

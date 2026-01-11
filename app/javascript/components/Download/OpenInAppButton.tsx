@@ -33,12 +33,24 @@ export const OpenInAppButton = ({ iosAppUrl, androidAppUrl }: Props) => (
         }}
       >
         <Button asChild>
-          <a className={buttonVariants({ size: "default", color: "apple" })} href={iosAppUrl} target="_blank" rel="noreferrer">
+          <a
+            className={buttonVariants({ size: "default", color: "apple" })}
+            href={iosAppUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="brand-icon brand-icon-apple" />
             App Store
           </a>
         </Button>
         <Button asChild>
-          <a className={buttonVariants({ size: "default", color: "android" })} href={androidAppUrl} target="_blank" rel="noreferrer">
+          <a
+            className={buttonVariants({ size: "default", color: "android" })}
+            href={androidAppUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="brand-icon brand-icon-android" />
             Play Store
           </a>
         </Button>

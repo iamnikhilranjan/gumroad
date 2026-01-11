@@ -29,7 +29,10 @@ export const SocialAuthButton = ({
             document.body,
           )
         : null}
-      <Button {...props} color={provider} onClick={() => formRef.current?.submit()} />
+      <Button {...props} color={provider} onClick={() => formRef.current?.submit()}>
+        <span className={`brand-icon brand-icon-${provider}`} />
+        {props.children}
+      </Button>
     </>
   );
 };

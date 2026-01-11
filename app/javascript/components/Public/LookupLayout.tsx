@@ -179,6 +179,7 @@ const LookupLayout = ({ children, title, type }: {
                 type="submit"
                 disabled={isPaypalLoading}
               >
+                <span className="brand-icon brand-icon-paypal" />
                 {isPaypalLoading ? "Searching..." : "Search"}
               </Button>
             </fieldset>

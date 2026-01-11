@@ -164,6 +164,7 @@ export default function SettingsPage() {
                 <legend>Social links</legend>
                 {creatorProfile.twitter_handle ? (
                   <Button type="button" color="twitter" onClick={handleUnlinkTwitter}>
+                    <span className="brand-icon brand-icon-twitter" />
                     Disconnect {creatorProfile.twitter_handle} from X
                   </Button>
                 ) : (

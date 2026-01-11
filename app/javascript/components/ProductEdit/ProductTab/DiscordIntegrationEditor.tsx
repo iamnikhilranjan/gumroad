@@ -98,6 +98,7 @@ export const DiscordIntegrationEditor = ({
                   });
                 }}
               >
+                <span className="brand-icon brand-icon-discord" />
                 Connect to Discord
               </Button>
             </div>

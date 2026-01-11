@@ -156,6 +156,7 @@ export const GoogleCalendarIntegrationEditor = ({
                 calendar in sync.
               </p>
               <Button color="google" onClick={handleConnectGoogleAccount}>
+                <span className="brand-icon brand-icon-google" />
                 Connect to Google Calendar
               </Button>
             </>

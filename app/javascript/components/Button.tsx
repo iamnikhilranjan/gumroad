@@ -130,33 +130,23 @@ const useButtonCommon = ({
   const size = small ? "sm" : "default";
 
   const effectiveColor = color;
-  const effectiveBrand = brandNames.includes(effectiveColor as BrandName) ? (effectiveColor as BrandName) : undefined;
 
   const classes = classNames(
     buttonVariants({ variant, size, color: effectiveColor && !outline ? effectiveColor : undefined }),
     className,
   );
 
-  const icon = effectiveBrand && <span className={`brand-icon brand-icon-${effectiveBrand}`} />;
-
-  return { classes, icon };
+  return { classes };
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, color, outline, small, disabled, children, asChild = false, ...props }, ref) => {
-    const { classes, icon } = useButtonCommon({ className, color, outline, small });
+    const { classes } = useButtonCommon({ className, color, outline, small });
     const Comp = asChild ? Slot : "button";
 
     return (
       <Comp className={classes} ref={ref} disabled={disabled} type={asChild ? undefined : "button"} {...props}>
-        {asChild ? (
-          children
-        ) : (
-          <>
-            {icon}
-            {children}
-          </>
-        )}
+        {children}
       </Comp>
     );
   },
@@ -168,31 +158,26 @@ export interface NavigationButtonProps extends Omit<React.ComponentPropsWithoutR
 }
 
 export const NavigationButton = React.forwardRef<HTMLAnchorElement, NavigationButtonProps>(
-  ({ className, color, outline, small, disabled, children, ...props }, ref) => {
-    const { icon } = useButtonCommon({ className, color, outline, small });
+  ({ className, color, outline, small, disabled, children, ...props }, ref) => (
+    <Button asChild className={className} color={color} outline={outline} small={small} disabled={disabled}>
+      <a
+        ref={ref}
+        inert={disabled}
+        {...props}
+        onClick={(evt) => {
+          if (props.onClick == null) return;
 
-    return (
-      <Button asChild className={className} color={color} outline={outline} small={small} disabled={disabled}>
-        <a
-          ref={ref}
-          inert={disabled}
-          {...props}
-          onClick={(evt) => {
-            if (props.onClick == null) return;
+          if (props.href == null || props.href === "#") evt.preventDefault();
 
-            if (props.href == null || props.href === "#") evt.preventDefault();
+          props.onClick(evt);
 
-            props.onClick(evt);
-
-            evt.stopPropagation();
-          }}
-        >
-          {icon}
-          {children}
-        </a>
-      </Button>
-    );
-  },
+          evt.stopPropagation();
+        }}
+      >
+        {children}
+      </a>
+    </Button>
+  ),
 );
 NavigationButton.displayName = "NavigationButton";
 
