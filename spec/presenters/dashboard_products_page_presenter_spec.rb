@@ -175,48 +175,58 @@ describe DashboardProductsPagePresenter do
   end
 
   describe "products pagination" do
+    let!(:products) { create_list(:product, 5, user: seller) }
+
     before do
       stub_const("DashboardProductsPagePresenter::PER_PAGE", 2)
-      create_list(:product, 5, user: seller)
     end
 
     it "returns paginated products" do
-      presenter = described_class.new(pundit_user:, products_page: 1)
-      expect(presenter.products_table_props[:products].length).to eq(2)
-      expect(presenter.products_table_props[:products_pagination]).to be_present
+      props = described_class.new(pundit_user:, products_page: 1).products_table_props
+
+      expect(props[:products].length).to eq(2)
+      expect(props[:products_pagination]).to eq(page: 1, pages: 3)
     end
 
     it "returns correct page of products" do
-      page1_presenter = described_class.new(pundit_user:, products_page: 1)
-      page2_presenter = described_class.new(pundit_user:, products_page: 2)
+      page1_props = described_class.new(pundit_user:, products_page: 1).products_table_props
+      page2_props = described_class.new(pundit_user:, products_page: 2).products_table_props
 
-      page1_ids = page1_presenter.products_table_props[:products].map { |p| p["id"] }
-      page2_ids = page2_presenter.products_table_props[:products].map { |p| p["id"] }
+      expect(page1_props[:products_pagination]).to eq(page: 1, pages: 3)
+      expect(page2_props[:products_pagination]).to eq(page: 2, pages: 3)
 
+      page1_ids = page1_props[:products].map { |p| p["id"] }
+      page2_ids = page2_props[:products].map { |p| p["id"] }
       expect(page1_ids & page2_ids).to be_empty
+      expect((page1_ids + page2_ids) - products.map(&:id)).to be_empty
     end
   end
 
   describe "memberships pagination" do
+    let!(:memberships) { create_list(:membership_product, 5, user: seller) }
+
     before do
       stub_const("DashboardProductsPagePresenter::PER_PAGE", 2)
-      create_list(:membership_product, 5, user: seller)
     end
 
     it "returns paginated memberships" do
-      presenter = described_class.new(pundit_user:, memberships_page: 1)
-      expect(presenter.memberships_table_props[:memberships].length).to eq(2)
-      expect(presenter.memberships_table_props[:memberships_pagination]).to be_present
+      props = described_class.new(pundit_user:, memberships_page: 1).memberships_table_props
+
+      expect(props[:memberships].length).to eq(2)
+      expect(props[:memberships_pagination]).to eq(page: 1, pages: 3)
     end
 
     it "returns correct page of memberships" do
-      page1_presenter = described_class.new(pundit_user:, memberships_page: 1)
-      page2_presenter = described_class.new(pundit_user:, memberships_page: 2)
+      page1_props = described_class.new(pundit_user:, memberships_page: 1).memberships_table_props
+      page2_props = described_class.new(pundit_user:, memberships_page: 2).memberships_table_props
 
-      page1_ids = page1_presenter.memberships_table_props[:memberships].map { |m| m["id"] }
-      page2_ids = page2_presenter.memberships_table_props[:memberships].map { |m| m["id"] }
+      expect(page1_props[:memberships_pagination]).to eq(page: 1, pages: 3)
+      expect(page2_props[:memberships_pagination]).to eq(page: 2, pages: 3)
 
+      page1_ids = page1_props[:memberships].map { |m| m["id"] }
+      page2_ids = page2_props[:memberships].map { |m| m["id"] }
       expect(page1_ids & page2_ids).to be_empty
+      expect((page1_ids + page2_ids) - memberships.map(&:id)).to be_empty
     end
   end
 
@@ -407,48 +417,58 @@ describe DashboardProductsPagePresenter do
     end
 
     describe "products pagination" do
+      let!(:archived_products) { create_list(:product, 5, user: seller, archived: true) }
+
       before do
         stub_const("DashboardProductsPagePresenter::PER_PAGE", 2)
-        create_list(:product, 5, user: seller, archived: true)
       end
 
       it "returns paginated products" do
-        presenter = described_class.new(pundit_user:, archived: true, products_page: 1)
-        expect(presenter.products_table_props[:products].length).to eq(2)
-        expect(presenter.products_table_props[:products_pagination]).to be_present
+        props = described_class.new(pundit_user:, archived: true, products_page: 1).products_table_props
+
+        expect(props[:products].length).to eq(2)
+        expect(props[:products_pagination]).to eq(page: 1, pages: 3)
       end
 
       it "returns correct page of products" do
-        page1_presenter = described_class.new(pundit_user:, archived: true, products_page: 1)
-        page2_presenter = described_class.new(pundit_user:, archived: true, products_page: 2)
+        page1_props = described_class.new(pundit_user:, archived: true, products_page: 1).products_table_props
+        page2_props = described_class.new(pundit_user:, archived: true, products_page: 2).products_table_props
 
-        page1_ids = page1_presenter.products_table_props[:products].map { |p| p["id"] }
-        page2_ids = page2_presenter.products_table_props[:products].map { |p| p["id"] }
+        expect(page1_props[:products_pagination]).to eq(page: 1, pages: 3)
+        expect(page2_props[:products_pagination]).to eq(page: 2, pages: 3)
 
+        page1_ids = page1_props[:products].map { |p| p["id"] }
+        page2_ids = page2_props[:products].map { |p| p["id"] }
         expect(page1_ids & page2_ids).to be_empty
+        expect((page1_ids + page2_ids) - archived_products.map(&:id)).to be_empty
       end
     end
 
     describe "memberships pagination" do
+      let!(:archived_memberships) { create_list(:membership_product, 5, user: seller, archived: true) }
+
       before do
         stub_const("DashboardProductsPagePresenter::PER_PAGE", 2)
-        create_list(:membership_product, 5, user: seller, archived: true)
       end
 
       it "returns paginated memberships" do
-        presenter = described_class.new(pundit_user:, archived: true, memberships_page: 1)
-        expect(presenter.memberships_table_props[:memberships].length).to eq(2)
-        expect(presenter.memberships_table_props[:memberships_pagination]).to be_present
+        props = described_class.new(pundit_user:, archived: true, memberships_page: 1).memberships_table_props
+
+        expect(props[:memberships].length).to eq(2)
+        expect(props[:memberships_pagination]).to eq(page: 1, pages: 3)
       end
 
       it "returns correct page of memberships" do
-        page1_presenter = described_class.new(pundit_user:, archived: true, memberships_page: 1)
-        page2_presenter = described_class.new(pundit_user:, archived: true, memberships_page: 2)
+        page1_props = described_class.new(pundit_user:, archived: true, memberships_page: 1).memberships_table_props
+        page2_props = described_class.new(pundit_user:, archived: true, memberships_page: 2).memberships_table_props
 
-        page1_ids = page1_presenter.memberships_table_props[:memberships].map { |m| m["id"] }
-        page2_ids = page2_presenter.memberships_table_props[:memberships].map { |m| m["id"] }
+        expect(page1_props[:memberships_pagination]).to eq(page: 1, pages: 3)
+        expect(page2_props[:memberships_pagination]).to eq(page: 2, pages: 3)
 
+        page1_ids = page1_props[:memberships].map { |m| m["id"] }
+        page2_ids = page2_props[:memberships].map { |m| m["id"] }
         expect(page1_ids & page2_ids).to be_empty
+        expect((page1_ids + page2_ids) - archived_memberships.map(&:id)).to be_empty
       end
     end
   end
