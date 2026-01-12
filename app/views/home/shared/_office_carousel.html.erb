@@ -1,0 +1,50 @@
+<%
+  images = local_assigns[:images] || []
+%>
+
+<div data-office-carousel>
+  <div class="rounded-2xl overflow-hidden relative">
+    <div class="flex gap-16 transition-transform duration-500 ease-in-out" data-office-carousel-slides>
+      <% if images.length > 0 %>
+        <!-- Clone of last image for infinite loop -->
+        <div class="flex-shrink-0 rounded-2xl overflow-hidden w-full" data-clone="last">
+          <%= image_tag images.last, alt: "Office image", class: "w-full h-full object-cover aspect-video" %>
+        </div>
+        <!-- Real images -->
+        <% images.each_with_index do |image, index| %>
+          <div class="flex-shrink-0 rounded-2xl overflow-hidden w-full">
+            <%= image_tag image, alt: "Office image #{index + 1}", class: "w-full h-full object-cover aspect-video" %>
+          </div>
+        <% end %>
+        <!-- Clone of first image for infinite loop -->
+        <div class="flex-shrink-0 rounded-2xl overflow-hidden w-full" data-clone="first">
+          <%= image_tag images.first, alt: "Office image", class: "w-full h-full object-cover aspect-video" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <div class="flex flex-row gap-4 justify-end mt-5">
+    <button
+      type="button"
+      aria-label="Previous image"
+      data-office-carousel-prev
+      class="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors"
+    >
+      <svg class="w-5 h-5 text-dark-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+    <button
+      type="button"
+      aria-label="Next image"
+      data-office-carousel-next
+      class="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors"
+    >
+      <svg class="w-5 h-5 text-dark-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+<%= render "home/shared/loop_carousel" %>
+

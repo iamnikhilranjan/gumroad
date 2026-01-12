@@ -1,0 +1,26 @@
+<div class="min-h-screen">
+  <div class="lg:-mb-20">
+    <%= render "home/shared/header",
+      bg_color: "dark-gray",
+      text_color: "white",
+      subtitle: "Careers",
+      title: "Build the road<br class=\"sm:hidden\"> <span class=\"whitespace-nowrap\">with us.</span>",
+      description: "Join us to build the #1 tool for creators.",
+      no_border: true,
+      gap: "gap-12" do %>
+      <%= render "home/shared/button", text: "See open roles", url: "#", variant: "dark" %>
+    <% end %>
+  </div>
+
+  <div class="relative bg-dark-gray pb-24 lg:pb-32">
+    <div class="mx-auto px-4 lg:px-8 max-w-7xl">
+      <%= render "home/shared/office_carousel",
+        images: [
+          image_path("auth/background.png"),
+          image_path("auth/background.png")
+        ]
+      %>
+    </div>
+  </div>
+  <%= render "home/shared/footer" %>
+</div>

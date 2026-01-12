@@ -19,6 +19,11 @@ class HomeController < ApplicationController
           title: "Earn your first dollar online with Gumroad",
           description: "Start selling what you know, see what sticks, and get paid. Simple and effective."
         },
+        "careers" => {
+          url: :careers_url,
+          title: "Careers at Gumroad - Build the road with us",
+          description: "Join us to build the #1 tool for creators. Explore open roles and help shape the future of digital commerce."
+        },
         "features" => {
           url: :features_url,
           title: "Gumroad features: Simple and powerful e-commerce tools",

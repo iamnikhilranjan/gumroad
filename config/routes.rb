@@ -279,6 +279,7 @@ Rails.application.routes.draw do
 
   constraints GumroadDomainConstraint do
     get "/about", to: "home#about"
+    get "/careers", to: "home#careers"
     get "/features", to: "home#features"
     get "/pricing", to: "home#pricing"
     get "/terms", to: "home#terms"

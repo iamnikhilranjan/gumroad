@@ -1,0 +1,67 @@
+<%= javascript_tag nonce: SecureHeaders.content_security_policy_script_nonce(request) do %>
+  document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.querySelector('[data-office-carousel]');
+    if (!carousel) return;
+
+    const images = carousel.querySelector('[data-office-carousel-slides]');
+    const prevButton = carousel.querySelector('[data-office-carousel-prev]');
+    const nextButton = carousel.querySelector('[data-office-carousel-next]');
+
+    if (!images || !prevButton || !nextButton) return;
+
+    const realImageCount = images.children.length - 2; // Subtract clones
+    let currentIndex = 1; // Start at first real image
+    let isTransitioning = false;
+
+    function showImage(index, instant = false) {
+      if (instant) {
+        images.style.transition = 'none';
+      } else {
+        images.style.transition = 'transform 0.5s ease-in-out';
+      }
+      const imageWidth = images.children[0].offsetWidth;
+      const gap = 64;
+      images.style.transform = `translateX(-${index * (imageWidth + gap)}px)`;
+    }
+
+    nextButton.addEventListener('click', () => {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      if (currentIndex === realImageCount) {
+        currentIndex = realImageCount + 1; // Move to clone
+        showImage(currentIndex);
+        setTimeout(() => {
+          currentIndex = 1; // Jump back to first real image
+          showImage(currentIndex, true);
+          setTimeout(() => { isTransitioning = false; }, 50);
+        }, 500);
+      } else {
+        currentIndex++;
+        showImage(currentIndex);
+        setTimeout(() => { isTransitioning = false; }, 500);
+      }
+    });
+
+    prevButton.addEventListener('click', () => {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      if (currentIndex === 1) {
+        currentIndex = 0; // Move to clone
+        showImage(currentIndex);
+        setTimeout(() => {
+          currentIndex = realImageCount; // Jump back to last real image
+          showImage(currentIndex, true);
+          setTimeout(() => { isTransitioning = false; }, 50);
+        }, 500);
+      } else {
+        currentIndex--;
+        showImage(currentIndex);
+        setTimeout(() => { isTransitioning = false; }, 500);
+      }
+    });
+
+    showImage(1, true); // Initialize at first real image
+  });
+<% end %>
