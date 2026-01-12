@@ -6,7 +6,6 @@ class LinksController < ApplicationController
           CreateDiscoverSearch, DiscoverCuratedProducts, FetchProductByUniquePermalink
 
   DEFAULT_PRICE = 500
-  PER_PAGE = 10
 
   skip_before_action :check_suspended, only: %i[index show edit destroy increment_views track_user_action]
 
