@@ -461,7 +461,9 @@ const UtmLinkDetails = ({
       </Card>
       <Card asChild>
         <section>
-          <CardContent>Statistics</CardContent>
+          <CardContent>
+            <h3 className="grow">Statistics</h3>
+          </CardContent>
           <CardContent>
             <h5 className="grow font-bold">Clicks</h5>
             {utmLink.clicks}
