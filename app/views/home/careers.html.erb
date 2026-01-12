@@ -12,7 +12,7 @@
     <% end %>
   </div>
 
-  <div class="relative bg-dark-gray pb-24 lg:pb-32">
+  <div class="relative bg-dark-gray">
     <div class="mx-auto px-8 max-w-7xl">
       <%= render "home/shared/office_carousel",
         images: [
@@ -22,5 +22,53 @@
       %>
     </div>
   </div>
+
+<div class="bg-dark-gray text-white pt-24 pb-32">
+  <div class="flex flex-col justify-center gap-6 mx-auto text-center max-w-5xl mb-16 md:mb-28">
+    <h2 class="text-5xl md:text-6xl lg:text-7xl">How we build</h2>
+    <p class="text-xl md:text-2xl">We give you what you need to ship your best work.</p>
+  </div>
+  <%= render "home/shared/how_we_build",
+    cards: [
+      {
+        icon: image_path("careers/flag.svg"),
+        icon_bg: "pink",
+        title: "Dumbo HQ",
+        description: "We use our office for speed and remote for reach. High-bandwidth work, no matter where you sit."
+      },
+      {
+        icon: image_path("careers/price.svg"),
+        icon_bg: "green",
+        title: "Honest pay",
+        description: "We pay top-of-market for every role."
+      },
+      {
+        icon: image_path("careers/calendar.svg"),
+        icon_bg: "orange",
+        title: "30-hour weeks",
+        description: "Work to Live. 30 hours of work, then you're done. Use the extra time to build your own projects."
+      },
+      {
+        icon: image_path("careers/comics.svg"),
+        icon_bg: "red",
+        title: "Fewer meetings",
+        description: "We only meet when we're stuck. We prefer PRs and clear writing so you can stay in flow and out of Zoom."
+      },
+      {
+        icon: image_path("careers/audience.svg"),
+        icon_bg: "yellow",
+        title: "Equity for all",
+        description: "Every full-time hire gets equity. When Gumroad wins, the whole team wins. No exceptions."
+      },
+      {
+        icon: image_path("careers/launch.svg"),
+        icon_bg: "purple",
+        title: "Build in public",
+        description: "Our code is public. Fork the repo, ship a fix, and skip the line. We hire the people already building with us."
+      }
+    ]
+  %>
+  </div>
+
   <%= render "home/shared/footer" %>
 </div>
