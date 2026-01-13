@@ -108,6 +108,14 @@
   <h2 style="text-align: center;">You earned a total of <%= formatted_total_amount %></h2>
 </div>
 
+<div>
+  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+    <%= image_tag("email/gpt3_gumroad.png", alt: "Gumroad logo", style: "width: 32px; height: 36px; max-width: 100%; height: auto;") %>
+    <span style="font-size: 16px;">Congrats! You can now treat yourself to...</span>
+  </div>
+  <%= image_tag("cover_placeholder@2x.png", alt: "Treat yourself", style: "display: block; width: 100%; max-width: 420px; margin: 0 auto; border-radius: 4px; border: 1px solid #000; object-fit: cover;") %>
+</div>
+
 <% if @seller.from_us? %>
   <div>
     <div role="status" class="info">
