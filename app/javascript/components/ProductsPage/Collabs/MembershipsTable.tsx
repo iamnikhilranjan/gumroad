@@ -34,8 +34,6 @@ export const CollabsMembershipsTable = (props: {
   const memberships = props.entries;
 
   const onSetSort = (newSort: Sort<MembershipSortKey> | null) => {
-    setSort(newSort);
-    setIsLoading(true);
     router.reload({
       data: {
         memberships_sort_key: newSort?.key,
@@ -43,6 +41,8 @@ export const CollabsMembershipsTable = (props: {
         memberships_page: undefined,
       },
       only: ["memberships_data"],
+      onBefore: () => setSort(newSort),
+      onStart: () => setIsLoading(true),
       onFinish: () => setIsLoading(false),
     });
   };
@@ -50,10 +50,10 @@ export const CollabsMembershipsTable = (props: {
   const thProps = useSortingTableDriver<MembershipSortKey>(sort, onSetSort);
 
   const handlePageChange = (page: number) => {
-    setIsLoading(true);
     router.reload({
       data: { memberships_page: page },
       only: ["memberships_data"],
+      onStart: () => setIsLoading(true),
       onFinish: () => {
         setIsLoading(false);
         tableRef.current?.scrollIntoView({ behavior: "smooth" });

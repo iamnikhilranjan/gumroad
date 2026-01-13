@@ -34,8 +34,6 @@ export const CollabsProductsTable = (props: {
   const products = props.entries;
 
   const onSetSort = (newSort: Sort<ProductSortKey> | null) => {
-    setSort(newSort);
-    setIsLoading(true);
     router.reload({
       data: {
         products_sort_key: newSort?.key,
@@ -43,6 +41,8 @@ export const CollabsProductsTable = (props: {
         products_page: undefined,
       },
       only: ["products_data"],
+      onBefore: () => setSort(newSort),
+      onStart: () => setIsLoading(true),
       onFinish: () => setIsLoading(false),
     });
   };
@@ -50,10 +50,10 @@ export const CollabsProductsTable = (props: {
   const thProps = useSortingTableDriver<ProductSortKey>(sort, onSetSort);
 
   const handlePageChange = (page: number) => {
-    setIsLoading(true);
     router.reload({
       data: { products_page: page },
       only: ["products_data"],
+      onStart: () => setIsLoading(true),
       onFinish: () => {
         setIsLoading(false);
         tableRef.current?.scrollIntoView({ behavior: "smooth" });
