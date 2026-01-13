@@ -20,12 +20,16 @@ type ProductSortKey = "name" | "display_price_cents" | "cut" | "successful_sales
 type MembershipSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
 
 export type CollabsPageProps = {
-  memberships: Membership[];
-  memberships_pagination: PaginationProps;
-  memberships_sort: Sort<MembershipSortKey> | null;
-  products: Product[];
-  products_pagination: PaginationProps;
-  products_sort: Sort<ProductSortKey> | null;
+  products_data: {
+    products: Product[];
+    pagination: PaginationProps;
+    sort: Sort<ProductSortKey> | null;
+  };
+  memberships_data: {
+    memberships: Membership[];
+    pagination: PaginationProps;
+    sort: Sort<MembershipSortKey> | null;
+  };
   stats: {
     total_revenue: number;
     total_customers: number;
@@ -37,12 +41,8 @@ export type CollabsPageProps = {
 };
 
 const CollabsPage = ({
-  memberships,
-  memberships_pagination: membershipsPagination,
-  memberships_sort: membershipsSort,
-  products,
-  products_pagination: productsPagination,
-  products_sort: productsSort,
+  products_data: { products, pagination: productsPagination, sort: productsSort },
+  memberships_data: { memberships, pagination: membershipsPagination, sort: membershipsSort },
   stats,
   archived_tab_visible: archivedTabVisible,
   collaborators_disabled_reason: collaboratorsDisabledReason,

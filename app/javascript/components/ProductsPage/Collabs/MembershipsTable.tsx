@@ -42,7 +42,7 @@ export const CollabsMembershipsTable = (props: {
         memberships_sort_direction: newSort?.direction,
         memberships_page: undefined,
       },
-      only: ["memberships", "memberships_pagination", "memberships_sort"],
+      only: ["memberships_data"],
       onFinish: () => setIsLoading(false),
     });
   };
@@ -53,7 +53,7 @@ export const CollabsMembershipsTable = (props: {
     setIsLoading(true);
     router.reload({
       data: { memberships_page: page },
-      only: ["memberships", "memberships_pagination", "memberships_sort"],
+      only: ["memberships_data"],
       onFinish: () => {
         setIsLoading(false);
         tableRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -42,7 +42,7 @@ export const CollabsProductsTable = (props: {
         products_sort_direction: newSort?.direction,
         products_page: undefined,
       },
-      only: ["products", "products_pagination", "products_sort"],
+      only: ["products_data"],
       onFinish: () => setIsLoading(false),
     });
   };
@@ -53,7 +53,7 @@ export const CollabsProductsTable = (props: {
     setIsLoading(true);
     router.reload({
       data: { products_page: page },
-      only: ["products", "products_pagination", "products_sort"],
+      only: ["products_data"],
       onFinish: () => {
         setIsLoading(false);
         tableRef.current?.scrollIntoView({ behavior: "smooth" });
