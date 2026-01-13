@@ -1,0 +1,51 @@
+<%
+  jobs = local_assigns[:jobs] || []
+  categories = jobs.map { |j| j[:category] }.uniq
+%>
+
+<div class="bg-white py-24 md:py-32 job-listings">
+  <div class="mx-auto max-w-4xl md:px-8">
+    <h2 class="text-4xl md:text-5xl font-medium text-center mb-4 sm:mb-8 px-8 md:px-0">
+      We have <%= jobs.length %> open roles
+    </h2>
+
+    <div class="flex items-center justify-start md:justify-center gap-3 mb-6 sm:mb-12 overflow-x-auto scrollbar-hide px-8 md:px-0" role="tablist">
+      <input type="radio" name="job-filter" id="filter-all" value="all" checked class="hidden">
+      <label for="filter-all" class="shrink-0 px-3 py-2 rounded-full border border-transparent text-black text-sm cursor-pointer transition-all hover:border-black">All</label>
+      <% categories.each do |category| %>
+        <input type="radio" name="job-filter" id="filter-<%= category.downcase %>" value="<%= category.downcase %>" class="hidden">
+        <label for="filter-<%= category.downcase %>" class="shrink-0 px-3 py-2 rounded-full border border-transparent text-black text-sm cursor-pointer transition-all hover:border-black">
+          <%= category %> (<%= jobs.count { |j| j[:category] == category } %>)
+        </label>
+      <% end %>
+    </div>
+
+    <div>
+      <% jobs.each do |job| %>
+        <a href="<%= job[:url] %>" data-category="<%= job[:category].downcase %>" class="job-item block py-8 hover:bg-gray-50 px-4 md:px-8 md:-mx-4 transition-colors no-underline border-t border-gray-200">
+          <div class="flex items-center gap-4 text-sm text-gray-500 mb-2">
+            <span><%= job[:type] %></span>
+            <span><%= job[:location] %></span>
+          </div>
+          <h3 class="text-2xl md:text-3xl font-medium mb-1"><%= job[:title] %></h3>
+          <p class="text-xl md:text-2xl"><%= job[:salary] %></p>
+        </a>
+      <% end %>
+      <div class="border-t border-gray-200"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  .job-listings:has(#filter-all:checked) label[for="filter-all"],
+  <% categories.each do |cat| %>
+  .job-listings:has(#filter-<%= cat.downcase %>:checked) label[for="filter-<%= cat.downcase %>"]<%= cat == categories.last ? '' : ',' %>
+  <% end %> { border-color: black; background-color: white; }
+
+  <% categories.each do |cat| %>
+  .job-listings:has(#filter-<%= cat.downcase %>:checked) .job-item:not([data-category="<%= cat.downcase %>"]) { display: none; }
+  <% end %>
+</style>
