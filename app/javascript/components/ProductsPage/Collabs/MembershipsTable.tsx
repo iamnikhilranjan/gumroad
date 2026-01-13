@@ -18,36 +18,16 @@ import {
   TableRow,
 } from "$app/components/ui/Table";
 import { useUserAgentInfo } from "$app/components/UserAgent";
-import { Sort, useSortingTableDriver } from "$app/components/useSortingTableDriver";
-
-type MembershipSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
+import { useClientSortingTableDriver } from "$app/components/useSortingTableDriver";
 
 export const CollabsMembershipsTable = (props: {
   entries: Membership[];
   pagination: PaginationProps;
-  sort: Sort<MembershipSortKey> | null;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const tableRef = React.useRef<HTMLTableElement>(null);
   const { locale } = useUserAgentInfo();
-  const [sort, setSort] = React.useState<Sort<MembershipSortKey> | null>(props.sort);
-  const memberships = props.entries;
-
-  const onSetSort = (newSort: Sort<MembershipSortKey> | null) => {
-    router.reload({
-      data: {
-        memberships_sort_key: newSort?.key,
-        memberships_sort_direction: newSort?.direction,
-        memberships_page: undefined,
-      },
-      only: ["memberships_data"],
-      onBefore: () => setSort(newSort),
-      onStart: () => setIsLoading(true),
-      onFinish: () => setIsLoading(false),
-    });
-  };
-
-  const thProps = useSortingTableDriver<MembershipSortKey>(sort, onSetSort);
+  const { items: memberships, thProps } = useClientSortingTableDriver(props.entries);
 
   const handlePageChange = (page: number) => {
     router.reload({

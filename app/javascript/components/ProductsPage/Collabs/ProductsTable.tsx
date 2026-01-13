@@ -18,36 +18,16 @@ import {
   TableRow,
 } from "$app/components/ui/Table";
 import { useUserAgentInfo } from "$app/components/UserAgent";
-import { Sort, useSortingTableDriver } from "$app/components/useSortingTableDriver";
-
-type ProductSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
+import { useClientSortingTableDriver } from "$app/components/useSortingTableDriver";
 
 export const CollabsProductsTable = (props: {
   entries: Product[];
   pagination: PaginationProps;
-  sort: Sort<ProductSortKey> | null;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const tableRef = React.useRef<HTMLTableElement>(null);
   const userAgentInfo = useUserAgentInfo();
-  const [sort, setSort] = React.useState<Sort<ProductSortKey> | null>(props.sort);
-  const products = props.entries;
-
-  const onSetSort = (newSort: Sort<ProductSortKey> | null) => {
-    router.reload({
-      data: {
-        products_sort_key: newSort?.key,
-        products_sort_direction: newSort?.direction,
-        products_page: undefined,
-      },
-      only: ["products_data"],
-      onBefore: () => setSort(newSort),
-      onStart: () => setIsLoading(true),
-      onFinish: () => setIsLoading(false),
-    });
-  };
-
-  const thProps = useSortingTableDriver<ProductSortKey>(sort, onSetSort);
+  const { items: products, thProps } = useClientSortingTableDriver(props.entries);
 
   const handlePageChange = (page: number) => {
     router.reload({

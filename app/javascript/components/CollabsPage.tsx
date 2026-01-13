@@ -11,24 +11,18 @@ import { CollabsProductsTable } from "$app/components/ProductsPage/Collabs/Produ
 import { Stats as StatsComponent } from "$app/components/Stats";
 import { Placeholder, PlaceholderImage } from "$app/components/ui/Placeholder";
 import { useUserAgentInfo } from "$app/components/UserAgent";
-import { Sort } from "$app/components/useSortingTableDriver";
 import { WithTooltip } from "$app/components/WithTooltip";
 
 import placeholder from "$assets/images/placeholders/affiliated.png";
-
-type ProductSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
-type MembershipSortKey = "name" | "display_price_cents" | "cut" | "successful_sales_count" | "revenue";
 
 export type CollabsPageProps = {
   products_data: {
     products: Product[];
     pagination: PaginationProps;
-    sort: Sort<ProductSortKey> | null;
   };
   memberships_data: {
     memberships: Membership[];
     pagination: PaginationProps;
-    sort: Sort<MembershipSortKey> | null;
   };
   stats: {
     total_revenue: number;
@@ -41,8 +35,8 @@ export type CollabsPageProps = {
 };
 
 const CollabsPage = ({
-  products_data: { products, pagination: productsPagination, sort: productsSort },
-  memberships_data: { memberships, pagination: membershipsPagination, sort: membershipsSort },
+  products_data: { products, pagination: productsPagination },
+  memberships_data: { memberships, pagination: membershipsPagination },
   stats,
   archived_tab_visible: archivedTabVisible,
   collaborators_disabled_reason: collaboratorsDisabledReason,
@@ -99,15 +93,11 @@ const CollabsPage = ({
             </div>
             <div style={{ display: "grid", gap: "var(--spacer-7)" }}>
               {memberships.length ? (
-                <CollabsMembershipsTable
-                  entries={memberships}
-                  pagination={membershipsPagination}
-                  sort={membershipsSort}
-                />
+                <CollabsMembershipsTable entries={memberships} pagination={membershipsPagination} />
               ) : null}
 
               {products.length ? (
-                <CollabsProductsTable entries={products} pagination={productsPagination} sort={productsSort} />
+                <CollabsProductsTable entries={products} pagination={productsPagination} />
               ) : null}
             </div>
           </div>
