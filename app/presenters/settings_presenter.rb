@@ -305,6 +305,7 @@ class SettingsPresenter
         street_address_kanji: user_compliance_info.street_address_kanji,
         street_address_kana: user_compliance_info.street_address_kana,
         city: user_compliance_info.city,
+        city_kana: user_compliance_info.city_kana,
         state: user_compliance_info.state,
         country: user_compliance_info.country_code,
         zip_code: user_compliance_info.zip_code,
@@ -393,6 +394,7 @@ class SettingsPresenter
         ae: Compliance::Countries.subdivisions_for_select(Compliance::Countries::ARE.alpha2).map { |code, name| { code:, name: } },
         ir: Compliance::Countries.subdivisions_for_select(Compliance::Countries::IRL.alpha2).map { |code, name| { code:, name: } },
         br: Compliance::Countries.subdivisions_for_select(Compliance::Countries::BRA.alpha2).map { |code, name| { code:, name: } },
+        jp: Compliance::Countries.japan_prefectures_for_select,
       }
     end
 

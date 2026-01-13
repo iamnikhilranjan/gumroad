@@ -51,6 +51,7 @@ export type ComplianceInfo = {
   building_number?: string | null;
   street_address_kanji?: string | null;
   street_address_kana?: string | null;
+  city_kana?: string | null;
   business_building_number?: string | null;
   business_street_address_kanji?: string | null;
   business_street_address_kana?: string | null;
@@ -69,6 +70,7 @@ export type FormFieldName =
   | "street_address_kana"
   | "street_address"
   | "city"
+  | "city_kana"
   | "state"
   | "zip_code"
   | "dob_year"
