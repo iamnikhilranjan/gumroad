@@ -6,6 +6,123 @@ class HomeController < ApplicationController
   before_action :set_meta_data
   before_action :set_layout_and_title
 
+  JOBS = [
+    {
+      slug: "ai-engineer-team-lead",
+      title: "AI Engineer and Team Lead",
+      salary: "$250k+",
+      type: "Full-time",
+      location: "DUMBO | New York",
+      category: "Engineering",
+      responsibilities: [
+        { title: "Velocity", description: "Optimize global checkout latency (aiming for <100ms)." },
+        { title: "Infrastructure", description: "Scale our payout rails across Stripe, PayPal, and local bank networks." },
+        { title: "Complexity", description: "Solve the \"hard math\" of global sales tax, VAT, and fraud prevention." },
+        { title: "Independence", description: "Build the generative AI tools that help creators automate their commerce." }
+      ],
+      stack: [
+        { name: "Backend", tech: "Ruby on Rails." },
+        { name: "Frontend", tech: "JavaScript / React." },
+        { name: "Data", tech: "Postgres / Redis." },
+        { name: "Payments", tech: "Stripe, PayPal, and TaxCloud APIs." }
+      ]
+    },
+    {
+      slug: "senior-fullstack-engineer-checkout-payouts",
+      title: "Senior Full-stack Engineer (Checkout & Payouts)",
+      salary: "$200k+",
+      type: "Full-time",
+      location: "DUMBO | New York",
+      category: "Engineering",
+      responsibilities: [
+        { title: "Velocity", description: "Optimize global checkout latency (aiming for <100ms)." },
+        { title: "Infrastructure", description: "Scale our payout rails across Stripe, PayPal, and local bank networks." },
+        { title: "Complexity", description: "Solve the \"hard math\" of global sales tax, VAT, and fraud prevention." },
+        { title: "Independence", description: "Build the generative AI tools that help creators automate their commerce." }
+      ],
+      stack: [
+        { name: "Backend", tech: "Ruby on Rails." },
+        { name: "Frontend", tech: "JavaScript / React." },
+        { name: "Data", tech: "Postgres / Redis." },
+        { name: "Payments", tech: "Stripe, PayPal, and TaxCloud APIs." }
+      ]
+    },
+    {
+      slug: "senior-product-designer-creator-tools",
+      title: "Senior Product Designer (Creator Tools)",
+      salary: "$230k+",
+      type: "Full-time",
+      location: "DUMBO | New York",
+      category: "Design",
+      responsibilities: [
+        { title: "Product vision", description: "Shape the future of creator tools through thoughtful design." },
+        { title: "User research", description: "Understand creator needs and translate them into intuitive interfaces." },
+        { title: "Design systems", description: "Maintain and evolve our design system for consistency." },
+        { title: "Collaboration", description: "Work closely with engineers to ship beautiful, functional features." }
+      ],
+      stack: [
+        { name: "Design", tech: "Figma." },
+        { name: "Prototyping", tech: "Framer, Principle." },
+        { name: "Frontend", tech: "HTML/CSS/Tailwind basics." }
+      ]
+    },
+    {
+      slug: "growth-community-manager",
+      title: "Growth & Community Manager",
+      salary: "$190k+",
+      type: "Full-time",
+      location: "DUMBO | New York",
+      category: "Support",
+      responsibilities: [
+        { title: "Community", description: "Build and nurture our creator community." },
+        { title: "Growth", description: "Identify and execute growth opportunities." },
+        { title: "Content", description: "Create content that helps creators succeed." },
+        { title: "Feedback", description: "Channel creator feedback to the product team." }
+      ],
+      stack: []
+    },
+    {
+      slug: "creator-success-lead-nyc-hub",
+      title: "Creator Success Lead (NYC Hub)",
+      salary: "$210k+",
+      type: "Full-time",
+      location: "DUMBO | New York",
+      category: "Support",
+      responsibilities: [
+        { title: "Success", description: "Help creators achieve their goals on Gumroad." },
+        { title: "Support", description: "Provide world-class support to our top creators." },
+        { title: "Education", description: "Create resources and guides for creator success." },
+        { title: "Relationships", description: "Build lasting relationships with key creators." }
+      ],
+      stack: []
+    },
+    {
+      slug: "technical-support-intern",
+      title: "Technical Support Intern",
+      salary: "$180k+",
+      type: "Full-time",
+      location: "DUMBO | New York",
+      category: "Support",
+      responsibilities: [
+        { title: "Support", description: "Help creators with technical questions and issues." },
+        { title: "Documentation", description: "Improve our help center and documentation." },
+        { title: "Bugs", description: "Identify and report bugs to the engineering team." },
+        { title: "Learning", description: "Learn the Gumroad platform inside and out." }
+      ],
+      stack: []
+    }
+  ].freeze
+
+  def careers
+    @jobs = JOBS
+  end
+
+  def job
+    @job = JOBS.find { |j| j[:slug] == params[:slug] }
+    raise ActionController::RoutingError, "Not Found" unless @job
+    @title = "#{@job[:title]} - Gumroad Careers"
+  end
+
   private
     def set_layout_and_title
       @hide_layouts = true

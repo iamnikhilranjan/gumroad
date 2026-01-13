@@ -71,56 +71,7 @@
   </div>
 
   <%= render "home/shared/job_listings",
-    jobs: [
-      {
-        title: "AI Engineer and Team Lead",
-        salary: "$250k+",
-        type: "Full-time",
-        location: "DUMBO | New York",
-        category: "Engineering",
-        url: "#"
-      },
-      {
-        title: "Senior Full-stack Engineer (Checkout & Payouts)",
-        salary: "$200k+",
-        type: "Full-time",
-        location: "DUMBO | New York",
-        category: "Engineering",
-        url: "#"
-      },
-      {
-        title: "Senior Product Designer (Creator Tools)",
-        salary: "$230k+",
-        type: "Full-time",
-        location: "DUMBO | New York",
-        category: "Design",
-        url: "#"
-      },
-      {
-        title: "Growth & Community Manager",
-        salary: "$190k+",
-        type: "Full-time",
-        location: "DUMBO | New York",
-        category: "Support",
-        url: "#"
-      },
-      {
-        title: "Creator Success Lead (NYC Hub)",
-        salary: "$210k+",
-        type: "Full-time",
-        location: "DUMBO | New York",
-        category: "Support",
-        url: "#"
-      },
-      {
-        title: "Technical Support Intern",
-        salary: "$180k+",
-        type: "Full-time",
-        location: "DUMBO | New York",
-        category: "Support",
-        url: "#"
-      }
-    ]
+    jobs: @jobs.map { |job| job.merge(url: job_path(job[:slug])) }
   %>
 
   <div class="px-8 pb-16 lg:px-[4vw] lg:pb-24">
