@@ -3,15 +3,11 @@
 <div style="background-color: #FF90E8">
   <h2 style="text-align: center;">Your year on Gumroad in review</h2>
 </div>
-<div style="background-color: #FFC900;">
-  <%= image_tag("email/badge_year_#{@year}.png", alt: @year, class: "header-badge") %>
-  <h2 style="text-align: center;">You ranked #2 among all creators</h2>
-</div>
 
 <% if (rank = @analytics_data[:creator_rank]).present? %>
   <div style="background-color: #FFC900;">
     <%= image_tag("email/badge_year_#{@year}.png", alt: @year, class: "header-badge") %>
-    <h2 style="text-align: center;">You're #<%= rank %> creator on Gumroad in <%= @year %></h2>
+    <h2 style="text-align: center;">You ranked #<%= rank %> among all creators</h2>
   </div>
 <% end %>
 
@@ -120,11 +116,30 @@
 </div>
 
 <div>
-  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-    <%= image_tag("email/gpt3_gumroad.png", alt: "Gumroad logo", style: "width: 32px; height: 36px; max-width: 100%; height: auto;") %>
-    <span style="font-size: 16px;">Congrats! You can now treat yourself to...</span>
-  </div>
-  <%= image_tag(attachments[@buy_suggestion_image_filename].url, alt: "Treat yourself", style: "display: block; width: 100%; max-width: 420px; margin: 0 auto; border-radius: 4px; border: 1px solid #000; object-fit: cover;") %>
+  <table class="reset list">
+    <tbody>
+      <tr>
+        <td>
+          <%= image_tag("email/gpt3_gumroad.png", alt: "Gumroad", class: "avatar") %>
+        </td>
+        <td>
+          <%= "Hey GPT-4o, can you suggest some things I could buy with my Gumroad earnings of #{formatted_total_amount}?" %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <%= image_tag("email/chatgpt-icon.png", alt: "ChatGPT", class: "avatar", style: "border: 1px solid #000; border-radius: calc(infinity * 1px);") %>
+        </td>
+        <td>
+          <ol style="padding: 0 0 0 28px;">
+            <% @analytics_data[:gpt3_buy_list].each do |item| %>
+              <li><%= item %></li>
+            <% end %>
+          </ol>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <% if @seller.from_us? %>

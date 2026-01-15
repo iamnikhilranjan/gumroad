@@ -37,6 +37,19 @@ describe SendYearInReviewEmailJob do
         )
       end
 
+      before do
+        buy_list_response = {
+          "choices" => [
+            {
+              "message" => {
+                "content" => "1. A nice desk lamp\n2. A hardcover notebook\n3. A cozy throw blanket\n4. A set of headphones\n5. A gourmet coffee kit"
+              }
+            }
+          ]
+        }
+        allow(OpenAI::Client).to receive(:new).and_return(double("OpenAI::Client", chat: buy_list_response))
+      end
+
       context "when seller made only affiliate sales" do
         before do
           create(:payment_completed, user: seller, amount_cents: 100_00, payout_period_end_date: date, created_at: date)
@@ -92,45 +105,18 @@ describe SendYearInReviewEmailJob do
           expect(mail.body.sanitized).to include(seller.financial_annual_report_url_for(year: date.year))
         end
 
-        context "when Gemini is configured" do
-          let(:fake_jpeg) { "fake-jpeg-bytes" }
-
-          before do
-            Rails.cache.clear
-            allow(GeminiImageGenerator).to receive(:api_key).and_return("test-gemini-key")
-            allow(GeminiImageGenerator).to receive(:generate).and_return({ data: fake_jpeg, mime_type: "image/jpeg", model: "gemini-3-pro-image-preview" })
-          end
-
-          it "generates an AI image, attaches it inline, and renders the AI section" do
-            expect do
-              described_class.new.perform(seller.id, date.year)
-            end.to change { ActionMailer::Base.deliveries.count }.by(1)
-
-            mail = ActionMailer::Base.deliveries.last
-            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"]).to be_present
-            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"].mime_type).to eq("image/jpeg")
-            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"].body.decoded).to eq(fake_jpeg)
-
-            # The view only shows this block when @buy_suggestion_image_filename is set
-            expect(mail.body.sanitized).to include("Congrats!")
-          end
-        end
-
-        context "when Gemini is not configured" do
-          before do
-            Rails.cache.clear
-            allow(GeminiImageGenerator).to receive(:api_key).and_return(nil)
-          end
-
-          it "does not call Gemini and does not attach the AI image" do
-            expect(GeminiImageGenerator).not_to receive(:generate)
-
+        it "renders the AI text list section" do
+          expect do
             described_class.new.perform(seller.id, date.year)
+          end.to change { ActionMailer::Base.deliveries.count }.by(1)
 
-            mail = ActionMailer::Base.deliveries.last
-            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"]).to be_nil
-            expect(mail.body.sanitized).not_to include("Congrats!")
-          end
+          mail = ActionMailer::Base.deliveries.last
+          expect(mail.body.sanitized).to include("Hey GPT-4o, can you suggest some things I could buy with my Gumroad earnings")
+          expect(mail.body.sanitized).to include("A nice desk lamp")
+          expect(mail.body.sanitized).to include("A hardcover notebook")
+          expect(mail.body.sanitized).to include("A cozy throw blanket")
+          expect(mail.body.sanitized).to include("A set of headphones")
+          expect(mail.body.sanitized).to include("A gourmet coffee kit")
         end
       end
 

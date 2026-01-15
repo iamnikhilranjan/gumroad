@@ -44,6 +44,11 @@ class SendYearInReviewEmailJob
 
     analytics_data[:top_selling_products] = map_top_selling_products(seller, data_by_date[:by_date])
 
+    analytics_data[:gpt3_buy_list] = self.class.get_buy_list_from_total(
+      total_amount_cents: analytics_data[:total_amount_cents],
+      currency: seller.currency_type
+    )
+
     data_by_state = CreatorAnalytics::CachingProxy.new(seller).data_for_dates(range.begin, range.end, by: :state)
     analytics_data[:by_country] = build_stats_by_country(data_by_state[:by_state])
     analytics_data[:total_countries_with_sales_count] = analytics_data[:by_country].size
@@ -71,9 +76,21 @@ class SendYearInReviewEmailJob
     ).deliver_now
   end
 
-  private
-    BUY_SUGGESTION_IMAGE_TTL = 7.days
+  def self.get_buy_list_from_total(total_amount_cents:, currency:)
+    formatted_total_in_usd = Money.new(total_amount_cents, currency).format(no_cents_if_whole: true)
 
+    Rails.cache.fetch("gpt3_buy_list_#{total_amount_cents}_#{currency}", expires_in: 1.day) do
+      content = "Print a numbered list of 5 things that I could buy with #{formatted_total_in_usd}. " \
+                "Don't include their prices. Don't start the answer with any introduction, just list the items."
+      response = OpenAI::Client.new.chat(parameters: { model: "gpt-4o-mini",
+                                                      messages: [{ role: "user", content: }],
+                                                      max_tokens: 125 })
+      answer = response.dig("choices", 0, "message", "content")
+      answer.split("\n").delete_if(&:blank?).map { |item| item.match(/^\d\.\s?(.+)/)[1] }
+    end
+  end
+
+  private
     def calculate_stats_by_country(data)
       data.values.each_with_object({}) do |hash, result|
         hash.each do |country, stats|
@@ -138,30 +155,6 @@ class SendYearInReviewEmailJob
         ProductPresenter.card_for_email(product:).merge(
           { stats: top_product_stats[product.unique_permalink] }
         )
-      end
-    end
-
-    def generate_buy_suggestion_image(seller:, year:, analytics_data:)
-      return if GeminiImageGenerator.api_key.blank?
-
-      total_amount_cents = analytics_data[:total_amount_cents]
-      currency = seller.currency_type
-
-      return if total_amount_cents.blank? || currency.blank?
-
-      formatted_total = Money.new(total_amount_cents * get_rate(currency).to_f, currency.to_sym)
-                             .format(no_cents_if_whole: true, symbol: true)
-
-      top_product_names = Array.wrap(analytics_data[:top_selling_products]).map { |p| p[:name] }.compact.first(3)
-      countries_count = analytics_data[:total_countries_with_sales_count]
-      sales_count = analytics_data[:total_sales_count]
-
-      image_prompt = self.class.ai_prompt(formatted_total:, sales_count:, countries_count:, top_product_names:)
-
-      cache_key = "year_in_review_buy_suggestion_image/#{seller.id}/#{year}/#{total_amount_cents}/#{currency}/v4"
-
-      Rails.cache.fetch(cache_key, expires_in: BUY_SUGGESTION_IMAGE_TTL) do
-        GeminiImageGenerator.generate(prompt: image_prompt)
       end
     end
 end
