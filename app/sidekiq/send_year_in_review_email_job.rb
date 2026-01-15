@@ -2,7 +2,27 @@
 
 class SendYearInReviewEmailJob
   include Sidekiq::Job
+  include CurrencyHelper
   sidekiq_options retry: 5, queue: :low
+
+  def self.ai_prompt(formatted_total:, sales_count:, countries_count:, top_product_names:)
+    <<~PROMPT.strip
+      Create an authentic lifestyle photograph of a cozy wooden tabletop still-life. The scene should show 5-7 real, tangible items that a creator could buy with their earnings of #{formatted_total}.
+      The composition should feel warm and celebratory, shot with soft natural morning light coming from a window (like a rustic cabin or home studio).
+      The photo should have a high-end photography aesthetic, possibly with a subtle 35mm film grain and a shallow depth of field.
+
+      Context: the creator made #{formatted_total} from #{sales_count} sales in #{countries_count} countries on a digital marketplace. Top products: #{top_product_names.presence || "N/A"}.
+
+      Requirements:
+      - This must be a REAL photograph, not an illustration, 3d render, or digital art.
+      - Focus on realistic materials: worn leather, textured paper, polished metal, and natural wood.
+      - Do NOT use brand names, logos, or trademarks. No faces or people.
+      - Items should be neatly but naturally arranged on the table.
+      - Price tags should be small, readable, and realistic handwritten tags (e.g., "$50", "$120") attached to or placed next to items.
+      - Composition must fit nicely in an email (centered, safe margins).
+      - Ensure the total value of items feels proportionate to #{formatted_total}.
+    PROMPT
+  end
 
   def perform(seller_id, year, recipient = nil)
     analytics_data = {}
@@ -33,6 +53,13 @@ class SendYearInReviewEmailJob
                                                           .select(:email)
                                                           .distinct
                                                           .count
+
+    analytics_data[:buy_suggestion_image] =  generate_buy_suggestion_image(
+      seller:,
+      year:,
+      analytics_data:,
+    )
+
     CreatorMailer.year_in_review(
       seller:,
       year:,
@@ -43,6 +70,8 @@ class SendYearInReviewEmailJob
   end
 
   private
+    BUY_SUGGESTION_IMAGE_TTL = 7.days
+
     def calculate_stats_by_country(data)
       data.values.each_with_object({}) do |hash, result|
         hash.each do |country, stats|
@@ -107,6 +136,30 @@ class SendYearInReviewEmailJob
         ProductPresenter.card_for_email(product:).merge(
           { stats: top_product_stats[product.unique_permalink] }
         )
+      end
+    end
+
+    def generate_buy_suggestion_image(seller:, year:, analytics_data:)
+      return if GeminiImageGenerator.api_key.blank?
+
+      total_amount_cents = analytics_data[:total_amount_cents]
+      currency = seller.currency_type
+
+      return if total_amount_cents.blank? || currency.blank?
+
+      formatted_total = Money.new(total_amount_cents * get_rate(currency).to_f, currency.to_sym)
+                             .format(no_cents_if_whole: true, symbol: true)
+
+      top_product_names = Array.wrap(analytics_data[:top_selling_products]).map { |p| p[:name] }.compact.first(3)
+      countries_count = analytics_data[:total_countries_with_sales_count]
+      sales_count = analytics_data[:total_sales_count]
+
+      image_prompt = self.class.ai_prompt(formatted_total:, sales_count:, countries_count:, top_product_names:)
+
+      cache_key = "year_in_review_buy_suggestion_image/#{seller.id}/#{year}/#{total_amount_cents}/#{currency}/v4"
+
+      Rails.cache.fetch(cache_key, expires_in: BUY_SUGGESTION_IMAGE_TTL) do
+        GeminiImageGenerator.generate(prompt: image_prompt)
       end
     end
 end

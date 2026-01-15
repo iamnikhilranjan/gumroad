@@ -89,6 +89,47 @@ describe SendYearInReviewEmailJob do
           expect(mail.body.sanitized).to include("United States 2 1 $1K")
           expect(mail.body.sanitized).to include(seller.financial_annual_report_url_for(year: date.year))
         end
+
+        context "when Gemini is configured" do
+          let(:fake_jpeg) { "fake-jpeg-bytes" }
+
+          before do
+            Rails.cache.clear
+            allow(GeminiImageGenerator).to receive(:api_key).and_return("test-gemini-key")
+            allow(GeminiImageGenerator).to receive(:generate).and_return({ data: fake_jpeg, mime_type: "image/jpeg", model: "gemini-3-pro-image-preview" })
+          end
+
+          it "generates an AI image, attaches it inline, and renders the AI section" do
+            expect do
+              described_class.new.perform(seller.id, date.year)
+            end.to change { ActionMailer::Base.deliveries.count }.by(1)
+
+            mail = ActionMailer::Base.deliveries.last
+            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"]).to be_present
+            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"].mime_type).to eq("image/jpeg")
+            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"].body.decoded).to eq(fake_jpeg)
+
+            # The view only shows this block when @buy_suggestion_image_filename is set
+            expect(mail.body.sanitized).to include("Congrats!")
+          end
+        end
+
+        context "when Gemini is not configured" do
+          before do
+            Rails.cache.clear
+            allow(GeminiImageGenerator).to receive(:api_key).and_return(nil)
+          end
+
+          it "does not call Gemini and does not attach the AI image" do
+            expect(GeminiImageGenerator).not_to receive(:generate)
+
+            described_class.new.perform(seller.id, date.year)
+
+            mail = ActionMailer::Base.deliveries.last
+            expect(mail.attachments["year_in_review_buy_suggestion.jpeg"]).to be_nil
+            expect(mail.body.sanitized).not_to include("Congrats!")
+          end
+        end
       end
 
       context "when seller is from US" do

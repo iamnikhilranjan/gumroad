@@ -72,6 +72,12 @@ class CreatorMailerPreview < ActionMailer::Preview
     end
 
     def analytics_data
+      image_prompt = SendYearInReviewEmailJob.ai_prompt(formatted_total: "86,207,939", sales_count: 375817, countries_count: 10, top_product_names: ["Beautiful Widget", "Cleanshot for Mac"])
+
+      image_data = Rails.cache.fetch("year_in_review_buy_suggestion_image_preview", expires_in: 1.day) do
+        GeminiImageGenerator.generate(prompt: image_prompt)
+      end
+
       {
         total_views_count: 144,
         total_sales_count: 12,
@@ -96,7 +102,8 @@ class CreatorMailerPreview < ActionMailer::Preview
           ]
         end.sort_by { |_, (_, _, total)| -total },
         total_countries_with_sales_count: 4,
-        total_unique_customers_count: 8
+        total_unique_customers_count: 8,
+        buy_suggestion_image: image_data,
       }
     end
 end
