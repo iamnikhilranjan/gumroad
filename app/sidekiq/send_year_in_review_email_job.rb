@@ -54,7 +54,7 @@ class SendYearInReviewEmailJob
                                                           .distinct
                                                           .count
 
-    analytics_data[:buy_suggestion_image] =  generate_buy_suggestion_image(
+    analytics_data[:buy_suggestion_image] = generate_buy_suggestion_image(
       seller:,
       year:,
       analytics_data:,
