@@ -83,8 +83,8 @@ class SendYearInReviewEmailJob
       content = "Print a numbered list of 5 things that I could buy with #{formatted_total_in_usd}. " \
                 "Don't include their prices. Don't start the answer with any introduction, just list the items."
       response = OpenAI::Client.new.chat(parameters: { model: "gpt-4o-mini",
-                                                      messages: [{ role: "user", content: }],
-                                                      max_tokens: 125 })
+                                                       messages: [{ role: "user", content: }],
+                                                       max_tokens: 125 })
       answer = response.dig("choices", 0, "message", "content")
       answer.split("\n").delete_if(&:blank?).map { |item| item.match(/^\d\.\s?(.+)/)[1] }
     end
