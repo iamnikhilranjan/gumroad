@@ -37,7 +37,7 @@ export default function HelpCenterArticle() {
       const resolvedUrl = new URL(anchor.href);
       if (resolvedUrl.origin === window.location.origin && resolvedUrl.pathname.startsWith("/help/")) {
         e.preventDefault();
-        router.visit(resolvedUrl.pathname);
+        router.get(resolvedUrl.pathname);
       }
     };
 
