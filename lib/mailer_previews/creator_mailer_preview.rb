@@ -94,6 +94,7 @@ class CreatorMailerPreview < ActionMailer::Preview
         end,
         total_products_sold_count: 5,
         total_amount_cents: 4000,
+        creator_rank: 2,
         by_country: ["🇪🇸 Spain", "🇷🇴 Romania", "🇦🇪 United Arab Emirates", "🇺🇸 United States", "🌎 Elsewhere"].index_with do
           [
             rand(1000..5000),

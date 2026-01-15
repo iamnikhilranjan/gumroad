@@ -60,6 +60,8 @@ class SendYearInReviewEmailJob
       analytics_data:,
     )
 
+    analytics_data[:creator_rank] = seller.rank(year:)
+
     CreatorMailer.year_in_review(
       seller:,
       year:,

@@ -4,6 +4,13 @@
   <h2 style="text-align: center;">Your year on Gumroad in review</h2>
 </div>
 
+<% if (rank = @analytics_data[:creator_rank]).present? %>
+  <div style="background-color: #FFC900;">
+    <%= image_tag("email/badge_year_#{@year}.png", alt: @year, class: "header-badge") %>
+    <h2 style="text-align: center;">You're #<%= rank %> creator on Gumroad in <%= @year %></h2>
+  </div>
+<% end %>
+
 <div>
   <table class="reset stats">
     <tbody>
