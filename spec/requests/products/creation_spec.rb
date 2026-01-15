@@ -305,23 +305,24 @@ describe "Product creation", type: :system, js: true do
       visit new_product_path
       fill_in("Price", with: 1)
       click_on("Next: Customize")
+      wait_for_ajax
 
-      name_field = find_field("Name")
-      expect(page.active_element).to eq(name_field)
-      expect(name_field.ancestor("fieldset.danger")).to be_truthy
+      expect(page).to have_current_path(new_product_path)
+      expect(page).to have_text("Name can't be blank")
+      expect(find_field("Name").ancestor("fieldset")).to match_css(".danger")
       expect(seller.links.count).to eq(0)
     end
 
-    it "shows error state when price is not filled" do
+    it "creates a free product when price is not filled" do
       visit new_product_path
       fill_in("Name", with: "Digital product")
       choose("Digital product")
       click_on("Next: Customize")
+      wait_for_ajax
 
-      price_field = find_field("Price")
-      expect(page.active_element).to eq(price_field)
-      expect(price_field.ancestor("fieldset.danger")).to be_truthy
-      expect(seller.links.count).to eq(0)
+      expect(page).to have_title("Digital product")
+      product = seller.links.last
+      expect(product.price_cents).to eq(0)
     end
   end
 
@@ -331,14 +332,24 @@ describe "Product creation", type: :system, js: true do
       fill_in("Name", with: "Test Product")
       fill_in("Price", with: 1)
 
-      # Simulate backend validation failure
-      allow_any_instance_of(Link).to receive(:save!).and_raise(ActiveRecord::RecordInvalid.new)
+      # Simulate backend validation failure with specific errors
+      allow_any_instance_of(Link).to receive(:save!) do |link|
+        link.errors.add(:name, "is too short")
+        link.errors.add(:price_range, "must be greater than 0")
+        raise ActiveRecord::RecordInvalid.new(link)
+      end
 
       click_on("Next: Customize")
       wait_for_ajax
 
       expect(page).to have_current_path(new_product_path)
-      expect(page).to have_alert(text: "Sorry, something went wrong.")
+      expect(page).to have_alert(text: "Name is too short")
+
+      # Verify errors are displayed in the form
+      expect(page).to have_text("Name is too short")
+      expect(page).to have_text("Price must be greater than 0")
+      expect(find_field("Name").ancestor("fieldset")).to match_css(".danger")
+      expect(find_field("Price").ancestor("fieldset")).to match_css(".danger")
       expect(seller.links.count).to eq(0)
     end
 
@@ -372,9 +383,9 @@ describe "Product creation", type: :system, js: true do
     fill_in "Name", with: "My product"
     fill_in "Price", with: 1
     click_on "Next: Customize"
-    wait_for_ajax
+    expect(page).to have_title("My product")
     expect(page).not_to have_checked_field("Invite your customers to your Gumroad community chat")
-    product = seller.products.last
+    product = seller.links.last
     expect(product.community_chat_enabled?).to be(false)
     expect(product.active_community).to be_nil
   end

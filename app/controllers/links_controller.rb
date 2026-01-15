@@ -90,10 +90,12 @@ class LinksController < ApplicationController
     @product.is_bundle = @product.native_type == Link::NATIVE_TYPE_BUNDLE
     @product.json_data[:custom_button_text_option] = "donate_prompt" if @product.native_type == Link::NATIVE_TYPE_COFFEE
 
+    ai_generated = params[:link][:ai_prompt].present? && Feature.active?(:ai_product_generation, current_seller)
+
     begin
       @product.save!
 
-      if params[:link][:ai_prompt].present? && Feature.active?(:ai_product_generation, current_seller)
+      if ai_generated
         generate_product_details_using_ai
       end
     rescue ActiveRecord::RecordNotSaved, ActiveRecord::RecordInvalid, Link::LinkInvalid
@@ -104,12 +106,15 @@ class LinksController < ApplicationController
       else
         "Sorry, something went wrong."
       end
-      return redirect_to new_product_path, alert: @error_message
+      return redirect_to new_product_path, alert: @error_message, inertia: { errors: { link: @product&.errors&.to_hash } }
     end
 
     create_user_event("add_product")
-    anchor = params[:link][:ai_prompt].present? ? "ai-generated" : nil
-    redirect_to edit_link_path(@product, anchor:), status: :see_other
+    if ai_generated
+      redirect_to edit_link_path(@product, anchor: "ai-generated"), status: :see_other
+    else
+      redirect_to edit_link_path(@product), status: :see_other
+    end
   end
 
   def show

@@ -1,6 +1,6 @@
 import { cast } from "ts-safe-cast";
 
-import { ResponseError, request } from "$app/utils/request";
+import { request } from "$app/utils/request";
 
 export type SortKey = "name" | "successful_sales_count" | "revenue" | "display_price_cents" | "status" | "cut";
 

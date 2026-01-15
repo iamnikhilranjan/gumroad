@@ -1,11 +1,11 @@
-import { Link, useForm } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import cx from "classnames";
 import hands from "images/illustrations/hands.png";
 import * as React from "react";
 import { useState } from "react";
 import { cast, is } from "ts-safe-cast";
 
-import { RecurringProductType } from "$app/data/products";
+import { CreateProductData, RecurringProductType, createProduct } from "$app/data/products";
 import { ProductNativeType, ProductServiceType } from "$app/parsers/product";
 import { CurrencyCode, currencyCodeList, findCurrencyByCode } from "$app/utils/currency";
 import {
@@ -32,23 +32,6 @@ const defaultRecurrence: RecurrenceId = "monthly";
 
 const MIN_AI_PROMPT_LENGTH = 10;
 
-type NewProductFormData = {
-  link: {
-    name: string;
-    price_range: string;
-    price_currency_type: CurrencyCode;
-    native_type: ProductNativeType;
-    is_physical: boolean;
-    is_recurring_billing: boolean;
-    subscription_duration: RecurrenceId | null;
-    description: string | null;
-    custom_summary: string | null;
-    ai_prompt: string;
-    number_of_content_pages: number | null;
-    release_at_date: string;
-  };
-};
-
 export type NewProductPageProps = {
   current_seller_currency_code: CurrencyCode;
   native_product_types: ProductNativeType[];
@@ -74,44 +57,24 @@ const NewProductPage = ({
   const nameInputRef = React.useRef<HTMLInputElement>(null);
   const priceInputRef = React.useRef<HTMLInputElement>(null);
 
-  const [clientErrors, setClientErrors] = useState<Set<string>>(new Set());
-
-  const { data, setData, post, processing, clearErrors } = useForm<NewProductFormData>("CreateProduct", {
-    link: {
-      name: "",
-      price_range: "",
-      price_currency_type: current_seller_currency_code,
-      native_type: "digital",
-      is_physical: false,
-      is_recurring_billing: false,
-      subscription_duration: null,
-      description: null,
-      custom_summary: null,
-      ai_prompt: "",
-      number_of_content_pages: null,
-      release_at_date,
-    },
-  });
-
+  const [errors, setErrors] = useState<Set<string>>(new Set());
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>(current_seller_currency_code);
+  const [productType, setProductType] = useState<ProductNativeType>("digital");
+  const [subscriptionDuration, setSubscriptionDuration] = useState<RecurrenceId | null>(null);
   const [aiPromoVisible, setAiPromoVisible] = useState(ai_generation_enabled && !ai_promo_dismissed);
   const [aiPopoverOpen, setAiPopoverOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
   const [isGeneratingUsingAi, setIsGeneratingUsingAi] = useState(false);
+  const [description, setDescription] = useState<string | null>(null);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [numberOfContentPages, setNumberOfContentPages] = useState<number | null>(null);
 
-  const isRecurringBilling = is<RecurringProductType>(data.link.native_type);
+  const isRecurringBilling = is<RecurringProductType>(productType);
 
-  const selectedCurrency = findCurrencyByCode(data.link.price_currency_type);
-
-  const handleProductTypeChange = (type: ProductNativeType) => {
-    setData("link", {
-      ...data.link,
-      native_type: type,
-      is_physical: type === "physical",
-      is_recurring_billing: is<RecurringProductType>(type),
-      subscription_duration: is<RecurringProductType>(type)
-        ? data.link.subscription_duration || defaultRecurrence
-        : null,
-    });
-  };
+  const selectedCurrency = findCurrencyByCode(currencyCode);
 
   const dismissAiPromo = async () => {
     try {
@@ -128,7 +91,7 @@ const NewProductPage = ({
   };
 
   const generateWithAi = async () => {
-    if (data.link.ai_prompt.trim().length < MIN_AI_PROMPT_LENGTH) {
+    if (aiPrompt.trim().length < MIN_AI_PROMPT_LENGTH) {
       showAlert(
         `Please enter a detailed prompt for your product idea with a price in mind (minimum ${MIN_AI_PROMPT_LENGTH} characters)`,
         "error",
@@ -142,7 +105,7 @@ const NewProductPage = ({
         method: "POST",
         url: Routes.internal_ai_product_details_generations_path(),
         accept: "json",
-        data: { prompt: data.link.ai_prompt.trim() },
+        data: { prompt: aiPrompt.trim() },
       });
 
       const result = cast<
@@ -166,27 +129,21 @@ const NewProductPage = ({
       >(await response.json());
 
       if (result.success) {
-        const aiData = result.data;
-        const subscriptionDuration =
-          aiData.native_type === "membership" && aiData.price_frequency_in_months
-            ? durationInMonthsToRecurrenceId[aiData.price_frequency_in_months] || defaultRecurrence
-            : null;
+        const data = result.data;
 
-        setData("link", {
-          ...data.link,
-          name: aiData.name,
-          description: aiData.description,
-          custom_summary: aiData.summary,
-          native_type: aiData.native_type,
-          number_of_content_pages: aiData.number_of_content_pages,
-          price_range: aiData.price.toString(),
-          price_currency_type: is<CurrencyCode>(aiData.currency_code)
-            ? aiData.currency_code
-            : data.link.price_currency_type,
-          is_physical: aiData.native_type === "physical",
-          is_recurring_billing: is<RecurringProductType>(aiData.native_type),
-          subscription_duration: subscriptionDuration,
-        });
+        setName(data.name);
+        setDescription(data.description);
+        setSummary(data.summary);
+        setProductType(data.native_type);
+        setNumberOfContentPages(data.number_of_content_pages);
+        setPrice(data.price.toString());
+        if (is<CurrencyCode>(data.currency_code)) {
+          setCurrencyCode(data.currency_code);
+        }
+        if (data.native_type === "membership" && data.price_frequency_in_months) {
+          const recurrenceId = durationInMonthsToRecurrenceId[data.price_frequency_in_months];
+          setSubscriptionDuration(recurrenceId || defaultRecurrence);
+        }
 
         setAiPopoverOpen(false);
         setAiPromoVisible(false);
@@ -203,24 +160,60 @@ const NewProductPage = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    clearErrors();
-    setClientErrors(new Set());
-    const validationErrors = new Set<string>();
+    const errors = new Set<string>();
 
-    if (data.link.name.trim() === "") {
-      validationErrors.add("name");
+    if (name.trim() === "") {
+      errors.add("name");
       nameInputRef.current?.focus();
-    } else if (data.link.price_range.trim() === "") {
-      validationErrors.add("price");
+    } else if (price.trim() === "") {
+      errors.add("price");
       priceInputRef.current?.focus();
     }
 
-    setClientErrors(validationErrors);
-    if (validationErrors.size > 0) return;
+    setErrors(errors);
+    if (errors.size > 0) return false;
 
-    post(Routes.links_path());
+    setIsSubmitting(true);
+
+    try {
+      const requestData = {
+        link: cast<CreateProductData>({
+          is_physical: productType === "physical",
+          is_recurring_billing: isRecurringBilling,
+          name,
+          description,
+          summary,
+          native_type: productType,
+          price_currency_type: currencyCode,
+          price_range: price,
+          release_at_date,
+          release_at_time: "12PM",
+          subscription_duration: isRecurringBilling ? subscriptionDuration || defaultRecurrence : null,
+          number_of_content_pages: numberOfContentPages,
+          ai_prompt: aiPrompt.trim(),
+        }),
+      };
+
+      const responseData = await createProduct(requestData);
+
+      if (responseData.success) {
+        let redirectTo = responseData.redirect_to;
+        if (aiPrompt.trim().length > 0) {
+          redirectTo = `${redirectTo}#ai-generated`;
+        }
+
+        window.location.href = redirectTo;
+      } else {
+        showAlert(responseData.error_message, "error");
+      }
+    } catch (e) {
+      assertResponseError(e);
+      showAlert("Something went wrong.", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -256,8 +249,8 @@ const NewProductPage = ({
                     <textarea
                       id={`ai-prompt-${formUID}`}
                       placeholder="e.g., a 'Coding with AI using Cursor for Designers' ebook with 5 chapters for $35'."
-                      value={data.link.ai_prompt}
-                      onChange={(e) => setData("link.ai_prompt", e.target.value)}
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
                       rows={4}
                       maxLength={500}
                       className="w-full resize-y"
@@ -271,7 +264,7 @@ const NewProductPage = ({
                     <Button
                       color="primary"
                       onClick={() => void generateWithAi()}
-                      disabled={isGeneratingUsingAi || !data.link.ai_prompt.trim()}
+                      disabled={isGeneratingUsingAi || !aiPrompt.trim()}
                     >
                       {isGeneratingUsingAi ? "Generating..." : "Generate"}
                     </Button>
@@ -279,15 +272,15 @@ const NewProductPage = ({
                 </div>
               </Popover>
             ) : null}
-            <Button color="accent" type="submit" form={`new-product-form-${formUID}`} disabled={processing}>
-              {processing ? "Adding..." : "Next: Customize"}
+            <Button color="accent" type="submit" form={`new-product-form-${formUID}`} disabled={isSubmitting}>
+              {isSubmitting ? "Adding..." : "Next: Customize"}
             </Button>
           </>
         }
       />
       <div>
         <div>
-          <form id={`new-product-form-${formUID}`} className="row" onSubmit={handleSubmit}>
+          <form id={`new-product-form-${formUID}`} className="row" onSubmit={(e) => void submit(e)}>
             <section className="p-4! md:p-8!">
               <header>
                 <p>
@@ -320,7 +313,7 @@ const NewProductPage = ({
                 </Alert>
               ) : null}
 
-              <fieldset className={cx({ danger: clientErrors.has("name") })}>
+              <fieldset className={cx({ danger: errors.has("name") })}>
                 <legend>
                   <label htmlFor={`name-${formUID}`}>Name</label>
                 </legend>
@@ -330,37 +323,38 @@ const NewProductPage = ({
                   id={`name-${formUID}`}
                   type="text"
                   placeholder="Name of product"
-                  value={data.link.name}
-                  onChange={(e) => setData("link.name", e.target.value)}
-                  aria-invalid={clientErrors.has("name")}
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    errors.delete("name");
+                  }}
+                  aria-invalid={errors.has("name")}
                 />
               </fieldset>
 
               <fieldset>
                 <legend>Products</legend>
                 <ProductTypeSelector
-                  selectedType={data.link.native_type}
+                  selectedType={productType}
                   types={native_product_types}
-                  onChange={handleProductTypeChange}
+                  onChange={setProductType}
                 />
               </fieldset>
               {service_product_types.length > 0 ? (
                 <fieldset>
                   <legend>Services</legend>
                   <ProductTypeSelector
-                    selectedType={data.link.native_type}
+                    selectedType={productType}
                     types={service_product_types}
-                    onChange={handleProductTypeChange}
+                    onChange={setProductType}
                     disabled={!eligible_for_service_products}
                   />
                 </fieldset>
               ) : null}
 
-              <fieldset className={cx({ danger: clientErrors.has("price") })}>
+              <fieldset className={cx({ danger: errors.has("price") })}>
                 <legend>
-                  <label htmlFor={`price-${formUID}`}>
-                    {data.link.native_type === "coffee" ? "Suggested amount" : "Price"}
-                  </label>
+                  <label htmlFor={`price-${formUID}`}>{productType === "coffee" ? "Suggested amount" : "Price"}</label>
                 </legend>
 
                 <div className="input">
@@ -369,9 +363,9 @@ const NewProductPage = ({
                       <span>{selectedCurrency.longSymbol}</span>
                       <TypeSafeOptionSelect
                         onChange={(newCurrencyCode) => {
-                          setData("link.price_currency_type", newCurrencyCode);
+                          setCurrencyCode(newCurrencyCode);
                         }}
-                        value={data.link.price_currency_type}
+                        value={currencyCode}
                         aria-label="Currency"
                         options={currencyCodeList.map((code) => {
                           const { displayFormat } = findCurrencyByCode(code);
@@ -393,26 +387,27 @@ const NewProductPage = ({
                     inputMode="decimal"
                     maxLength={10}
                     placeholder="Price your product"
-                    value={data.link.price_range}
+                    value={price}
                     onChange={(e) => {
                       let newValue = e.target.value;
                       newValue = newValue.replace(/[.,]+/gu, ".");
                       newValue = newValue.replace(/[^0-9.]/gu, "");
-                      setData("link.price_range", newValue);
+                      setPrice(newValue);
+                      errors.delete("price");
                     }}
                     autoComplete="off"
-                    aria-invalid={clientErrors.has("price")}
+                    aria-invalid={errors.has("price")}
                   />
 
                   {isRecurringBilling ? (
                     <Pill asChild className="relative -mr-2 shrink-0 cursor-pointer">
                       <label>
-                        <span>{recurrenceLabels[data.link.subscription_duration || defaultRecurrence]}</span>
+                        <span>{recurrenceLabels[subscriptionDuration || defaultRecurrence]}</span>
                         <TypeSafeOptionSelect
                           onChange={(newSubscriptionDuration) => {
-                            setData("link.subscription_duration", newSubscriptionDuration);
+                            setSubscriptionDuration(newSubscriptionDuration);
                           }}
-                          value={data.link.subscription_duration || defaultRecurrence}
+                          value={subscriptionDuration || defaultRecurrence}
                           aria-label="Default subscription duration"
                           options={recurrenceIds.map((recurrence) => ({
                             id: recurrence,
