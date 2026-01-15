@@ -115,32 +115,34 @@
   <h2 style="text-align: center;">You earned a total of <%= formatted_total_amount %></h2>
 </div>
 
-<div>
-  <table class="reset list">
-    <tbody>
-      <tr>
-        <td>
-          <%= image_tag("email/gpt3_gumroad.png", alt: "Gumroad", class: "avatar") %>
-        </td>
-        <td>
-          <%= "Hey GPT-4o, can you suggest some things I could buy with my Gumroad earnings of #{formatted_total_amount}?" %>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <%= image_tag("email/chatgpt-icon.png", alt: "ChatGPT", class: "avatar", style: "border: 1px solid #000; border-radius: calc(infinity * 1px);") %>
-        </td>
-        <td>
-          <ol style="padding: 0 0 0 28px;">
-            <% @analytics_data[:gpt3_buy_list].each do |item| %>
-              <li><%= item %></li>
-            <% end %>
-          </ol>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<% if @analytics_data[:gpt3_buy_list].present? %>
+  <div>
+    <table class="reset list">
+      <tbody>
+        <tr>
+          <td>
+            <%= image_tag("email/gpt3_gumroad.png", alt: "Gumroad", class: "avatar") %>
+          </td>
+          <td>
+            <%= "Hey GPT-4o, can you suggest some things I could buy with my Gumroad earnings of #{formatted_total_amount}?" %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <%= image_tag("email/chatgpt-icon.png", alt: "ChatGPT", class: "avatar", style: "border: 1px solid #000; border-radius: calc(infinity * 1px);") %>
+          </td>
+          <td>
+            <ol style="padding: 0 0 0 28px;">
+              <% @analytics_data[:gpt3_buy_list].each do |item| %>
+                <li><%= item %></li>
+              <% end %>
+            </ol>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+<% end %>
 
 <% if @seller.from_us? %>
   <div>
