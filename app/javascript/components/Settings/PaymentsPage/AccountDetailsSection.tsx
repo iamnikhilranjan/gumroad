@@ -419,7 +419,7 @@ const AccountDetailsSection = ({
             </div>
           ) : null}
           {complianceInfo.business_country === "JP" ? (
-            <div style={{ display: "grid", gap: "var(--spacer-5)", gridAutoFlow: "column", gridAutoColumns: "1fr" }}>
+            <div style={{ display: "grid", gap: "var(--spacer-5)", gridTemplateColumns: "repeat(auto-fit, minmax(var(--dynamic-grid), 1fr))" }}>
               <fieldset className={cx({ danger: errorFieldNames.has("business_building_number") })}>
                 <legend>
                   <label htmlFor={`${uid}-business-building-number`}>Business block / Building number</label>
@@ -727,7 +727,7 @@ const AccountDetailsSection = ({
           </>
         ) : null}
         {complianceInfo.country === "JP" ? (
-          <div style={{ display: "grid", gap: "var(--spacer-5)", gridAutoFlow: "column", gridAutoColumns: "1fr" }}>
+          <div style={{ display: "grid", gap: "var(--spacer-5)", gridTemplateColumns: "repeat(auto-fit, minmax(var(--dynamic-grid), 1fr))" }}>
             <fieldset className={cx({ danger: errorFieldNames.has("building_number") })}>
               <legend>
                 <label htmlFor={`${uid}-creator-building-number`}>Block / Building number</label>
@@ -869,7 +869,7 @@ const AccountDetailsSection = ({
           </fieldset>
         </div>
       ) : (
-        <div style={{ display: "grid", gap: "var(--spacer-5)", gridAutoFlow: "column", gridAutoColumns: "1fr" }}>
+        <div style={{ display: "grid", gap: "var(--spacer-5)", gridTemplateColumns: "repeat(auto-fit, minmax(var(--dynamic-grid), 1fr))" }}>
           <fieldset className={cx({ danger: errorFieldNames.has("city") })}>
             <legend>
               <label htmlFor={`${uid}-creator-city`}>City</label>
