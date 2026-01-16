@@ -54,6 +54,7 @@ type FormErrors = {
   link?: {
     name?: string[];
     price_range?: string[];
+    base?: string[];
   };
 };
 
@@ -347,7 +348,7 @@ const NewProductPage = ({
                 </fieldset>
               ) : null}
 
-              <fieldset className={cx({ danger: errors.link?.price_range })}>
+              <fieldset className={cx({ danger: errors.link?.price_range || errors.link?.base })}>
                 <legend>
                   <label htmlFor={`price-${formUID}`}>
                     {form.data.link.native_type === "coffee" ? "Suggested amount" : "Price"}
@@ -392,7 +393,7 @@ const NewProductPage = ({
                       form.clearErrors("link.price_range");
                     }}
                     autoComplete="off"
-                    aria-invalid={!!errors.link?.price_range}
+                    aria-invalid={!!errors.link?.price_range || !!errors.link?.base}
                   />
 
                   {isRecurringBilling ? (
@@ -417,6 +418,7 @@ const NewProductPage = ({
                   ) : null}
                 </div>
                 <Errors errors={errors.link?.price_range} label="Price" />
+                <Errors errors={errors.link?.base} label="" />
               </fieldset>
             </section>
           </form>
