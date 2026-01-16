@@ -39,7 +39,7 @@ export const buttonVariants = cva(
         primary: "bg-black text-white hover:bg-accent hover:text-accent-foreground",
         black: "bg-black text-white",
         accent: "bg-accent text-accent-foreground",
-        filled: "bg-white text-black",
+        filled: "bg-white text-black hover:bg-pink hover:text-black",
         success: "bg-success text-white",
         danger: "bg-danger text-white",
         warning: "bg-warning text-black",
@@ -95,7 +95,7 @@ export const buttonVariants = cva(
       {
         variant: "outline",
         color: "filled",
-        className: "bg-transparent text-current hover:bg-white hover:text-black",
+        className: "bg-transparent text-black hover:bg-white hover:text-black",
       },
     ],
     defaultVariants: {
