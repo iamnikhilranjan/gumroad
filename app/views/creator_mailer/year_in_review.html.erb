@@ -118,6 +118,10 @@
 <% if @analytics_data[:gpt3_buy_list].present? %>
   <div>
     <table class="reset list">
+      <colgroup>
+        <col style="width: 10%;">
+        <col style="width: 90%;">
+      </colgroup>
       <tbody>
         <tr>
           <td>
@@ -132,11 +136,11 @@
             <%= image_tag("email/chatgpt-icon.png", alt: "ChatGPT", class: "avatar", style: "border: 1px solid #000; border-radius: calc(infinity * 1px);") %>
           </td>
           <td>
-            <ol style="padding: 0 0 0 28px;">
+            <ul style="padding: 0; margin: 0; list-style: none;">
               <% @analytics_data[:gpt3_buy_list].each do |item| %>
                 <li><%= item %></li>
               <% end %>
-            </ol>
+            </ul>
           </td>
         </tr>
       </tbody>
