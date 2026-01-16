@@ -95,7 +95,7 @@ describe SendYearInReviewEmailJob do
           expect(mail.body.sanitized).to include("Sales 1")
           expect(mail.body.sanitized).to include("Unique customers 1")
           expect(mail.body.sanitized).to include("Products sold 1")
-          expect(mail.body.sanitized).to include("You're #2 creator on Gumroad in 2022")
+          expect(mail.body.sanitized).to include("You ranked #2 among all creators")
           expect(mail.body.sanitized).to include("Your top product")
           expect(mail.body.sanitized).to match(/Product 1 \( \S+ \) -+ Views 2 Sales 1 Total 1K/)
           expect(mail.body.sanitized).to include("You earned a total of $1,000")
