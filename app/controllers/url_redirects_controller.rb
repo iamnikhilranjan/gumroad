@@ -279,6 +279,13 @@ class UrlRedirectsController < ApplicationController
     render json:
   end
 
+  def save_last_content_page
+    return render json: { success: false, error: "Purchase not found" }, status: :unprocessable_entity if @url_redirect.purchase.blank?
+
+    @url_redirect.purchase.update!(last_content_page_id: params[:page_id])
+    render json: { success: true }
+  end
+
   private
     def trigger_files_lifecycle_events
       @url_redirect.update_transcoded_videos_last_accessed_at
