@@ -59,12 +59,6 @@ class SendYearInReviewEmailJob
                                                           .distinct
                                                           .count
 
-    analytics_data[:buy_suggestion_image] = generate_buy_suggestion_image(
-      seller:,
-      year:,
-      analytics_data:,
-    )
-
     analytics_data[:creator_rank] = seller.rank(year:)
 
     CreatorMailer.year_in_review(
