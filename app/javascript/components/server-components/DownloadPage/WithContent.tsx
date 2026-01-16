@@ -220,16 +220,12 @@ const WithContent = ({
   const saveLastContentPage = React.useCallback(
     async (pageId: string) => {
       if (!props.purchase) return;
-      try {
-        await request({
-          url: Routes.url_redirect_save_last_content_page_path(props.token),
-          method: "POST",
-          accept: "json",
-          data: { page_id: pageId },
-        });
-      } catch {
-        // Silently fail - this is a nice-to-have feature
-      }
+      await request({
+        url: Routes.url_redirect_save_last_content_page_path(props.token),
+        method: "POST",
+        accept: "json",
+        data: { page_id: pageId },
+      });
     },
     [props.token, props.purchase],
   );
