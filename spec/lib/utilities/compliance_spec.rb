@@ -216,7 +216,7 @@ describe Compliance do
         iso_prefectures.each do |prefecture_kanji|
           kana = Compliance::Countries.japan_prefecture_kana(prefecture_kanji)
           expect(kana).to be_present,
-            "Missing kana mapping for prefecture: #{prefecture_kanji}"
+                          "Missing kana mapping for prefecture: #{prefecture_kanji}"
         end
       end
     end
