@@ -1,11 +1,10 @@
 import { usePage } from "@inertiajs/react";
 import * as React from "react";
 
+import AdminSalesReportsForm from "$app/components/Admin/SalesReports/Form";
 import { buttonVariants } from "$app/components/Button";
 import { Popover } from "$app/components/Popover";
 import { WithTooltip } from "$app/components/WithTooltip";
-
-import AdminSalesReportsForm from "$app/components/Admin/SalesReports/Form";
 
 type PageProps = {
   countries: [string, string][];

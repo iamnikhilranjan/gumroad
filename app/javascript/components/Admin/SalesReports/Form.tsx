@@ -3,10 +3,10 @@ import { subMonths } from "date-fns";
 import * as React from "react";
 import { cast } from "ts-safe-cast";
 
+import { classNames } from "$app/utils/classNames";
+
 import { Button } from "$app/components/Button";
 import Errors from "$app/components/Form/Errors";
-
-import { classNames } from "$app/utils/classNames";
 
 type Props = {
   countries: [string, string][];
@@ -62,7 +62,11 @@ const AdminSalesReportsForm = ({
     <form onSubmit={handleSubmit}>
       {wrapper(
         <>
-          <fieldset className={classNames("grid grid-rows-[auto_1fr] gap-3", { danger: !!errors["sales_report.country_code"]?.length })}>
+          <fieldset
+            className={classNames("grid grid-rows-[auto_1fr] gap-3", {
+              danger: !!errors["sales_report.country_code"]?.length,
+            })}
+          >
             <legend>
               <label htmlFor="country_code">Country</label>
             </legend>
@@ -87,7 +91,11 @@ const AdminSalesReportsForm = ({
           </fieldset>
 
           <div className="grid grid-cols-2 gap-3">
-            <fieldset className={classNames("grid grid-rows-[auto_1fr] gap-3", { danger: !!errors["sales_report.start_date"]?.length })}>
+            <fieldset
+              className={classNames("grid grid-rows-[auto_1fr] gap-3", {
+                danger: !!errors["sales_report.start_date"]?.length,
+              })}
+            >
               <legend>
                 <label htmlFor="start_date">Start date</label>
               </legend>
@@ -105,7 +113,11 @@ const AdminSalesReportsForm = ({
               <Errors errors={errors["sales_report.start_date"]} label="Start date" />
             </fieldset>
 
-            <fieldset className={classNames("grid grid-rows-[auto_1fr] gap-3", { danger: !!errors["sales_report.end_date"]?.length })}>
+            <fieldset
+              className={classNames("grid grid-rows-[auto_1fr] gap-3", {
+                danger: !!errors["sales_report.end_date"]?.length,
+              })}
+            >
               <legend>
                 <label htmlFor="end_date">End date</label>
               </legend>
@@ -124,7 +136,11 @@ const AdminSalesReportsForm = ({
             </fieldset>
           </div>
 
-          <fieldset className={classNames("grid grid-rows-[auto_1fr] gap-3", { danger: !!errors["sales_report.sales_type"]?.length })}>
+          <fieldset
+            className={classNames("grid grid-rows-[auto_1fr] gap-3", {
+              danger: !!errors["sales_report.sales_type"]?.length,
+            })}
+          >
             <legend>
               <label htmlFor="sales_type">Type of sales</label>
             </legend>
@@ -150,7 +166,7 @@ const AdminSalesReportsForm = ({
           <Button type="submit" color="primary" disabled={form.processing}>
             {form.processing ? "Generating..." : "Generate report"}
           </Button>
-        </>
+        </>,
       )}
     </form>
   );

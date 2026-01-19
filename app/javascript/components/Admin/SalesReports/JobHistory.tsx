@@ -57,7 +57,6 @@ const AdminSalesReportsJobHistory = ({ countries, sales_types, jobHistory, authe
           </section>
         )}
       />
-
     ) : (
       <section>
         <Placeholder>
