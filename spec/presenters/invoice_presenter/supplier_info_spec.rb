@@ -185,26 +185,16 @@ describe InvoicePresenter::SupplierInfo do
           context "when ip_country is one of the countries that collect tax on all products" do
             before { purchase.update!(country: nil, ip_country: "Iceland") }
 
-            it "returns VAT Registration Number Information" do
-              expect(presenter.send(:gumroad_tax_attributes)).to eq([
-                                                                      {
-                                                                        label: "VAT Registration Number",
-                                                                        value: GUMROAD_OTHER_TAX_REGISTRATION
-                                                                      }
-                                                                    ])
+            it "returns nil" do
+              expect(presenter.send(:gumroad_tax_attributes)).to be_nil
             end
           end
 
           context "when ip_country is one of the countries that collect tax on digital products" do
             before { purchase.update!(country: nil, ip_country: "Chile") }
 
-            it "returns VAT Registration Number Information" do
-              expect(presenter.send(:gumroad_tax_attributes)).to eq([
-                                                                      {
-                                                                        label: "VAT Registration Number",
-                                                                        value: GUMROAD_OTHER_TAX_REGISTRATION
-                                                                      }
-                                                                    ])
+            it "returns nil" do
+              expect(presenter.send(:gumroad_tax_attributes)).to be_nil
             end
           end
         end

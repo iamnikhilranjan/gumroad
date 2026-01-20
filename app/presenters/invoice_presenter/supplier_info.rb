@@ -94,9 +94,6 @@ class InvoicePresenter::SupplierInfo
          ["QST Registration Number", GUMROAD_QST_REGISTRATION_NUMBER]]
       elsif Compliance::Countries::NOR.alpha2 == country_code
         [["Norway VAT Registration", GUMROAD_NORWAY_VAT_REGISTRATION]]
-      elsif Compliance::Countries::COUNTRIES_THAT_COLLECT_TAX_ON_ALL_PRODUCTS.include?(country_code) ||
-            Compliance::Countries::COUNTRIES_THAT_COLLECT_TAX_ON_DIGITAL_PRODUCTS.include?(country_code)
-        [["VAT Registration Number", GUMROAD_OTHER_TAX_REGISTRATION]]
       end
     end
 end

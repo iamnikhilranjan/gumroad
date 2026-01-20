@@ -6,11 +6,6 @@ GUMROAD_CANADA_GST_REGISTRATION_NUMBER = GlobalConfig.get("CANADA_GST_REGISTRATI
 GUMROAD_QST_REGISTRATION_NUMBER = GlobalConfig.get("QST_REGISTRATION_NUMBER", "NR00086053")
 GUMROAD_NORWAY_VAT_REGISTRATION = GlobalConfig.get("NORWAY_VAT_REGISTRATION", "VOEC NO. 2082039")
 
-# TODO: This is a placeholder for other tax registration numbers.
-# As we activate "collect_tax_*" features, we'll need to add the appropriate
-# tax registration number here for each country. (curtiseinsmann)
-GUMROAD_OTHER_TAX_REGISTRATION = GlobalConfig.get("OTHER_TAX_REGISTRATION", "OTHER")
-
 REPORTING_S3_BUCKET = if Rails.env.production?
   GlobalConfig.get("REPORTING_S3_BUCKET_PROD", "gumroad-reporting")
 else
