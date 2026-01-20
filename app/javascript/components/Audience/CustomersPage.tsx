@@ -230,8 +230,17 @@ const CustomersPage = ({
     debouncedReloadCustomers();
   }, [query, includedItems, excludedItems]);
 
-  const [from, setFrom] = React.useState(subMonths(new Date(), 1));
-  const [to, setTo] = React.useState(new Date());
+  const [from, setFrom] = React.useState(() =>
+    createdAfter ? new Date(createdAfter) : subMonths(new Date(), 1)
+  );
+  const [to, setTo] = React.useState(() =>
+    createdBefore ? new Date(createdBefore) : new Date()
+  );
+
+  React.useEffect(() => {
+    if (createdAfter) setFrom(new Date(createdAfter));
+    if (createdBefore) setTo(new Date(createdBefore));
+  }, [createdAfter, createdBefore]);
 
   const exportNames = React.useMemo(
     () =>
@@ -431,15 +440,13 @@ const CustomersPage = ({
                   <DateRangePicker from={from} to={to} setFrom={setFrom} setTo={setTo} />
                   <NavigationButtonInertia
                     color="primary"
-                    href={Routes.export_purchases_path()}
-                    method="post"
-                    preserveScroll
-                    data={{
+                    href={Routes.export_purchases_path({
                       start_time: lightFormat(from, "yyyy-MM-dd"),
                       end_time: lightFormat(to, "yyyy-MM-dd"),
                       product_ids: includedProductIds,
                       variant_ids: includedVariantIds,
-                    }}
+                    })}
+                    preserveScroll
                     onSuccess={() => close()}
                   >
                     Download
