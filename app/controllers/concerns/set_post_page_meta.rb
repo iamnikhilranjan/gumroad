@@ -18,7 +18,7 @@ module SetPostPageMeta
 
       set_meta_tag(property: "twitter:title", value: post.name)
       set_meta_tag(property: "twitter:description", value: presenter.snippet)
-      set_meta_tag(property: "twitter:domain", value: TwitterCards::TWITTER_CARD_DOMAIN)
+      set_meta_tag(property: "twitter:domain", value: "Gumroad")
       if presenter.social_image.present?
         set_meta_tag(property: "twitter:card", value: "summary_large_image")
         set_meta_tag(property: "twitter:image", value: presenter.social_image.url)

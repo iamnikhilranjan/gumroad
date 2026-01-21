@@ -34,7 +34,6 @@ class SubscriptionsController < ApplicationController
     @card_data_handling_mode = CardDataHandlingMode.get_card_data_handling_mode(@product.user)
 
     @body_id = "product_page"
-    @is_on_product_page = true
 
     set_page_title(@subscription.is_installment_plan ? "Manage installment plan" : "Manage membership")
     set_product_page_meta(@product)

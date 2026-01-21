@@ -5,7 +5,6 @@ module SetProductPageMeta
 
   include SetPageMeta
 
-
   private
     def set_product_page_meta(product)
       product_description = product.description.present? ? product.plaintext_description : "Available on Gumroad"
@@ -77,7 +76,7 @@ module SetProductPageMeta
         set_meta_tag(property: "twitter:card", value: "summary")
       end
 
-      set_meta_tag(property: "twitter:domain", value: TwitterCards::TWITTER_CARD_DOMAIN)
+      set_meta_tag(property: "twitter:domain", value: "Gumroad")
 
       description = if product_description.present?
         product_description

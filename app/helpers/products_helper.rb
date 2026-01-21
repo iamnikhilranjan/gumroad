@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ProductsHelper
-  include TwitterCards
   include CdnUrlHelper
   include Pagy::Backend
   include CustomDomainConfig
