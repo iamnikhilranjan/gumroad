@@ -25,15 +25,6 @@ class CreatorMailer < ApplicationMailer
     @payout_csv_url = payout_csv_url
     email = recipient.presence || seller.email
 
-    if (image_data = analytics_data[:buy_suggestion_image]).present?
-      extension = image_data[:mime_type].split("/").last
-      @buy_suggestion_image_filename = "year_in_review_buy_suggestion.#{extension}"
-      attachments.inline[@buy_suggestion_image_filename] = {
-        mime_type: image_data[:mime_type],
-        content: image_data[:data]
-      }
-    end
-
     mail to: email, subject: "Your #{year} in review"
   end
 
