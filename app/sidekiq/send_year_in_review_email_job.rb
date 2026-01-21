@@ -5,6 +5,8 @@ class SendYearInReviewEmailJob
   include CurrencyHelper
   sidekiq_options retry: 5, queue: :low
 
+  MAX_SHOWCASE_RANK = 1_000
+
   def self.ai_prompt(formatted_total:, sales_count:, countries_count:, top_product_names:)
     <<~PROMPT.strip
       Create an authentic lifestyle photograph of a cozy wooden tabletop still-life. The scene should show 5-7 real, tangible items that a creator could buy with their earnings of #{formatted_total}.
@@ -59,7 +61,8 @@ class SendYearInReviewEmailJob
                                                           .distinct
                                                           .count
 
-    analytics_data[:creator_rank] = seller.rank(year:)
+    creator_rank = seller.rank(year:)
+    analytics_data[:creator_rank] = creator_rank if creator_rank.present? && creator_rank <= MAX_SHOWCASE_RANK
 
     CreatorMailer.year_in_review(
       seller:,
