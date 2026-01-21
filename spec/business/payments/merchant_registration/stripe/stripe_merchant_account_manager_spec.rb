@@ -1263,7 +1263,8 @@ describe StripeMerchantAccountManager, :vcr do
       let(:user_compliance_info) do create(:user_compliance_info, user:, city: "渋谷区", city_kana: "シブヤク", phone: "+81987654321",
                                                                   first_name_kanji: "日本語", last_name_kanji: "創造者",
                                                                   first_name_kana: "ニホンゴ", last_name_kana: "ソウゾウシャ",
-                                                                  building_number: "1-1", street_address_kanji: "神宮前", street_address_kana: "ジングウマエ",
+                                                                  building_number: "1-1", building_number_kana: "1-1",
+                                                                  street_address_kanji: "神宮前", street_address_kana: "ジングウマエ",
                                                                   street_address: "address_full_match", state: "東京都", zip_code: "100-0000",
                                                                   country: "Japan") end
       let(:bank_account) { create(:japan_bank_account, user:) }

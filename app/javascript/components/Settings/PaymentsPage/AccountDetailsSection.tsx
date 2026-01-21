@@ -70,16 +70,12 @@ const AccountDetailsSection = ({
   };
 
   const getBusinessTypes = (): { code: string; name: string }[] | null => {
-    switch (complianceInfo.business_country) {
-      case "AE":
-        return uaeBusinessTypes;
-      case "IN":
-        return indiaBusinessTypes;
-      case "CA":
-        return canadaBusinessTypes;
-      default:
-        return null;
-    }
+    const businessTypesMap: Record<string, { code: string; name: string }[]> = {
+      AE: uaeBusinessTypes,
+      IN: indiaBusinessTypes,
+      CA: canadaBusinessTypes,
+    };
+    return complianceInfo.business_country ? (businessTypesMap[complianceInfo.business_country] ?? null) : null;
   };
 
   const getBusinessStateConfig = (): StateConfig | PrefectureConfig | null => {
@@ -125,212 +121,179 @@ const AccountDetailsSection = ({
   };
 
   const getBusinessTaxIdConfig = (): TaxIdConfig => {
-    switch (complianceInfo.business_country) {
-      case "US":
-        return {
-          label: "Business Tax ID (EIN, or SSN for sole proprietors)",
-          placeholder: "12-3456789",
-          idSuffix: "business-tax-id",
-        };
-      case "CA":
-        return { label: "Business Number (BN)", placeholder: "123456789", idSuffix: "business-tax-id" };
-      case "AU":
-        return {
-          label: "Australian Business Number (ABN)",
-          placeholder: "12 123 456 789",
-          idSuffix: "business-tax-id",
-        };
-      case "GB":
-        return { label: "Company Number (CRN)", placeholder: "12345678", idSuffix: "business-tax-id" };
-      case "MX":
-        return { label: "Business RFC", placeholder: "12345678", idSuffix: "business-tax-id" };
-      default:
-        return { label: "Company tax ID", placeholder: "12345678", idSuffix: "business-tax-id" };
-    }
+    const configs: Record<string, { label: string; placeholder: string }> = {
+      US: { label: "Business Tax ID (EIN, or SSN for sole proprietors)", placeholder: "12-3456789" },
+      CA: { label: "Business Number (BN)", placeholder: "123456789" },
+      AU: { label: "Australian Business Number (ABN)", placeholder: "12 123 456 789" },
+      GB: { label: "Company Number (CRN)", placeholder: "12345678" },
+      MX: { label: "Business RFC", placeholder: "12345678" },
+    };
+
+    const config = complianceInfo.business_country ? configs[complianceInfo.business_country] : null;
+    return {
+      label: config?.label ?? "Company tax ID",
+      placeholder: config?.placeholder ?? "12345678",
+      idSuffix: "business-tax-id",
+    };
   };
 
   const getIndividualTaxIdConfig = (): TaxIdConfig | null => {
-    switch (complianceInfo.country) {
-      case "US":
-        if (user.need_full_ssn) {
-          return {
+    if (complianceInfo.country === "US") {
+      return user.need_full_ssn
+        ? {
             label: "Social Security Number",
             placeholder: "•••-••-••••",
             minLength: 9,
             maxLength: 11,
             idSuffix: "social-security-number-full",
+          }
+        : {
+            label: "Last 4 digits of SSN",
+            placeholder: "••••",
+            minLength: 4,
+            maxLength: 4,
+            idSuffix: "social-security-number",
           };
-        }
-        return {
-          label: "Last 4 digits of SSN",
-          placeholder: "••••",
-          minLength: 4,
-          maxLength: 4,
-          idSuffix: "social-security-number",
-        };
-      case "CA":
-        return {
-          label: "Social Insurance Number",
-          placeholder: "•••••••••",
-          minLength: 9,
-          maxLength: 9,
-          idSuffix: "social-insurance-number",
-        };
-      case "CO":
-        return {
-          label: "Cédula de Ciudadanía (CC)",
-          placeholder: "1.123.123.123",
-          minLength: 13,
-          maxLength: 13,
-          idSuffix: "colombia-id-number",
-        };
-      case "UY":
-        return {
-          label: "Cédula de Identidad (CI)",
-          placeholder: "1.123.123-1",
-          minLength: 11,
-          maxLength: 11,
-          idSuffix: "uruguay-id-number",
-        };
-      case "HK":
-        return {
-          label: "Hong Kong ID Number",
-          placeholder: "123456789",
-          minLength: 8,
-          maxLength: 9,
-          idSuffix: "hong-kong-id-number",
-        };
-      case "SG":
-        return {
-          label: "NRIC number / FIN",
-          placeholder: "123456789",
-          minLength: 9,
-          maxLength: 9,
-          idSuffix: "singapore-id-number",
-        };
-      case "AE":
-        return {
-          label: "Emirates ID",
-          placeholder: "123456789123456",
-          minLength: 15,
-          maxLength: 15,
-          idSuffix: "uae-id-number",
-        };
-      case "MX":
-        return {
-          label: "Personal RFC",
-          placeholder: "1234567891234",
-          minLength: 13,
-          maxLength: 13,
-          idSuffix: "mexico-id-number",
-        };
-      case "KZ":
-        return {
-          label: "Individual identification number (IIN)",
-          placeholder: "123456789",
-          minLength: 9,
-          maxLength: 12,
-          idSuffix: "kazakhstan-id-number",
-        };
-      case "AR":
-        return {
-          label: "CUIL",
-          placeholder: "12-12345678-1",
-          minLength: 13,
-          maxLength: 13,
-          idSuffix: "argentina-id-number",
-        };
-      case "PE":
-        return {
-          label: "DNI number",
-          placeholder: "12345678-9",
-          minLength: 10,
-          maxLength: 10,
-          idSuffix: "peru-id-number",
-        };
-      case "PK":
-        return {
-          label: "National Identity Card Number (SNIC or CNIC)",
-          placeholder: "•••••••••",
-          minLength: 13,
-          maxLength: 13,
-          idSuffix: "snic",
-        };
-      case "CR":
-        return {
-          label: "Tax Identification Number",
-          placeholder: "1234567890",
-          minLength: 9,
-          maxLength: 12,
-          idSuffix: "costa-rica-id-number",
-        };
-      case "CL":
-        return {
-          label: "Rol Único Tributario (RUT)",
-          placeholder: "123456789",
-          minLength: 8,
-          maxLength: 9,
-          idSuffix: "chile-id-number",
-        };
-      case "DO":
-        return {
-          label: "Cédula de identidad y electoral (CIE)",
-          placeholder: "123-1234567-1",
-          minLength: 13,
-          maxLength: 13,
-          idSuffix: "dominican-republic-id-number",
-        };
-      case "BO":
-        return {
-          label: "Cédula de Identidad (CI)",
-          placeholder: "12345678",
-          minLength: 8,
-          maxLength: 8,
-          idSuffix: "bolivia-id-number",
-        };
-      case "PY":
-        return {
-          label: "Cédula de Identidad (CI)",
-          placeholder: "1234567",
-          minLength: 7,
-          maxLength: 7,
-          idSuffix: "paraguay-id-number",
-        };
-      case "BD":
-        return {
-          label: "Personal ID number",
-          placeholder: "123456789",
-          minLength: 1,
-          maxLength: 20,
-          idSuffix: "bangladesh-id-number",
-        };
-      case "MZ":
-        return {
-          label: "Mozambique Taxpayer Single ID Number (NUIT)",
-          placeholder: "123456789",
-          minLength: 9,
-          maxLength: 9,
-          idSuffix: "mozambique-id-number",
-        };
-      case "GT":
-        return {
-          label: "Número de Identificación Tributaria (NIT)",
-          placeholder: "1234567-8",
-          minLength: 8,
-          maxLength: 12,
-          idSuffix: "guatemala-id-number",
-        };
-      case "BR":
-        return {
-          label: "Cadastro de Pessoas Físicas (CPF)",
-          placeholder: "123.456.789-00",
-          minLength: 11,
-          maxLength: 14,
-          idSuffix: "brazil-id-number",
-        };
-      default:
-        return null;
     }
+
+    const configs: Record<string, TaxIdConfig> = {
+      CA: {
+        label: "Social Insurance Number",
+        placeholder: "•••••••••",
+        minLength: 9,
+        maxLength: 9,
+        idSuffix: "social-insurance-number",
+      },
+      CO: {
+        label: "Cédula de Ciudadanía (CC)",
+        placeholder: "1.123.123.123",
+        minLength: 13,
+        maxLength: 13,
+        idSuffix: "colombia-id-number",
+      },
+      UY: {
+        label: "Cédula de Identidad (CI)",
+        placeholder: "1.123.123-1",
+        minLength: 11,
+        maxLength: 11,
+        idSuffix: "uruguay-id-number",
+      },
+      HK: {
+        label: "Hong Kong ID Number",
+        placeholder: "123456789",
+        minLength: 8,
+        maxLength: 9,
+        idSuffix: "hong-kong-id-number",
+      },
+      SG: {
+        label: "NRIC number / FIN",
+        placeholder: "123456789",
+        minLength: 9,
+        maxLength: 9,
+        idSuffix: "singapore-id-number",
+      },
+      AE: {
+        label: "Emirates ID",
+        placeholder: "123456789123456",
+        minLength: 15,
+        maxLength: 15,
+        idSuffix: "uae-id-number",
+      },
+      MX: {
+        label: "Personal RFC",
+        placeholder: "1234567891234",
+        minLength: 13,
+        maxLength: 13,
+        idSuffix: "mexico-id-number",
+      },
+      KZ: {
+        label: "Individual identification number (IIN)",
+        placeholder: "123456789",
+        minLength: 9,
+        maxLength: 12,
+        idSuffix: "kazakhstan-id-number",
+      },
+      AR: {
+        label: "CUIL",
+        placeholder: "12-12345678-1",
+        minLength: 13,
+        maxLength: 13,
+        idSuffix: "argentina-id-number",
+      },
+      PE: { label: "DNI number", placeholder: "12345678-9", minLength: 10, maxLength: 10, idSuffix: "peru-id-number" },
+      PK: {
+        label: "National Identity Card Number (SNIC or CNIC)",
+        placeholder: "•••••••••",
+        minLength: 13,
+        maxLength: 13,
+        idSuffix: "snic",
+      },
+      CR: {
+        label: "Tax Identification Number",
+        placeholder: "1234567890",
+        minLength: 9,
+        maxLength: 12,
+        idSuffix: "costa-rica-id-number",
+      },
+      CL: {
+        label: "Rol Único Tributario (RUT)",
+        placeholder: "123456789",
+        minLength: 8,
+        maxLength: 9,
+        idSuffix: "chile-id-number",
+      },
+      DO: {
+        label: "Cédula de identidad y electoral (CIE)",
+        placeholder: "123-1234567-1",
+        minLength: 13,
+        maxLength: 13,
+        idSuffix: "dominican-republic-id-number",
+      },
+      BO: {
+        label: "Cédula de Identidad (CI)",
+        placeholder: "12345678",
+        minLength: 8,
+        maxLength: 8,
+        idSuffix: "bolivia-id-number",
+      },
+      PY: {
+        label: "Cédula de Identidad (CI)",
+        placeholder: "1234567",
+        minLength: 7,
+        maxLength: 7,
+        idSuffix: "paraguay-id-number",
+      },
+      BD: {
+        label: "Personal ID number",
+        placeholder: "123456789",
+        minLength: 1,
+        maxLength: 20,
+        idSuffix: "bangladesh-id-number",
+      },
+      MZ: {
+        label: "Mozambique Taxpayer Single ID Number (NUIT)",
+        placeholder: "123456789",
+        minLength: 9,
+        maxLength: 9,
+        idSuffix: "mozambique-id-number",
+      },
+      GT: {
+        label: "Número de Identificación Tributaria (NIT)",
+        placeholder: "1234567-8",
+        minLength: 8,
+        maxLength: 12,
+        idSuffix: "guatemala-id-number",
+      },
+      BR: {
+        label: "Cadastro de Pessoas Físicas (CPF)",
+        placeholder: "123.456.789-00",
+        minLength: 11,
+        maxLength: 14,
+        idSuffix: "brazil-id-number",
+      },
+    };
+
+    return complianceInfo.country ? (configs[complianceInfo.country] ?? null) : null;
   };
 
   const isPrefectureConfig = (config: StateConfig | PrefectureConfig): config is PrefectureConfig =>
@@ -579,6 +542,23 @@ const AccountDetailsSection = ({
                   aria-invalid={errorFieldNames.has("business_building_number")}
                   required
                   onChange={(evt) => updateComplianceInfo({ business_building_number: evt.target.value })}
+                />
+              </fieldset>
+              <fieldset className={cx({ danger: errorFieldNames.has("business_building_number_kana") })}>
+                <legend>
+                  <label htmlFor={`${uid}-business-building-number-kana`}>
+                    Business block / Building number (Kana)
+                  </label>
+                </legend>
+                <input
+                  id={`${uid}-business-building-number-kana`}
+                  type="text"
+                  placeholder="イチノイチ"
+                  value={complianceInfo.business_building_number_kana || ""}
+                  disabled={isFormDisabled}
+                  aria-invalid={errorFieldNames.has("business_building_number_kana")}
+                  required
+                  onChange={(evt) => updateComplianceInfo({ business_building_number_kana: evt.target.value })}
                 />
               </fieldset>
               <fieldset className={cx({ danger: errorFieldNames.has("business_street_address_kanji") })}>
@@ -893,6 +873,21 @@ const AccountDetailsSection = ({
                 aria-invalid={errorFieldNames.has("building_number")}
                 required
                 onChange={(evt) => updateComplianceInfo({ building_number: evt.target.value })}
+              />
+            </fieldset>
+            <fieldset className={cx({ danger: errorFieldNames.has("building_number_kana") })}>
+              <legend>
+                <label htmlFor={`${uid}-creator-building-number-kana`}>Block / Building number (Kana)</label>
+              </legend>
+              <input
+                id={`${uid}-creator-building-number-kana`}
+                type="text"
+                placeholder="イチノイチ"
+                value={complianceInfo.building_number_kana || ""}
+                disabled={isFormDisabled}
+                aria-invalid={errorFieldNames.has("building_number_kana")}
+                required
+                onChange={(evt) => updateComplianceInfo({ building_number_kana: evt.target.value })}
               />
             </fieldset>
             <fieldset className={cx({ danger: errorFieldNames.has("street_address_kanji") })}>
