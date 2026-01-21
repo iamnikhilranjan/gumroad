@@ -2,6 +2,7 @@
 
 class WishlistsController < ApplicationController
   include CustomDomainConfig, DiscoverCuratedProducts
+  include SetFaviconPageMeta
 
   before_action :authenticate_user!, except: :show
   after_action :verify_authorized, except: :show

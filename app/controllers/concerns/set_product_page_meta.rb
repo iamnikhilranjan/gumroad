@@ -11,9 +11,9 @@ module SetProductPageMeta
 
       set_meta_tag(name: "description", content: product_description)
       set_meta_tag(property: "gr:page:type", value: "product")
-      set_meta_tag(property: "product:retailer_item_id", value: product.unique_permalink)
-      set_meta_tag(property: "product:price:amount", value: (product.price_cents / 100.0).round(2))
-      set_meta_tag(property: "product:price:currency", value: product.price_currency_type.upcase)
+      set_meta_tag(property: "product:retailer_item_id", content: product.unique_permalink)
+      set_meta_tag(property: "product:price:amount", content: (product.price_cents / 100.0).round(2))
+      set_meta_tag(property: "product:price:currency", content: product.price_currency_type.upcase)
 
       set_open_graph_meta(product, product_description:)
 
@@ -33,6 +33,7 @@ module SetProductPageMeta
     def set_open_graph_meta(product, product_description:)
       set_meta_tag(property: "og:title", value: product.name)
       set_meta_tag(property: "og:description", value: product_description)
+      set_meta_tag(property: "og:url", content: product.long_url)
 
       set_open_graph_image_meta(product)
 
@@ -41,7 +42,7 @@ module SetProductPageMeta
 
     def set_open_graph_image_meta(product)
       if product.preview_image_path?
-        set_meta_tag(property: "og:image", value: product.preview_url)
+        set_meta_tag(property: "og:image", content: product.preview_url)
         set_meta_tag(property: "og:image:alt", value: "")
       elsif product.preview_oembed_thumbnail_url
         set_meta_tag(

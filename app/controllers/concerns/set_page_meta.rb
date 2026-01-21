@@ -9,11 +9,12 @@ module SetPageMeta
   private
 
     def set_title
-      if Rails.env.production?
+      case Rails.env
+      when "production"
         set_page_title("Gumroad")
-      elsif Rails.env.staging?
+      when "staging"
         set_page_title("Staging Gumroad")
-      elsif Rails.env.development?
+      when "development", "test"
         set_page_title("Local Gumroad")
       end
     end

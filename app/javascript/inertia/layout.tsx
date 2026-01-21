@@ -53,6 +53,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function AuthenticationLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div>
+      <MetaTags />
+      <Alert initial={null} />
+      {children}
+    </div>
+  );
+}
+
 export function LoggedInUserLayout({ children }: { children: React.ReactNode }) {
   const { flash, logged_in_user, current_seller } = usePage<PageProps>().props;
 
