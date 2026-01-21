@@ -55,6 +55,6 @@ class AudienceController < Sellers::BaseController
     end
 
     def set_title
-      @title = "Analytics"
+      set_page_title("Analytics")
     end
 end

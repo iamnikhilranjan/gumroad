@@ -9,7 +9,7 @@ class SignupController < Devise::RegistrationsController
   layout "inertia", only: [:new]
 
   def new
-    @title = "Sign Up"
+    set_page_title("Sign Up")
     auth_presenter = AuthPresenter.new(params:, application: @application)
     render inertia: "Signup/New", props: auth_presenter.signup_props
   end

@@ -2,7 +2,7 @@
 
 class Admin::ActionCallDashboardController < Admin::BaseController
   def index
-    @title = "Action Call Dashboard"
+    set_page_title("Action Call Dashboard")
     @admin_action_call_infos = AdminActionCallInfo.order(call_count: :desc, controller_name: :asc, action_name: :asc)
 
     render inertia: "Admin/ActionCallDashboard/Index",

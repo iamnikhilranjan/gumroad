@@ -181,7 +181,7 @@ class CustomersController < Sellers::BaseController
     end
 
     def set_title
-      @title = "Sales"
+      set_page_title("Sales")
     end
 
     def set_on_page_type

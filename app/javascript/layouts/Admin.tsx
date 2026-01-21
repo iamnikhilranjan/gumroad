@@ -1,4 +1,4 @@
-import { Head, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import React from "react";
 
 import { classNames } from "$app/utils/classNames";
@@ -11,7 +11,10 @@ import Alert, { type AlertPayload } from "$app/components/server-components/Aler
 import { useFlashMessage } from "$app/components/useFlashMessage";
 import useRouteLoading from "$app/components/useRouteLoading";
 
+import MetaTags, { type MetaTag } from "$app/layouts/components/MetaTags";
+
 type PageProps = {
+  _inertia_meta?: MetaTag[];
   title: string;
   flash?: AlertPayload;
 };
@@ -24,7 +27,7 @@ const Admin = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div id="inertia-shell" className="flex h-screen flex-col lg:flex-row">
-      <Head title={title} />
+      <MetaTags />
       <Alert initial={null} />
       <AdminNav />
       <main className="flex h-screen flex-1 flex-col overflow-y-auto">

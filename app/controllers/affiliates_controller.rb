@@ -130,7 +130,7 @@ class AffiliatesController < Sellers::BaseController
 
   private
     def set_title
-      @title = "Affiliates"
+      set_page_title("Affiliates")
     end
 
     def affiliate_params

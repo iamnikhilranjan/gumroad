@@ -5,7 +5,7 @@ class User::PasswordsController < Devise::PasswordsController
   layout "inertia", only: [:new, :edit]
 
   def new
-    @title = "Forgot password"
+    set_page_title("Forgot password")
     auth_presenter = AuthPresenter.new(params:, application: @application)
     render inertia: "User/Passwords/New", props: auth_presenter.login_props
   end
@@ -29,7 +29,7 @@ class User::PasswordsController < Devise::PasswordsController
       return redirect_to root_path, warning: "That reset password token doesn't look valid (or may have expired)."
     end
 
-    @title = "Reset your password"
+    set_page_title("Reset your password")
     render inertia: "User/Passwords/Edit", props: {
       reset_password_token: reset_password_token
     }

@@ -12,13 +12,13 @@ class Admin::LinksController < Admin::BaseController
     @product_matches = product_by_external_id ? [product_by_external_id] : Link.by_general_permalink(params[:external_id])
 
     if @product_matches.many?
-      @title = "Multiple products matched"
+      set_page_title("Multiple products matched")
       render inertia: "Admin/Products/MultipleMatches", legacy_template: "admin/links/multiple_matches", props: {
         product_matches: @product_matches.map { |product| Admin::ProductPresenter::MultipleMatches.new(product:).props }
       }
     elsif @product_matches.one?
       @product = @product_matches.first
-      @title = @product.name
+      set_page_title(@product.name)
       render inertia: "Admin/Products/Show", legacy_template: "admin/links/show", props: {
         title: @product.name,
         product: Admin::ProductPresenter::Card.new(product: @product, pundit_user:).props,

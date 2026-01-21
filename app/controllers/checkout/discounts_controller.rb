@@ -12,7 +12,7 @@ class Checkout::DiscountsController < Sellers::BaseController
   def index
     authorize [:checkout, OfferCode]
 
-    @title = "Discounts"
+    set_page_title("Discounts")
     pagination, offer_codes = fetch_offer_codes
     presenter = Checkout::DiscountsPresenter.new(pundit_user:, offer_codes:, pagination:)
 

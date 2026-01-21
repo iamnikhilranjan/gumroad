@@ -2,6 +2,8 @@
 
 class PostsController < ApplicationController
   include CustomDomainConfig
+  include SetPostPageMeta
+  include SetFaviconPageMeta
 
   before_action :authenticate_user!, only: %i[send_for_purchase]
   after_action :verify_authorized, only: %i[send_for_purchase]
@@ -14,13 +16,9 @@ class PostsController < ApplicationController
     # Skip fetching post again if it's already fetched in check_if_needs_redirect
     @post || fetch_post(false)
 
-    @title = "#{@post.name} - #{@post.user.name_or_username}"
     @hide_layouts = true
-    @show_user_favicon = true
     @body_class = "post-page"
     @body_id = "post_page"
-
-    @on_posts_page = true
 
     # Set @user instance variable to apply third-party analytics config in layouts/_head partial.
     @user = @post.seller
@@ -33,6 +31,11 @@ class PostsController < ApplicationController
       post: @post,
       purchase_id_param: params[:purchase_id]
     )
+
+    set_page_title("#{@post.name} - #{@post.user.name_or_username}")
+    set_post_page_meta(@post, @post_presenter)
+    set_favicon_meta_tags(@user)
+
     purchase = @post_presenter.purchase
 
     if purchase

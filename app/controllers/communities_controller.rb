@@ -13,6 +13,6 @@ class CommunitiesController < ApplicationController
 
   private
     def set_title
-      @title = "Communities"
+      set_page_title("Communities")
     end
 end

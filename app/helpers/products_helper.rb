@@ -5,6 +5,7 @@ module ProductsHelper
   include CdnUrlHelper
   include Pagy::Backend
   include CustomDomainConfig
+
   def files_data(product)
     product.product_files.alive.in_order.includes(:alive_subtitle_files).map(&:as_json)
   end

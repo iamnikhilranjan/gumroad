@@ -4,6 +4,7 @@ class FollowersController < ApplicationController
   layout "inertia"
   include CustomDomainConfig
   include Pagy::Backend
+  include SetPostPageMeta
 
   PUBLIC_ACTIONS = %i[new create from_embed_form confirm cancel].freeze
   before_action :authenticate_user!, except: PUBLIC_ACTIONS
@@ -18,8 +19,9 @@ class FollowersController < ApplicationController
     authorize [:audience, Follower]
 
     create_user_event("followers_view")
-    @on_posts_page = true
-    @title = "Subscribers"
+
+    set_page_title("Subscribers")
+    set_meta_tag(property: "og:title", content: "Posts")
 
     email = params[:email].to_s.strip
 
@@ -39,7 +41,10 @@ class FollowersController < ApplicationController
       page: pagination.page,
       has_more: pagination.next.present?,
       email:,
-    }
+    }, meta: [
+      { title: "Posts" },
+      { property: "og:title", content: "Posts" }
+    ]
   end
 
   def create

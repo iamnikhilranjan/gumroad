@@ -35,6 +35,6 @@ class Collaborators::BaseController < Sellers::BaseController
     end
 
     def set_title
-      @title = "Collaborators"
+      set_page_title("Collaborators")
     end
 end

@@ -20,11 +20,10 @@ class Admin::BaseController < ApplicationController
 
   before_action do
     @body_id = "admin"
-    @title = "Admin"
+    set_page_title("Admin")
   end
 
   def index
-    @title = "Admin"
     render inertia: "Admin/Base/Index"
   end
 

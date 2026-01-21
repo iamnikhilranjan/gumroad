@@ -13,4 +13,8 @@ class Settings::BaseController < Sellers::BaseController
     def settings_presenter
       @settings_presenter ||= SettingsPresenter.new(pundit_user:)
     end
+
+    def set_title
+      set_page_title("Settings")
+    end
 end

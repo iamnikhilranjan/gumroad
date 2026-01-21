@@ -67,7 +67,7 @@ class UtmLinksController < Sellers::BaseController
 
   private
     def set_title
-      @title = "UTM Links"
+      set_page_title("UTM Links")
     end
 
     def set_utm_link

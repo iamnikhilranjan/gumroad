@@ -2,7 +2,7 @@
 
 class Admin::UnreviewedUsersController < Admin::BaseController
   def index
-    @title = "Unreviewed users"
+    set_page_title("Unreviewed users")
 
     cached_data = Admin::UnreviewedUsersService.cached_users_data
 

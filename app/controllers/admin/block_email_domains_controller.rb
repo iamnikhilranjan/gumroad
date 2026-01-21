@@ -4,7 +4,7 @@ class Admin::BlockEmailDomainsController < Admin::BaseController
   include MassBlocker
 
   def show
-    @title = "Mass-block email domains"
+    set_page_title("Mass-block email domains")
     render inertia: "Admin/BlockEmailDomains/Show"
   end
 

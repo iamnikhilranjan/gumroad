@@ -13,7 +13,7 @@ class WishlistsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @title = Feature.active?(:follow_wishlists, current_seller) ? "Saved" : "Wishlists"
+        set_page_title(Feature.active?(:follow_wishlists, current_seller) ? "Saved" : "Wishlists")
         wishlists_props = WishlistPresenter.library_props(wishlists: current_seller.wishlists.alive)
 
         render inertia: "Wishlists/Index", props: {
@@ -50,8 +50,8 @@ class WishlistsController < ApplicationController
     e404 if wishlist.blank?
 
     @user = wishlist.user
-    @title = wishlist.name
-    @show_user_favicon = true
+    set_page_title(wishlist.name)
+    set_favicon_meta_tags(@user)
 
     layout = params[:layout]
     props = WishlistPresenter.new(wishlist:).public_props(

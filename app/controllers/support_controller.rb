@@ -35,7 +35,7 @@ class SupportController < ApplicationController
 
   private
     def set_title
-      @title = "Support"
+      set_page_title("Support")
     end
 
     def validate_request_params
