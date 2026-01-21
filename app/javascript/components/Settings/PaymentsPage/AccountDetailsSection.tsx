@@ -522,76 +522,80 @@ const AccountDetailsSection = ({
             </div>
           ) : null}
           {complianceInfo.business_country === "JP" ? (
-            <div
-              style={{
-                display: "grid",
-                gap: "var(--spacer-5)",
-                gridTemplateColumns: "repeat(auto-fit, minmax(var(--dynamic-grid), 1fr))",
-              }}
-            >
-              <fieldset className={cx({ danger: errorFieldNames.has("business_building_number") })}>
-                <legend>
-                  <label htmlFor={`${uid}-business-building-number`}>Business block / Building number</label>
-                </legend>
-                <input
-                  id={`${uid}-business-building-number`}
-                  type="text"
-                  placeholder="1-1"
-                  value={complianceInfo.business_building_number || ""}
-                  disabled={isFormDisabled}
-                  aria-invalid={errorFieldNames.has("business_building_number")}
-                  required
-                  onChange={(evt) => updateComplianceInfo({ business_building_number: evt.target.value })}
-                />
-              </fieldset>
-              <fieldset className={cx({ danger: errorFieldNames.has("business_building_number_kana") })}>
-                <legend>
-                  <label htmlFor={`${uid}-business-building-number-kana`}>
-                    Business block / Building number (Kana)
-                  </label>
-                </legend>
-                <input
-                  id={`${uid}-business-building-number-kana`}
-                  type="text"
-                  placeholder="イチノイチ"
-                  value={complianceInfo.business_building_number_kana || ""}
-                  disabled={isFormDisabled}
-                  aria-invalid={errorFieldNames.has("business_building_number_kana")}
-                  required
-                  onChange={(evt) => updateComplianceInfo({ business_building_number_kana: evt.target.value })}
-                />
-              </fieldset>
-              <fieldset className={cx({ danger: errorFieldNames.has("business_street_address_kanji") })}>
-                <legend>
-                  <label htmlFor={`${uid}-business-street-address-kanji`}>Business town/Cho-me (Kanji)</label>
-                </legend>
-                <input
-                  id={`${uid}-business-street-address-kanji`}
-                  type="text"
-                  placeholder="千代田"
-                  value={complianceInfo.business_street_address_kanji || ""}
-                  disabled={isFormDisabled}
-                  aria-invalid={errorFieldNames.has("business_street_address_kanji")}
-                  required
-                  onChange={(evt) => updateComplianceInfo({ business_street_address_kanji: evt.target.value })}
-                />
-              </fieldset>
-              <fieldset className={cx({ danger: errorFieldNames.has("business_street_address_kana") })}>
-                <legend>
-                  <label htmlFor={`${uid}-business-street-address-kana`}>Business town/Cho-me (Kana)</label>
-                </legend>
-                <input
-                  id={`${uid}-business-street-address-kana`}
-                  type="text"
-                  placeholder="チヨダ"
-                  value={complianceInfo.business_street_address_kana || ""}
-                  disabled={isFormDisabled}
-                  aria-invalid={errorFieldNames.has("business_street_address_kana")}
-                  required
-                  onChange={(evt) => updateComplianceInfo({ business_street_address_kana: evt.target.value })}
-                />
-              </fieldset>
-            </div>
+            <>
+              <div
+                style={{
+                  display: "grid",
+                  gap: "var(--spacer-5)",
+                  gridAutoFlow: "column",
+                  gridAutoColumns: "1fr",
+                  alignItems: "end",
+                }}
+              >
+                <fieldset className={cx({ danger: errorFieldNames.has("business_building_number") })}>
+                  <legend>
+                    <label htmlFor={`${uid}-business-building-number`}>Block / Building number</label>
+                  </legend>
+                  <input
+                    id={`${uid}-business-building-number`}
+                    type="text"
+                    placeholder="1-1"
+                    value={complianceInfo.business_building_number || ""}
+                    disabled={isFormDisabled}
+                    aria-invalid={errorFieldNames.has("business_building_number")}
+                    required
+                    onChange={(evt) => updateComplianceInfo({ business_building_number: evt.target.value })}
+                  />
+                </fieldset>
+                <fieldset className={cx({ danger: errorFieldNames.has("business_building_number_kana") })}>
+                  <legend>
+                    <label htmlFor={`${uid}-business-building-number-kana`}>Block / Building number (Kana)</label>
+                  </legend>
+                  <input
+                    id={`${uid}-business-building-number-kana`}
+                    type="text"
+                    placeholder="イチノイチ"
+                    value={complianceInfo.business_building_number_kana || ""}
+                    disabled={isFormDisabled}
+                    aria-invalid={errorFieldNames.has("business_building_number_kana")}
+                    required
+                    onChange={(evt) => updateComplianceInfo({ business_building_number_kana: evt.target.value })}
+                  />
+                </fieldset>
+              </div>
+              <div style={{ display: "grid", gap: "var(--spacer-5)", gridAutoFlow: "column", gridAutoColumns: "1fr" }}>
+                <fieldset className={cx({ danger: errorFieldNames.has("business_street_address_kanji") })}>
+                  <legend>
+                    <label htmlFor={`${uid}-business-street-address-kanji`}>Business town/Cho-me (Kanji)</label>
+                  </legend>
+                  <input
+                    id={`${uid}-business-street-address-kanji`}
+                    type="text"
+                    placeholder="千代田"
+                    value={complianceInfo.business_street_address_kanji || ""}
+                    disabled={isFormDisabled}
+                    aria-invalid={errorFieldNames.has("business_street_address_kanji")}
+                    required
+                    onChange={(evt) => updateComplianceInfo({ business_street_address_kanji: evt.target.value })}
+                  />
+                </fieldset>
+                <fieldset className={cx({ danger: errorFieldNames.has("business_street_address_kana") })}>
+                  <legend>
+                    <label htmlFor={`${uid}-business-street-address-kana`}>Business town/Cho-me (Kana)</label>
+                  </legend>
+                  <input
+                    id={`${uid}-business-street-address-kana`}
+                    type="text"
+                    placeholder="チヨダ"
+                    value={complianceInfo.business_street_address_kana || ""}
+                    disabled={isFormDisabled}
+                    aria-invalid={errorFieldNames.has("business_street_address_kana")}
+                    required
+                    onChange={(evt) => updateComplianceInfo({ business_street_address_kana: evt.target.value })}
+                  />
+                </fieldset>
+              </div>
+            </>
           ) : (
             <fieldset className={cx({ danger: errorFieldNames.has("business_street_address") })}>
               <legend>
@@ -853,74 +857,80 @@ const AccountDetailsSection = ({
           </>
         ) : null}
         {complianceInfo.country === "JP" ? (
-          <div
-            style={{
-              display: "grid",
-              gap: "var(--spacer-5)",
-              gridTemplateColumns: "repeat(auto-fit, minmax(var(--dynamic-grid), 1fr))",
-            }}
-          >
-            <fieldset className={cx({ danger: errorFieldNames.has("building_number") })}>
-              <legend>
-                <label htmlFor={`${uid}-creator-building-number`}>Block / Building number</label>
-              </legend>
-              <input
-                id={`${uid}-creator-building-number`}
-                type="text"
-                placeholder="1-1"
-                value={complianceInfo.building_number || ""}
-                disabled={isFormDisabled}
-                aria-invalid={errorFieldNames.has("building_number")}
-                required
-                onChange={(evt) => updateComplianceInfo({ building_number: evt.target.value })}
-              />
-            </fieldset>
-            <fieldset className={cx({ danger: errorFieldNames.has("building_number_kana") })}>
-              <legend>
-                <label htmlFor={`${uid}-creator-building-number-kana`}>Block / Building number (Kana)</label>
-              </legend>
-              <input
-                id={`${uid}-creator-building-number-kana`}
-                type="text"
-                placeholder="イチノイチ"
-                value={complianceInfo.building_number_kana || ""}
-                disabled={isFormDisabled}
-                aria-invalid={errorFieldNames.has("building_number_kana")}
-                required
-                onChange={(evt) => updateComplianceInfo({ building_number_kana: evt.target.value })}
-              />
-            </fieldset>
-            <fieldset className={cx({ danger: errorFieldNames.has("street_address_kanji") })}>
-              <legend>
-                <label htmlFor={`${uid}-creator-street-address-kanji`}>Town/Cho-me (Kanji)</label>
-              </legend>
-              <input
-                id={`${uid}-creator-street-address-kanji`}
-                type="text"
-                placeholder="千代田"
-                value={complianceInfo.street_address_kanji || ""}
-                disabled={isFormDisabled}
-                aria-invalid={errorFieldNames.has("street_address_kanji")}
-                required
-                onChange={(evt) => updateComplianceInfo({ street_address_kanji: evt.target.value })}
-              />
-            </fieldset>
-            <fieldset className={cx({ danger: errorFieldNames.has("street_address_kana") })}>
-              <legend>
-                <label htmlFor={`${uid}-creator-street-address-kana`}>Town/Cho-me (Kana)</label>
-              </legend>
-              <input
-                id={`${uid}-creator-street-address-kana`}
-                type="text"
-                placeholder="チヨダ"
-                value={complianceInfo.street_address_kana || ""}
-                disabled={isFormDisabled}
-                aria-invalid={errorFieldNames.has("street_address_kana")}
-                required
-                onChange={(evt) => updateComplianceInfo({ street_address_kana: evt.target.value })}
-              />
-            </fieldset>
-          </div>
+          <>
+            <div
+              style={{
+                display: "grid",
+                gap: "var(--spacer-5)",
+                gridAutoFlow: "column",
+                gridAutoColumns: "1fr",
+                alignItems: "end",
+              }}
+            >
+              <fieldset className={cx({ danger: errorFieldNames.has("building_number") })}>
+                <legend>
+                  <label htmlFor={`${uid}-creator-building-number`}>Block / Building number</label>
+                </legend>
+                <input
+                  id={`${uid}-creator-building-number`}
+                  type="text"
+                  placeholder="1-1"
+                  value={complianceInfo.building_number || ""}
+                  disabled={isFormDisabled}
+                  aria-invalid={errorFieldNames.has("building_number")}
+                  required
+                  onChange={(evt) => updateComplianceInfo({ building_number: evt.target.value })}
+                />
+              </fieldset>
+              <fieldset className={cx({ danger: errorFieldNames.has("building_number_kana") })}>
+                <legend>
+                  <label htmlFor={`${uid}-creator-building-number-kana`}>Block / Building number (Kana)</label>
+                </legend>
+                <input
+                  id={`${uid}-creator-building-number-kana`}
+                  type="text"
+                  placeholder="イチノイチ"
+                  value={complianceInfo.building_number_kana || ""}
+                  disabled={isFormDisabled}
+                  aria-invalid={errorFieldNames.has("building_number_kana")}
+                  required
+                  onChange={(evt) => updateComplianceInfo({ building_number_kana: evt.target.value })}
+                />
+              </fieldset>
+            </div>
+            <div style={{ display: "grid", gap: "var(--spacer-5)", gridAutoFlow: "column", gridAutoColumns: "1fr" }}>
+              <fieldset className={cx({ danger: errorFieldNames.has("street_address_kanji") })}>
+                <legend>
+                  <label htmlFor={`${uid}-creator-street-address-kanji`}>Town/Cho-me (Kanji)</label>
+                </legend>
+                <input
+                  id={`${uid}-creator-street-address-kanji`}
+                  type="text"
+                  placeholder="千代田"
+                  value={complianceInfo.street_address_kanji || ""}
+                  disabled={isFormDisabled}
+                  aria-invalid={errorFieldNames.has("street_address_kanji")}
+                  required
+                  onChange={(evt) => updateComplianceInfo({ street_address_kanji: evt.target.value })}
+                />
+              </fieldset>
+              <fieldset className={cx({ danger: errorFieldNames.has("street_address_kana") })}>
+                <legend>
+                  <label htmlFor={`${uid}-creator-street-address-kana`}>Town/Cho-me (Kana)</label>
+                </legend>
+                <input
+                  id={`${uid}-creator-street-address-kana`}
+                  type="text"
+                  placeholder="チヨダ"
+                  value={complianceInfo.street_address_kana || ""}
+                  disabled={isFormDisabled}
+                  aria-invalid={errorFieldNames.has("street_address_kana")}
+                  required
+                  onChange={(evt) => updateComplianceInfo({ street_address_kana: evt.target.value })}
+                />
+              </fieldset>
+            </div>
+          </>
         ) : (
           <fieldset className={cx({ danger: errorFieldNames.has("street_address") })}>
             <legend>
