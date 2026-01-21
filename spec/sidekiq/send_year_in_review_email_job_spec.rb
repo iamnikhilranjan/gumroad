@@ -111,7 +111,7 @@ describe SendYearInReviewEmailJob do
           end.to change { ActionMailer::Base.deliveries.count }.by(1)
 
           mail = ActionMailer::Base.deliveries.last
-          expect(mail.body.sanitized).to include("Hey GPT-4o, can you suggest some things I could buy with my Gumroad earnings")
+          expect(mail.body.sanitized).to include("Hey, can you suggest some things I could buy with my Gumroad earnings")
           expect(mail.body.sanitized).to include("A nice desk lamp")
           expect(mail.body.sanitized).to include("A hardcover notebook")
           expect(mail.body.sanitized).to include("A cozy throw blanket")
