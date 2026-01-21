@@ -80,7 +80,7 @@ describe User::PayoutSchedule do
     end
   end
 
-  describe "#upcoming_payout_amounts" do
+  describe "#upcoming_payouts" do
     let(:user) { create(:user, payment_address: "bob1@example.com") }
 
     around do |example|
@@ -91,16 +91,22 @@ describe User::PayoutSchedule do
 
     context "when payout frequency is weekly" do
       it "returns nothing if the user has no unpaid balance" do
-        expect(user.upcoming_payout_amounts).to eq({})
+        expect(user.upcoming_payouts).to eq([])
       end
 
-      it "returns the correct upcoming payout amounts" do
+      it "returns the correct upcoming payouts" do
         create(:balance, user:, amount_cents: 100, date: Date.new(2025, 9, 17))
         create(:balance, user:, amount_cents: 2000, date: Date.new(2025, 9, 18))
-        expect(user.upcoming_payout_amounts).to eq({ Date.new(2025, 9, 26) => 2100 })
+        expect(user.upcoming_payouts.size).to eq 1
+        expect(user.upcoming_payouts[0].created_at).to eq(Date.new(2025, 9, 26))
+        expect(user.upcoming_payouts[0].amount_cents).to eq 2100
 
         create(:balance, user:, amount_cents: 2000, date: Date.new(2025, 9, 22))
-        expect(user.upcoming_payout_amounts).to eq({ Date.new(2025, 9, 26) => 2100, Date.new(2025, 10, 3) => 2000 })
+        expect(user.upcoming_payouts.size).to eq 2
+        expect(user.upcoming_payouts[0].created_at).to eq(Date.new(2025, 9, 26))
+        expect(user.upcoming_payouts[0].amount_cents).to eq 2100
+        expect(user.upcoming_payouts[1].created_at).to eq(Date.new(2025, 10, 3))
+        expect(user.upcoming_payouts[1].amount_cents).to eq 2000
       end
     end
   end

@@ -98,9 +98,20 @@ export const GetPayout = () => (
     path="/payouts/:id"
     description="Retrieves the details of a specific payout by this user. Available with the 'view_payouts' scope."
   >
+    <ApiParameters>
+      <ApiParameter
+          name="include_sales"
+          description='(optional, default: "true") - Set to "false" to exclude the "sales", "refunded_sales", and "disputed_sales" details from the response.'
+      />
+      <ApiParameter
+          name="include_transactions"
+          description='(optional, default: "false") - Set to "true" to include the same transaction details as exported payout CSV in the response. All balance transactions included in the payout will be listed in a "transactions" array. Each transaction will be in format: ["Type", "Date", "Purchase ID", "Item Name", "Buyer Name", "Buyer Email", "Taxes ($)", "Shipping ($)", "Sale Price ($)", "Gumroad Fees ($)", "Net Total ($)"]. The "Type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
+      />
+    </ApiParameters>
     <CodeSnippet caption="cURL example">
       {`curl https://api.gumroad.com/v2/payouts/fEGTaEpuKDsnDvf_MfecTA== \\
   -d "access_token=ACCESS_TOKEN" \\
+  -d "include_transactions=true" \\
   -X GET`}
     </CodeSnippet>
     <CodeSnippet caption="Example response:">
@@ -111,11 +122,196 @@ export const GetPayout = () => (
     "amount": "150.00",
     "currency": "USD",
     "status": "completed",
-    "created_at": "2021-01-05T19:38:56Z",
-    "processed_at": "2021-01-06T10:15:30Z",
-    "payment_processor": "stripe"
+    "created_at": "2021-01-15T19:38:56Z",
+    "processed_at": "2021-01-16T10:15:30Z",
+    "payment_processor": "stripe",
+    "sales": ["A-m3CDDC5dlrSdKZp0RFhA==", "mN7CdHiwHaR9FlxKvF-n-g=="],
+    "refunded_sales": ["mN7CdHiwHaR9FlxKvF-n-g=="],
+    "disputed_sales": ["A-m3CDDC5dlrSdKZp0RFhA=="],
+    "transactions": [[
+          "Sale",
+          "2021-01-04",
+          "A-m3CDDC5dlrSdKZp0RFhA==",
+          "Beautiful widget",
+          "Jane Doe",
+          "jane@example.com",
+          0, 0, 200, 26.6, 173.4],
+        [
+          "Sale",
+          "2021-01-05",
+          "mN7CdHiwHaR9FlxKvF-n-g==",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, 10, 2.09, 7.91],
+        [
+          "Full Refund",
+          "2021-01-05",
+          "mN7CdHiwHaR9FlxKvF-n-g==",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, -10, 2.09, -7.91],
+        [
+          "Chargeback",
+          "2021-01-05",
+          "A-m3CDDC5dlrSdKZp0RFhA== ",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, -200, 26.6, -173.4],
+        [
+          "PayPal Payouts",
+          "2021-01-06",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          -667, "",
+          -667]]
   }
 }`}
     </CodeSnippet>
   </ApiEndpoint>
+);
+
+export const GetUpcomingPayouts = () => (
+    <ApiEndpoint
+        method="get"
+        path="/payouts/upcoming"
+        description="Retrieves the details of upcoming payouts for this user. There can be up to 2 upcoming payouts at any given time. Available with the 'view_payouts' scope."
+    >
+      <ApiParameters>
+        <ApiParameter
+            name="include_sales"
+            description='(optional, default: "true") - Set to "false" to exclude the "sales", "refunded_sales", and "disputed_sales" details from the response.'
+        />
+        <ApiParameter
+            name="include_transactions"
+            description='(optional, default: "false") - Set to "true" to include the same transaction details as exported payout CSV in the response. All balance transactions included in the payout will be listed in a "transactions" array. Each transaction will be in format: ["Type", "Date", "Purchase ID", "Item Name", "Buyer Name", "Buyer Email", "Taxes ($)", "Shipping ($)", "Sale Price ($)", "Gumroad Fees ($)", "Net Total ($)"]. The "Type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
+        />
+      </ApiParameters>
+      <CodeSnippet caption="cURL example">
+        {`curl https://api.gumroad.com/v2/payouts/upcoming \\
+  -d "access_token=ACCESS_TOKEN" \\
+  -d "include_transactions=true" \\
+  -X GET`}
+      </CodeSnippet>
+      <CodeSnippet caption="Example response:">
+        {`{
+  "success": true,
+  "payouts": [{
+    "id": null,
+    "amount": "150.00",
+    "currency": "USD",
+    "status": "payable",
+    "created_at": "2021-01-15T19:38:56Z",
+    "processed_at": "2021-01-16T10:15:30Z",
+    "payment_processor": "stripe",
+    "sales": ["A-m3CDDC5dlrSdKZp0RFhA==", "mN7CdHiwHaR9FlxKvF-n-g=="],
+    "refunded_sales": ["mN7CdHiwHaR9FlxKvF-n-g=="],
+    "disputed_sales": ["A-m3CDDC5dlrSdKZp0RFhA=="],
+    "transactions": [[
+          "Sale",
+          "2021-01-04",
+          "A-m3CDDC5dlrSdKZp0RFhA==",
+          "Beautiful widget",
+          "Jane Doe",
+          "jane@example.com",
+          0, 0, 200, 26.6, 173.4],
+        [
+          "Sale",
+          "2021-01-05",
+          "mN7CdHiwHaR9FlxKvF-n-g==",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, 10, 2.09, 7.91],
+        [
+          "Full Refund",
+          "2021-01-05",
+          "mN7CdHiwHaR9FlxKvF-n-g==",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, -10, 2.09, -7.91],
+        [
+          "Chargeback",
+          "2021-01-05",
+          "A-m3CDDC5dlrSdKZp0RFhA== ",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, -200, 26.6, -173.4],
+        [
+          "PayPal Payouts",
+          "2021-01-06",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          -667, "",
+          -667]]
+  }, {
+    "id": null,
+    "amount": "275.50",
+    "currency": "USD",
+    "status": "payable",
+    "created_at": "2021-01-22T19:38:56Z",
+    "processed_at": "2021-01-23T10:15:30Z",
+    "payment_processor": "stripe",
+    "sales": ["A-m3CDDC5dlrSdKZp0RFhA==", "mN7CdHiwHaR9FlxKvF-n-g=="],
+    "refunded_sales": ["mN7CdHiwHaR9FlxKvF-n-g=="],
+    "disputed_sales": ["A-m3CDDC5dlrSdKZp0RFhA=="],
+    "transactions": [[
+          "Sale",
+          "2021-01-04",
+          "A-m3CDDC5dlrSdKZp0RFhA==",
+          "Beautiful widget",
+          "Jane Doe",
+          "jane@example.com",
+          0, 0, 200, 26.6, 173.4],
+        [
+          "Sale",
+          "2021-01-05",
+          "mN7CdHiwHaR9FlxKvF-n-g==",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, 10, 2.09, 7.91],
+        [
+          "Full Refund",
+          "2021-01-05",
+          "mN7CdHiwHaR9FlxKvF-n-g==",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, -10, 2.09, -7.91],
+        [
+          "Chargeback",
+          "2021-01-05",
+          "A-m3CDDC5dlrSdKZp0RFhA== ",
+          "Demo",
+          "John Doe",
+          "john@example.com",
+          0, 0, -200, 26.6, -173.4],
+        [
+          "PayPal Payouts",
+          "2021-01-06",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          -667, "",
+          -667]]
+  }]
+}`}
+      </CodeSnippet>
+    </ApiEndpoint>
 );

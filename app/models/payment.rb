@@ -208,6 +208,10 @@ class Payment < ApplicationRecord
       json[:disputed_sales] = disputed_sales.map(&:external_id)
     end
 
+    if options[:include_transactions]
+      json[:transactions] = transactions
+    end
+
     json
   end
 
@@ -230,6 +234,10 @@ class Payment < ApplicationRecord
             .includes(:link)
             .distinct
             .order(created_at: :desc, id: :desc)
+  end
+
+  def transactions
+    Exports::Payouts::Api.new(self).perform
   end
 
   private
