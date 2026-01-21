@@ -253,7 +253,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include(GUMROAD_NORWAY_VAT_REGISTRATION)
     end
 
-    it "shows Gumroad's TRN for Bahrain purchases" do
+    it "does not show tax registration for Bahrain purchases" do
       purchase = create(:purchase, link: @product, country: "Bahrain")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -265,8 +265,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -282,11 +281,10 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
-    it "shows Gumroad's KRA PIN for Kenya purchases" do
+    it "does not show tax registration for Kenya purchases" do
       purchase = create(:purchase, link: @product, country: "Kenya")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -298,8 +296,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -315,11 +312,10 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
-    it "shows Gumroad's FIRS TIN for Nigeria purchases" do
+    it "does not show tax registration for Nigeria purchases" do
       purchase = create(:purchase, link: @product, country: "Nigeria")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -331,8 +327,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -348,11 +343,10 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
-    it "shows Gumroad's TRA TIN for Tanzania purchases" do
+    it "does not show tax registration for Tanzania purchases" do
       purchase = create(:purchase, link: @product, country: "Tanzania")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -364,8 +358,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -381,11 +374,10 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
-    it "shows Gumroad's VAT registration number for Oman purchases" do
+    it "does not show tax registration for Oman purchases" do
       purchase = create(:purchase, link: @product, country: "Oman")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -397,8 +389,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -414,11 +405,10 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
-    it "shows Gumroad's Tax Registration Number for other countries that collect tax on all products" do
+    it "does not show tax registration for other countries that collect tax on all products" do
       purchase = create(:purchase, link: @product, country: "Iceland")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -430,8 +420,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -447,11 +436,10 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
-    it "shows Gumroad's Tax Registration Number for other countries that collect tax on digital products" do
+    it "does not show tax registration for other countries that collect tax on digital products" do
       purchase = create(:purchase, link: @product, country: "Chile")
 
       visit generate_invoice_by_buyer_path(purchase.external_id, email: purchase.email)
@@ -463,8 +451,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       fill_in("ZIP code", with: "12345")
 
       within find("h5", text: "Supplier").first(:xpath, ".//..//..") do
-        expect(page).to have_content("VAT Registration Number")
-        expect(page).to have_content(GUMROAD_OTHER_TAX_REGISTRATION)
+        expect(page).not_to have_content("VAT Registration Number")
       end
 
       click_on "Download"
@@ -480,8 +467,7 @@ describe("Generate invoice for purchase", type: :system, js: true) do
       expect(pdf_text).to include("Item purchased")
       expect(pdf_text).to include(purchase.link.name)
       expect(pdf_text).to include(purchase.formatted_non_refunded_total_transaction_amount)
-      expect(pdf_text).to include("VAT Registration Number")
-      expect(pdf_text).to include(GUMROAD_OTHER_TAX_REGISTRATION)
+      expect(pdf_text).not_to include("VAT Registration Number")
     end
 
     it "shows Gumroad as the supplier for a physical product sale" do
