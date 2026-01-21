@@ -44,7 +44,7 @@ class SendYearInReviewEmailJob
 
     analytics_data[:top_selling_products] = map_top_selling_products(seller, data_by_date[:by_date])
 
-    analytics_data[:gpt3_buy_list] = self.class.get_buy_list_from_total(
+    analytics_data[:gpt_buy_list] = self.class.get_buy_list_from_total(
       total_amount_cents: analytics_data[:total_amount_cents],
       currency: seller.currency_type
     )
@@ -73,7 +73,7 @@ class SendYearInReviewEmailJob
   def self.get_buy_list_from_total(total_amount_cents:, currency:)
     formatted_total_in_usd = Money.new(total_amount_cents, currency).format(no_cents_if_whole: true)
 
-    Rails.cache.fetch("gpt3_buy_list_#{total_amount_cents}_#{currency}", expires_in: 1.day) do
+    Rails.cache.fetch("gpt_buy_list_#{total_amount_cents}_#{currency}", expires_in: 1.day) do
       content = "Print a numbered list of 5 things that I could buy with #{formatted_total_in_usd}. " \
                 "Don't include their prices. Don't start the answer with any introduction, just list the items."
       response = OpenAI::Client.new.chat(parameters: { model: "gpt-4o-mini",

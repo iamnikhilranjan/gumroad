@@ -115,7 +115,7 @@
   <h2 style="text-align: center;">You earned a total of <%= formatted_total_amount %></h2>
 </div>
 
-<% if @analytics_data[:gpt3_buy_list].present? %>
+<% if @analytics_data[:gpt_buy_list].present? %>
   <div>
     <table class="reset list">
       <colgroup>
@@ -137,7 +137,7 @@
           </td>
           <td>
             <ul style="padding: 0; margin: 0; list-style: none;">
-              <% @analytics_data[:gpt3_buy_list].each do |item| %>
+              <% @analytics_data[:gpt_buy_list].each do |item| %>
                 <li><%= item %></li>
               <% end %>
             </ul>
