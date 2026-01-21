@@ -7,7 +7,7 @@ export type MetaTag = {
   headKey: string;
   httpEquiv: string | null;
   [key: string]: string | null;
-}
+};
 
 type PageProps = {
   _inertia_meta?: MetaTag[];
@@ -26,26 +26,21 @@ const MetaTags = () => {
       {meta.map((meta: MetaTag) => {
         const { tagName, innerContent, headKey, httpEquiv, ...attrs } = meta;
 
-        let stringifiedInnerContent
+        let stringifiedInnerContent;
         if (innerContent != null) {
-          stringifiedInnerContent =
-            typeof innerContent === 'string'
-              ? innerContent
-              : JSON.stringify(innerContent)
+          stringifiedInnerContent = typeof innerContent === "string" ? innerContent : JSON.stringify(innerContent);
         }
 
         return React.createElement(tagName, {
           key: headKey,
-          'head-key': headKey,
-          ...(httpEquiv ? { 'http-equiv': httpEquiv } : {}),
+          "head-key": headKey,
+          ...(httpEquiv ? { "http-equiv": httpEquiv } : {}),
           ...attrs,
-          ...(stringifiedInnerContent
-            ? { dangerouslySetInnerHTML: { __html: stringifiedInnerContent } }
-            : {}),
-        })
+          ...(stringifiedInnerContent ? { dangerouslySetInnerHTML: { __html: stringifiedInnerContent } } : {}),
+        });
       })}
     </Head>
   );
-}
+};
 
 export default MetaTags;

@@ -7,7 +7,6 @@ module SetPageMeta
   include ActionView::Helpers::TagHelper
 
   private
-
     def set_title
       case Rails.env
       when "production"

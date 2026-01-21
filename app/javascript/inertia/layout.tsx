@@ -1,6 +1,7 @@
 import { usePage } from "@inertiajs/react";
 import React from "react";
 
+import MetaTags, { type MetaTag } from "$app/layouts/components/MetaTags";
 import { classNames } from "$app/utils/classNames";
 
 import { Nav } from "$app/components/client-components/Nav";
@@ -10,8 +11,6 @@ import { type LoggedInUser, LoggedInUserProvider, parseLoggedInUser } from "$app
 import Alert, { type AlertPayload } from "$app/components/server-components/Alert";
 import { useFlashMessage } from "$app/components/useFlashMessage";
 import useRouteLoading from "$app/components/useRouteLoading";
-
-import MetaTags, { type MetaTag } from "$app/layouts/components/MetaTags";
 
 type PageProps = {
   _inertia_meta?: MetaTag[];
