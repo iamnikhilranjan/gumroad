@@ -214,7 +214,7 @@ const WithContent = ({
     const index = pages.findIndex((page) => page.page_id === content.last_content_page_id);
     return index >= 0 ? index : 0;
   };
-  const [activePageIndex, setActivePageIndex] = React.useState(getInitialPageIndex);
+  const [activePageIndex, setActivePageIndex] = React.useState(getInitialPageIndex());
   const activePage = pages[activePageIndex];
 
   const handlePageChange = React.useCallback(
