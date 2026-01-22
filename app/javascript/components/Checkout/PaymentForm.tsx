@@ -250,13 +250,7 @@ const EmailAddress = ({ card }: { card: boolean }) => {
   );
 };
 
-const SharedInputs = ({
-  showCustomFields,
-  className,
-}: {
-  showCustomFields: boolean;
-  className?: string | undefined;
-}) => {
+const SharedInputs = ({ className }: { className?: string | undefined }) => {
   const uid = React.useId();
   const [state, dispatch] = useState();
   const errors = getErrors(state);
@@ -367,45 +361,42 @@ const SharedInputs = ({
 
   const showCountryInput = !(hasShipping(state) || !requiresPayment(state));
 
+  if (!(showCountryInput || showVatIdInput)) return null;
+
   return (
-    <>
-      {showCountryInput || showVatIdInput ? (
-        <div className={className}>
-          <div className="flex grow flex-col gap-4">
-            <h4 className="text-base sm:text-lg">Contact information</h4>
-            {showCountryInput ? (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(min((20rem - 100%) * 1000, 100%), 1fr))",
-                  gap: "var(--spacer-4)",
-                }}
-              >
-                <CountryInput />
-                {state.country === "US" ? <ZipCodeInput /> : null}
-                {state.country === "CA" ? <StateInput /> : null}
-              </div>
-            ) : null}
-            {showVatIdInput ? (
-              <fieldset className={cx({ danger: errors.has("vatId") })}>
-                <legend>
-                  <label htmlFor={`${uid}vatId`}>{vatLabel}</label>
-                </legend>
-                <input
-                  id={`${uid}vatId`}
-                  type="text"
-                  placeholder={vatLabel}
-                  value={state.vatId}
-                  onChange={(e) => dispatch({ type: "set-value", vatId: e.target.value })}
-                  disabled={isProcessing(state)}
-                />
-              </fieldset>
-            ) : null}
+    <div className={className}>
+      <div className="flex grow flex-col gap-4">
+        <h4 className="text-base sm:text-lg">Contact information</h4>
+        {showCountryInput ? (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min((20rem - 100%) * 1000, 100%), 1fr))",
+              gap: "var(--spacer-4)",
+            }}
+          >
+            <CountryInput />
+            {state.country === "US" ? <ZipCodeInput /> : null}
+            {state.country === "CA" ? <StateInput /> : null}
           </div>
-        </div>
-      ) : null}
-      {showCustomFields ? <CustomFields className={className} /> : null}
-    </>
+        ) : null}
+        {showVatIdInput ? (
+          <fieldset className={cx({ danger: errors.has("vatId") })}>
+            <legend>
+              <label htmlFor={`${uid}vatId`}>{vatLabel}</label>
+            </legend>
+            <input
+              id={`${uid}vatId`}
+              type="text"
+              placeholder={vatLabel}
+              value={state.vatId}
+              onChange={(e) => dispatch({ type: "set-value", vatId: e.target.value })}
+              disabled={isProcessing(state)}
+            />
+          </fieldset>
+        ) : null}
+      </div>
+    </div>
   );
 };
 
@@ -440,7 +431,7 @@ const useFail = () => {
   };
 };
 
-const CustomerDetails = ({ showCustomFields, className }: { showCustomFields: boolean; className?: string }) => {
+const CustomerDetails = ({ className }: { className?: string }) => {
   const isLoggedIn = !!useLoggedInUser();
   const [state, dispatch] = useState();
   const uid = React.useId();
@@ -487,7 +478,7 @@ const CustomerDetails = ({ showCustomFields, className }: { showCustomFields: bo
 
   return (
     <>
-      <SharedInputs showCustomFields={showCustomFields} className={className} />
+      <SharedInputs className={className} />
       {hasShipping(state) ? (
         <div className={className}>
           <div className="flex grow flex-col gap-4">
@@ -1139,53 +1130,57 @@ export const PaymentForm = ({
   }, [state.status.type]);
 
   return (
-    <Card ref={paymentFormRef} className={className} aria-label="Payment form">
-      {isTestPurchase ? (
-        <CardContent className="p-4 sm:p-6">
-          <Alert variant="info" className="grow">
-            This will be a test purchase as you are the creator of at least one of the products. Your payment method
-            will not be charged.
-          </Alert>
-        </CardContent>
+    <div className="flex flex-col gap-6">
+      {showCustomFields ? (
+        <Card>
+          <CustomFields className="p-4 sm:p-6" />
+        </Card>
       ) : null}
-      <EmailAddress card />
-      {!isFreePurchase ? (
-        <>
-          <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
-            <div className="flex grow flex-col gap-4">
-              <h4 className="text-base sm:text-lg">Pay with</h4>
-              {state.availablePaymentMethods.length > 1 ? (
-                <Tabs variant="buttons" className="auto-cols-fr grid-flow-col">
-                  {state.availablePaymentMethods.map((method) => (
-                    <React.Fragment key={method.type}>{method.button}</React.Fragment>
-                  ))}
-                </Tabs>
-              ) : null}
-            </div>
+      <Card ref={paymentFormRef} className={className} aria-label="Payment form">
+        {isTestPurchase ? (
+          <CardContent className="p-4 sm:p-6">
+            <Alert variant="info" className="grow">
+              This will be a test purchase as you are the creator of at least one of the products. Your payment method
+              will not be charged.
+            </Alert>
           </CardContent>
-          {notice ? (
-            <CardContent>
-              <Alert variant="info" className="grow">
-                {notice}
-              </Alert>
+        ) : null}
+        <EmailAddress card />
+        {!isFreePurchase ? (
+          <>
+            <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
+              <div className="flex grow flex-col gap-4">
+                <h4 className="text-base sm:text-lg">Pay with</h4>
+                {state.availablePaymentMethods.length > 1 ? (
+                  <Tabs variant="buttons" className="auto-cols-fr grid-flow-col">
+                    {state.availablePaymentMethods.map((method) => (
+                      <React.Fragment key={method.type}>{method.button}</React.Fragment>
+                    ))}
+                  </Tabs>
+                ) : null}
+              </div>
             </CardContent>
-          ) : null}
-          <CreditCard card />
-        </>
-      ) : null}
-      <CustomerDetails
-        showCustomFields={showCustomFields}
-        className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6"
-      />
-      {!isFreePurchase ? (
-        <>
-          <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
-          <StripeElementsProvider>
-            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
-          </StripeElementsProvider>
-        </>
-      ) : null}
-      {recaptcha.container}
-    </Card>
+            {notice ? (
+              <CardContent>
+                <Alert variant="info" className="grow">
+                  {notice}
+                </Alert>
+              </CardContent>
+            ) : null}
+            <CreditCard card />
+          </>
+        ) : null}
+        <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" />
+        {!isFreePurchase ? (
+          <>
+            <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
+            <StripeElementsProvider>
+              <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
+            </StripeElementsProvider>
+          </>
+        ) : null}
+        {recaptcha.container}
+      </Card>
+    </div>
   );
 };
