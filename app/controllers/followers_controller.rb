@@ -41,10 +41,7 @@ class FollowersController < ApplicationController
       page: pagination.page,
       has_more: pagination.next.present?,
       email:,
-    }, meta: [
-      { title: "Posts" },
-      { property: "og:title", content: "Posts" }
-    ]
+    }
   end
 
   def create
