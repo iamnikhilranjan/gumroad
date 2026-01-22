@@ -84,6 +84,7 @@ type PaymentsPageProps = {
   payouts_paused_by_user: boolean;
   payout_threshold_cents: number;
   minimum_payout_threshold_cents: number;
+  payout_country_name: string | null;
   payout_frequency: PayoutFrequency;
   payout_frequency_daily_supported: boolean;
   errors?: {
@@ -722,6 +723,16 @@ export default function PaymentsPage() {
 
   const payoutThresholdError = form.data.payout_threshold_cents < props.minimum_payout_threshold_cents;
 
+  const handlePayoutThresholdChange = (value: number | null) => {
+    form.setData("payout_threshold_cents", value ?? 0);
+  };
+
+  const handlePayoutThresholdBlur = () => {
+    if (!form.data.payout_threshold_cents) {
+      form.setData("payout_threshold_cents", props.minimum_payout_threshold_cents);
+    }
+  };
+
   const payoutsPausedToggle = (
     <fieldset>
       <Toggle
@@ -847,6 +858,7 @@ export default function PaymentsPage() {
         <section className="p-4! md:p-8!">
           <header>
             <h2>Payout schedule</h2>
+            <p>Payouts will only happen on your chosen schedule once the minimum balance is reached.</p>
           </header>
           <section className="flex flex-col gap-4">
             <fieldset>
@@ -887,16 +899,23 @@ export default function PaymentsPage() {
                 currencyCode="usd"
                 cents={form.data.payout_threshold_cents}
                 disabled={props.is_form_disabled}
-                onChange={(value) => {
-                  form.setData("payout_threshold_cents", value !== null ? value : props.minimum_payout_threshold_cents);
-                }}
+                onChange={handlePayoutThresholdChange}
+                onBlur={handlePayoutThresholdBlur}
                 placeholder={formatPriceCentsWithoutCurrencySymbol("usd", props.minimum_payout_threshold_cents)}
                 ariaLabel="Minimum payout threshold"
                 hasError={!!payoutThresholdError}
               />
               {payoutThresholdError ? (
                 <small>
-                  Your payout threshold must be at least{" "}
+                  The minimum payout threshold for {props.payout_country_name ?? "your country"} is{" "}
+                  {formatPriceCentsWithCurrencySymbol("usd", props.minimum_payout_threshold_cents, {
+                    symbolFormat: "long",
+                  })}
+                  .
+                </small>
+              ) : props.minimum_payout_threshold_cents > 1000 ? (
+                <small>
+                  Based on your country, the minimum amount required to process a payout is{" "}
                   {formatPriceCentsWithCurrencySymbol("usd", props.minimum_payout_threshold_cents, {
                     symbolFormat: "long",
                   })}
