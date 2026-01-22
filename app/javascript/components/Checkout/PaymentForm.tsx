@@ -213,7 +213,7 @@ const EmailAddress = ({ card }: { card: boolean }) => {
   };
 
   return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4" : ""}>
+    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" : ""}>
       <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
         <fieldset className={cx({ danger: errors.has("email") })}>
           <legend>
@@ -601,7 +601,7 @@ const CustomerDetails = ({ showCustomFields, className }: { showCustomFields: bo
         </div>
       ) : null}
       {state.paymentMethod !== "paypal" && state.paymentMethod !== "stripePaymentRequest" ? (
-        <div className={className}>
+        <div className={cx(className, "border-b-0")}>
           <Button
             color="primary"
             onClick={() => dispatch({ type: "offer" })}
@@ -688,7 +688,7 @@ const CreditCard = ({ card }: { card?: boolean }) => {
   if (state.paymentMethod !== "card") return null;
 
   return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0!" : ""}>
+    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-6" : ""}>
       <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
         {!useSavedCard ? (
           <fieldset>
@@ -1141,7 +1141,7 @@ export const PaymentForm = ({
   return (
     <Card ref={paymentFormRef} className={className} aria-label="Payment form">
       {isTestPurchase ? (
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <Alert variant="info" className="grow">
             This will be a test purchase as you are the creator of at least one of the products. Your payment method
             will not be charged.
@@ -1175,13 +1175,13 @@ export const PaymentForm = ({
       ) : null}
       <CustomerDetails
         showCustomFields={showCustomFields}
-        className="flex flex-wrap items-center justify-between gap-4 p-4"
+        className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6"
       />
       {!isFreePurchase ? (
         <>
-          <PayPal className="flex flex-wrap items-center justify-between gap-4 p-4" />
+          <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
           <StripeElementsProvider>
-            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 p-4" />
+            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
           </StripeElementsProvider>
         </>
       ) : null}
