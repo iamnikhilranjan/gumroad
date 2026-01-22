@@ -555,8 +555,8 @@ describe Api::V2::PayoutsController do
                                              charge_processor_id: PaypalChargeProcessor.charge_processor_id,
                                              chargeable: create(:native_paypal_chargeable),
                                              merchant_account: create(:merchant_account_paypal, user: @seller,
-                                                                      charge_processor_merchant_id: "CJS32DZ7NDN5L",
-                                                                      country: "GB", currency: "gbp")
+                                                                                                charge_processor_merchant_id: "CJS32DZ7NDN5L",
+                                                                                                country: "GB", currency: "gbp")
           @paypal_purchase.update!(affiliate_credit_cents: 200)
 
           @purchase_with_tax = create_purchase price_cents: 1000, seller: @seller, link: @product, tax_cents: 200
@@ -617,25 +617,25 @@ describe Api::V2::PayoutsController do
         response_payout = response.parsed_body["payout"]
         expect(response_payout).to have_key("transactions")
         expect(response_payout["transactions"]).to eq [
-                                                        ["Chargeback", @purchase_to_chargeback.chargeback_date.to_date.to_s, @purchase_to_chargeback.external_id, @purchase_to_chargeback.link.name, @purchase_to_chargeback.full_name, @purchase_to_chargeback.purchaser_email_or_email, -0.0, -0.0, -10.0, -2.09, -7.91],
-                                                        ["Sale", @purchase_to_chargeback.succeeded_at.to_date.to_s, @purchase_to_chargeback.external_id, @purchase_to_chargeback.link.name, @purchase_to_chargeback.full_name, @purchase_to_chargeback.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Credit", @user_credit.balance.date.to_s, "", "", "", "", "", "", 10.0, "", 10.0],
-                                                        ["Sale", @regular_purchase.succeeded_at.to_date.to_s, @regular_purchase.external_id, @regular_purchase.link.name, @regular_purchase.full_name, @regular_purchase.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Sale", @purchase_with_tax.succeeded_at.to_date.to_s, @purchase_with_tax.external_id, @purchase_with_tax.link.name, @purchase_with_tax.full_name, @purchase_with_tax.purchaser_email_or_email, 2.0, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Sale", @purchase_with_gumroad_tax.succeeded_at.to_date.to_s, @purchase_with_gumroad_tax.external_id, @purchase_with_gumroad_tax.link.name, @purchase_with_gumroad_tax.full_name, @purchase_with_gumroad_tax.purchaser_email_or_email, 1.8, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Sale", @purchase_to_refund.succeeded_at.to_date.to_s, @purchase_to_refund.external_id, @purchase_to_refund.link.name, @purchase_to_refund.full_name, @purchase_to_refund.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Sale", @purchase_to_refund_partially.succeeded_at.to_date.to_s, @purchase_to_refund_partially.external_id, @purchase_to_refund_partially.link.name, @purchase_to_refund_partially.full_name, @purchase_to_refund_partially.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Sale", @purchase_to_refund_from_years_ago.succeeded_at.to_date.to_s, @purchase_to_refund_from_years_ago.external_id, @purchase_to_refund_from_years_ago.link.name, @purchase_to_refund_from_years_ago.full_name, @purchase_to_refund_from_years_ago.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
-                                                        ["Affiliate Credit", @purchase_with_tax.succeeded_at.to_date.to_s, "", "", "", "", "", "", 0.23, "", 0.23],
-                                                        ["Credit", @credit_for_dispute_won.balance.date.to_s, @regular_purchase.external_id, "", "", "", "", "", 7.91, "", 7.91],
-                                                        ["Sale", @paypal_purchase.succeeded_at.to_date.to_s, @paypal_purchase.external_id, @paypal_purchase.link.name, @paypal_purchase.full_name, @paypal_purchase.purchaser_email_or_email, 0.0, 0.0, 10.0, 1.5, 8.5],
-                                                        ["PayPal Connect Affiliate Fees", @paypal_purchase.succeeded_at.to_date.to_s, "", "", "", "", "", "", -2.0, "", -2.0],
-                                                        ["Full Refund", (@purchase_to_refund.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund.external_id, @purchase_to_refund.link.name, @purchase_to_refund.full_name, @purchase_to_refund.purchaser_email_or_email, -0.0, -0.0, -10.0, -1.5, -8.5],
-                                                        ["Partial Refund", (@purchase_to_refund_partially.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund_partially.external_id, @purchase_to_refund_partially.link.name, @purchase_to_refund_partially.full_name, @purchase_to_refund_partially.purchaser_email_or_email, -0.0, -0.0, -3.5, -0.52, -2.98],
-                                                        ["Full Refund", (@purchase_to_refund_from_years_ago.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund_from_years_ago.external_id, @purchase_to_refund_from_years_ago.link.name, @purchase_to_refund_from_years_ago.full_name, @purchase_to_refund_from_years_ago.purchaser_email_or_email, -0.0, -0.0, -10.0, -1.5, -8.5],
-                                                        ["PayPal Payouts", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", -6.5, "", -6.5],
-                                                        ["Payout Fee", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", "", 0.92, -0.92],
-                                                      ]
+          ["Chargeback", @purchase_to_chargeback.chargeback_date.to_date.to_s, @purchase_to_chargeback.external_id, @purchase_to_chargeback.link.name, @purchase_to_chargeback.full_name, @purchase_to_chargeback.purchaser_email_or_email, -0.0, -0.0, -10.0, -2.09, -7.91],
+          ["Sale", @purchase_to_chargeback.succeeded_at.to_date.to_s, @purchase_to_chargeback.external_id, @purchase_to_chargeback.link.name, @purchase_to_chargeback.full_name, @purchase_to_chargeback.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
+          ["Credit", @user_credit.balance.date.to_s, "", "", "", "", "", "", 10.0, "", 10.0],
+          ["Sale", @regular_purchase.succeeded_at.to_date.to_s, @regular_purchase.external_id, @regular_purchase.link.name, @regular_purchase.full_name, @regular_purchase.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
+          ["Sale", @purchase_with_tax.succeeded_at.to_date.to_s, @purchase_with_tax.external_id, @purchase_with_tax.link.name, @purchase_with_tax.full_name, @purchase_with_tax.purchaser_email_or_email, 2.0, 0.0, 10.0, 2.09, 7.91],
+          ["Sale", @purchase_with_gumroad_tax.succeeded_at.to_date.to_s, @purchase_with_gumroad_tax.external_id, @purchase_with_gumroad_tax.link.name, @purchase_with_gumroad_tax.full_name, @purchase_with_gumroad_tax.purchaser_email_or_email, 1.8, 0.0, 10.0, 2.09, 7.91],
+          ["Sale", @purchase_to_refund.succeeded_at.to_date.to_s, @purchase_to_refund.external_id, @purchase_to_refund.link.name, @purchase_to_refund.full_name, @purchase_to_refund.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
+          ["Sale", @purchase_to_refund_partially.succeeded_at.to_date.to_s, @purchase_to_refund_partially.external_id, @purchase_to_refund_partially.link.name, @purchase_to_refund_partially.full_name, @purchase_to_refund_partially.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
+          ["Sale", @purchase_to_refund_from_years_ago.succeeded_at.to_date.to_s, @purchase_to_refund_from_years_ago.external_id, @purchase_to_refund_from_years_ago.link.name, @purchase_to_refund_from_years_ago.full_name, @purchase_to_refund_from_years_ago.purchaser_email_or_email, 0.0, 0.0, 10.0, 2.09, 7.91],
+          ["Affiliate Credit", @purchase_with_tax.succeeded_at.to_date.to_s, "", "", "", "", "", "", 0.23, "", 0.23],
+          ["Credit", @credit_for_dispute_won.balance.date.to_s, @regular_purchase.external_id, "", "", "", "", "", 7.91, "", 7.91],
+          ["Sale", @paypal_purchase.succeeded_at.to_date.to_s, @paypal_purchase.external_id, @paypal_purchase.link.name, @paypal_purchase.full_name, @paypal_purchase.purchaser_email_or_email, 0.0, 0.0, 10.0, 1.5, 8.5],
+          ["PayPal Connect Affiliate Fees", @paypal_purchase.succeeded_at.to_date.to_s, "", "", "", "", "", "", -2.0, "", -2.0],
+          ["Full Refund", (@purchase_to_refund.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund.external_id, @purchase_to_refund.link.name, @purchase_to_refund.full_name, @purchase_to_refund.purchaser_email_or_email, -0.0, -0.0, -10.0, -1.5, -8.5],
+          ["Partial Refund", (@purchase_to_refund_partially.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund_partially.external_id, @purchase_to_refund_partially.link.name, @purchase_to_refund_partially.full_name, @purchase_to_refund_partially.purchaser_email_or_email, -0.0, -0.0, -3.5, -0.52, -2.98],
+          ["Full Refund", (@purchase_to_refund_from_years_ago.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund_from_years_ago.external_id, @purchase_to_refund_from_years_ago.link.name, @purchase_to_refund_from_years_ago.full_name, @purchase_to_refund_from_years_ago.purchaser_email_or_email, -0.0, -0.0, -10.0, -1.5, -8.5],
+          ["PayPal Payouts", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", -6.5, "", -6.5],
+          ["Payout Fee", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", "", 0.92, -0.92],
+        ]
       end
     end
   end
