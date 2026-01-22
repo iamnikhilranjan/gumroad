@@ -100,12 +100,12 @@ export const GetPayout = () => (
   >
     <ApiParameters>
       <ApiParameter
-          name="include_sales"
-          description='(optional, default: "true") - Set to "false" to exclude the "sales", "refunded_sales", and "disputed_sales" details from the response.'
+        name="include_sales"
+        description='(optional, default: "true") - Set to "false" to exclude the "sales", "refunded_sales", and "disputed_sales" details from the response.'
       />
       <ApiParameter
-          name="include_transactions"
-          description='(optional, default: "false") - Set to "true" to include the same transaction details as exported payout CSV in the response. All balance transactions included in the payout will be listed in a "transactions" array. Each transaction will be in format: ["Type", "Date", "Purchase ID", "Item Name", "Buyer Name", "Buyer Email", "Taxes ($)", "Shipping ($)", "Sale Price ($)", "Gumroad Fees ($)", "Net Total ($)"]. The "Type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
+        name="include_transactions"
+        description='(optional, default: "false") - Set to "true" to include the same transaction details as exported payout CSV in the response. All balance transactions included in the payout will be listed in a "transactions" array. Each transaction will be in format: ["Type", "Date", "Purchase ID", "Item Name", "Buyer Name", "Buyer Email", "Taxes ($)", "Shipping ($)", "Sale Price ($)", "Gumroad Fees ($)", "Net Total ($)"]. The "Type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
       />
     </ApiParameters>
     <CodeSnippet caption="cURL example">
@@ -178,29 +178,29 @@ export const GetPayout = () => (
 );
 
 export const GetUpcomingPayouts = () => (
-    <ApiEndpoint
-        method="get"
-        path="/payouts/upcoming"
-        description="Retrieves the details of upcoming payouts for this user. There can be up to 2 upcoming payouts at any given time. Available with the 'view_payouts' scope."
-    >
-      <ApiParameters>
-        <ApiParameter
-            name="include_sales"
-            description='(optional, default: "true") - Set to "false" to exclude the "sales", "refunded_sales", and "disputed_sales" details from the response.'
-        />
-        <ApiParameter
-            name="include_transactions"
-            description='(optional, default: "false") - Set to "true" to include the same transaction details as exported payout CSV in the response. All balance transactions included in the payout will be listed in a "transactions" array. Each transaction will be in format: ["Type", "Date", "Purchase ID", "Item Name", "Buyer Name", "Buyer Email", "Taxes ($)", "Shipping ($)", "Sale Price ($)", "Gumroad Fees ($)", "Net Total ($)"]. The "Type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
-        />
-      </ApiParameters>
-      <CodeSnippet caption="cURL example">
-        {`curl https://api.gumroad.com/v2/payouts/upcoming \\
+  <ApiEndpoint
+    method="get"
+    path="/payouts/upcoming"
+    description="Retrieves the details of upcoming payouts for this user. There can be up to 2 upcoming payouts at any given time. Available with the 'view_payouts' scope."
+  >
+    <ApiParameters>
+      <ApiParameter
+        name="include_sales"
+        description='(optional, default: "true") - Set to "false" to exclude the "sales", "refunded_sales", and "disputed_sales" details from the response.'
+      />
+      <ApiParameter
+        name="include_transactions"
+        description='(optional, default: "false") - Set to "true" to include the same transaction details as exported payout CSV in the response. All balance transactions included in the payout will be listed in a "transactions" array. Each transaction will be in format: ["Type", "Date", "Purchase ID", "Item Name", "Buyer Name", "Buyer Email", "Taxes ($)", "Shipping ($)", "Sale Price ($)", "Gumroad Fees ($)", "Net Total ($)"]. The "Type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
+      />
+    </ApiParameters>
+    <CodeSnippet caption="cURL example">
+      {`curl https://api.gumroad.com/v2/payouts/upcoming \\
   -d "access_token=ACCESS_TOKEN" \\
   -d "include_transactions=true" \\
   -X GET`}
-      </CodeSnippet>
-      <CodeSnippet caption="Example response:">
-        {`{
+    </CodeSnippet>
+    <CodeSnippet caption="Example response:">
+      {`{
   "success": true,
   "payouts": [{
     "id": null,
@@ -312,6 +312,6 @@ export const GetUpcomingPayouts = () => (
           -667]]
   }]
 }`}
-      </CodeSnippet>
-    </ApiEndpoint>
+    </CodeSnippet>
+  </ApiEndpoint>
 );
