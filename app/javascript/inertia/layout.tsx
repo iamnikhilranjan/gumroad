@@ -1,8 +1,6 @@
 import { Head, usePage } from "@inertiajs/react";
 import React from "react";
 
-import { classNames } from "$app/utils/classNames";
-
 import { Nav } from "$app/components/client-components/Nav";
 import { CurrentSellerProvider, parseCurrentSeller } from "$app/components/CurrentSeller";
 import LoadingSkeleton from "$app/components/LoadingSkeleton";
