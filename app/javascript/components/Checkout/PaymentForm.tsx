@@ -218,7 +218,7 @@ const EmailAddress = ({ card }: { card: boolean }) => {
         <fieldset className={cx({ danger: errors.has("email") })}>
           <legend>
             <label htmlFor={`${uid}email`}>
-              <h4>Email address</h4>
+              <h4 className="text-base sm:text-lg">Email address</h4>
             </label>
           </legend>
           <div className={cx("popover", { expanded: !!state.emailTypoSuggestion })} style={{ width: "100%" }}>
@@ -372,7 +372,7 @@ const SharedInputs = ({
       {showCountryInput || showVatIdInput ? (
         <div className={className}>
           <div className="flex grow flex-col gap-4">
-            <h4 className="font-bold">Contact information</h4>
+            <h4 className="text-base sm:text-lg">Contact information</h4>
             {showCountryInput ? (
               <div
                 style={{
@@ -491,7 +491,7 @@ const CustomerDetails = ({ showCustomFields, className }: { showCustomFields: bo
       {hasShipping(state) ? (
         <div className={className}>
           <div className="flex grow flex-col gap-4">
-            <h4 style={{ display: "flex", justifyContent: "space-between" }}>
+            <h4 className="flex justify-between text-base sm:text-lg">
               Shipping information
               {isLoggedIn ? (
                 <label>
@@ -1153,7 +1153,7 @@ export const PaymentForm = ({
         <>
           <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
             <div className="flex grow flex-col gap-4">
-              <h4 className="font-bold">Pay with</h4>
+              <h4 className="text-base sm:text-lg">Pay with</h4>
               {state.availablePaymentMethods.length > 1 ? (
                 <Tabs variant="buttons" className="auto-cols-fr grid-flow-col">
                   {state.availablePaymentMethods.map((method) => (
