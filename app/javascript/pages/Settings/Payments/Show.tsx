@@ -111,7 +111,14 @@ export default function PaymentsPage() {
   const [isUpdateCountryConfirmed, setIsUpdateCountryConfirmed] = React.useState(false);
   const [isPayoutMethodChangeConfirmed, setIsPayoutMethodChangeConfirmed] = React.useState(false);
 
-  const form = useForm({
+  const form = useForm<{
+    user: ComplianceInfo;
+    payouts_paused_by_user: boolean;
+    payout_threshold_cents: number | null;
+    payout_frequency: PayoutFrequency;
+    bank_account: Partial<BankAccount> | null;
+    payment_address: string | null;
+  }>({
     user: props.compliance_info,
     payouts_paused_by_user: props.payouts_paused_by_user,
     payout_threshold_cents: props.payout_threshold_cents,
@@ -721,10 +728,11 @@ export default function PaymentsPage() {
     }
   }, [isPayoutMethodChangeConfirmed]);
 
-  const payoutThresholdError = form.data.payout_threshold_cents < props.minimum_payout_threshold_cents;
+  const payoutThresholdError =
+    form.data.payout_threshold_cents != null && form.data.payout_threshold_cents < props.minimum_payout_threshold_cents;
 
   const handlePayoutThresholdChange = (value: number | null) => {
-    form.setData("payout_threshold_cents", value ?? 0);
+    form.setData("payout_threshold_cents", value);
   };
 
   const handlePayoutThresholdBlur = () => {
