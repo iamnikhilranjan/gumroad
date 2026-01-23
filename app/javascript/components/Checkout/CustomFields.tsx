@@ -134,6 +134,8 @@ const SellerCustomFields = ({ seller, className }: { seller: Creator; className?
     state.products.filter(({ creator }) => creator.id === seller.id),
   );
 
+  if (sharedCustomFields.length === 0 && customFieldGroups.length === 0) return null;
+
   return sharedCustomFields.length > 0 ? (
     <div className={className}>
       <section className="flex grow flex-col gap-4">
@@ -185,5 +187,20 @@ export const CustomFields = ({ className }: { className?: string | undefined }) 
     "id",
   );
 
-  return sellers.map((seller) => <SellerCustomFields key={seller.id} seller={seller} className={className} />);
+  const hasAnyCustomFields = sellers.some((seller) => {
+    const { sharedCustomFields, customFieldGroups } = getCustomFields(
+      state.products.filter(({ creator }) => creator.id === seller.id),
+    );
+    return sharedCustomFields.length > 0 || customFieldGroups.length > 0;
+  });
+
+  if (!hasAnyCustomFields) return null;
+
+  return (
+    <Card>
+      {sellers.map((seller) => (
+        <SellerCustomFields key={seller.id} seller={seller} className={className} />
+      ))}
+    </Card>
+  );
 };

@@ -1131,11 +1131,7 @@ export const PaymentForm = ({
 
   return (
     <div className="flex flex-col gap-6">
-      {showCustomFields ? (
-        <Card>
-          <CustomFields className="p-4 sm:p-6" />
-        </Card>
-      ) : null}
+      {showCustomFields ? <CustomFields className="p-4 sm:p-6" /> : null}
       <Card ref={paymentFormRef} className={className} aria-label="Payment form">
         {isTestPurchase ? (
           <CardContent className="p-4 sm:p-6">
