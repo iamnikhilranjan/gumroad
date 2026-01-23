@@ -482,21 +482,7 @@ const CustomerDetails = ({ className }: { className?: string }) => {
         <Card>
           <div className={className}>
             <div className="flex grow flex-col gap-4">
-              <h4 className="flex justify-between text-base sm:text-lg">
-                Shipping information
-                {isLoggedIn ? (
-                  <label>
-                    <input
-                      type="checkbox"
-                      title="Save shipping address to account"
-                      checked={state.saveAddress}
-                      onChange={(e) => dispatch({ type: "set-value", saveAddress: e.target.checked })}
-                      disabled={isProcessing(state)}
-                    />
-                    Keep on file
-                  </label>
-                ) : null}
-              </h4>
+              <h4 className="text-base sm:text-lg">Shipping information</h4>
               <fieldset className={cx({ danger: errors.has("fullName") })}>
                 <legend>
                   <label htmlFor={`${uid}fullName`}>Full name</label>
@@ -544,6 +530,18 @@ const CustomerDetails = ({ className }: { className?: string }) => {
                 <ZipCodeInput />
               </div>
               <CountryInput />
+              {isLoggedIn ? (
+                <label>
+                  <input
+                    type="checkbox"
+                    title="Save shipping address to account"
+                    checked={state.saveAddress}
+                    onChange={(e) => dispatch({ type: "set-value", saveAddress: e.target.checked })}
+                    disabled={isProcessing(state)}
+                  />
+                  Save address for future purchases
+                </label>
+              ) : null}
             </div>
             {addressVerification && addressVerification.type !== "done" ? (
               <div className="dropdown flex flex-col gap-4">
