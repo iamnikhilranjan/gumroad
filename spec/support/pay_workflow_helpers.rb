@@ -11,6 +11,6 @@ module PayWorkflowHelpers
         fill_in "ZIP", with: zip_code, visible: false if zip_code.present?
       end
     end
-    fill_in "Name on card", with: "Edgar Gumroad"
-  end
+  fill_in "Full name", with: "Edgar Gumroad"
+end
 end
