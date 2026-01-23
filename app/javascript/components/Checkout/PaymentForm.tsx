@@ -189,7 +189,7 @@ const ZipCodeInput = () => {
   );
 };
 
-const EmailAddress = ({ card }: { card: boolean }) => {
+const SharedInputs = ({ className }: { className?: string | undefined }) => {
   const uid = React.useId();
   const loggedInUser = useLoggedInUser();
   const [state, dispatch] = useState();
@@ -211,49 +211,6 @@ const EmailAddress = ({ card }: { card: boolean }) => {
     dispatch({ type: "set-value", email: state.emailTypoSuggestion });
     dispatch({ type: "acknowledge-email-typo", email: state.emailTypoSuggestion });
   };
-
-  return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" : ""}>
-      <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
-        <fieldset className={cx({ danger: errors.has("email") })}>
-          <legend>
-            <label htmlFor={`${uid}email`}>
-              <h4 className="text-base sm:text-lg">Email address</h4>
-            </label>
-          </legend>
-          <div className={cx("popover", { expanded: !!state.emailTypoSuggestion })} style={{ width: "100%" }}>
-            <input
-              id={`${uid}email`}
-              type="email"
-              aria-invalid={errors.has("email")}
-              value={state.email}
-              onChange={(evt) => dispatch({ type: "set-value", email: evt.target.value.toLowerCase() })}
-              placeholder="Your email address"
-              disabled={(loggedInUser && loggedInUser.email !== null) || isProcessing(state)}
-              onBlur={checkForEmailTypos}
-            />
-
-            {state.emailTypoSuggestion ? (
-              <div className="dropdown grid gap-2">
-                <div>Did you mean {state.emailTypoSuggestion}?</div>
-
-                <div className="flex flex-wrap gap-2">
-                  <Button onClick={rejectEmailTypoSuggestion}>No</Button>
-                  <Button onClick={acceptEmailTypoSuggestion}>Yes</Button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </fieldset>
-      </div>
-    </div>
-  );
-};
-
-const SharedInputs = ({ className }: { className?: string | undefined }) => {
-  const uid = React.useId();
-  const [state, dispatch] = useState();
-  const errors = getErrors(state);
 
   const [showVatIdInput, setShowVatIdInput] = React.useState(false);
   React.useEffect(
@@ -362,58 +319,84 @@ const SharedInputs = ({ className }: { className?: string | undefined }) => {
   const showCountryInput = !(hasShipping(state) || !requiresPayment(state));
   const showFullNameInput = requiresPayment(state) && !hasShipping(state);
 
-  if (!(showFullNameInput || showCountryInput || showVatIdInput)) return null;
-
   return (
-    <div className={className}>
-      <div className="flex grow flex-col gap-4">
-        <h4 className="text-base sm:text-lg">Contact information</h4>
-        {showFullNameInput ? (
-          <fieldset className={cx({ danger: errors.has("fullName") })}>
+    <Card>
+      <div className={className}>
+        <div className="flex grow flex-col gap-4">
+          <h4 className="text-base sm:text-lg">Contact information</h4>
+          <fieldset className={cx({ danger: errors.has("email") })}>
             <legend>
-              <label htmlFor={`${uid}fullName`}>Full name</label>
+              <label htmlFor={`${uid}email`}>Email address</label>
             </legend>
-            <input
-              id={`${uid}fullName`}
-              type="text"
-              aria-invalid={errors.has("fullName")}
-              placeholder="Full name"
-              value={state.fullName}
-              onChange={(e) => dispatch({ type: "set-value", fullName: e.target.value })}
-              disabled={isProcessing(state)}
-            />
+            <div className={cx("popover", { expanded: !!state.emailTypoSuggestion })} style={{ width: "100%" }}>
+              <input
+                id={`${uid}email`}
+                type="email"
+                aria-invalid={errors.has("email")}
+                value={state.email}
+                onChange={(evt) => dispatch({ type: "set-value", email: evt.target.value.toLowerCase() })}
+                placeholder="Your email address"
+                disabled={(loggedInUser && loggedInUser.email !== null) || isProcessing(state)}
+                onBlur={checkForEmailTypos}
+              />
+              {state.emailTypoSuggestion ? (
+                <div className="dropdown grid gap-2">
+                  <div>Did you mean {state.emailTypoSuggestion}?</div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={rejectEmailTypoSuggestion}>No</Button>
+                    <Button onClick={acceptEmailTypoSuggestion}>Yes</Button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </fieldset>
-        ) : null}
-        {showCountryInput ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(min((20rem - 100%) * 1000, 100%), 1fr))",
-              gap: "var(--spacer-4)",
-            }}
-          >
-            <CountryInput />
-            {state.country === "US" ? <ZipCodeInput /> : null}
-            {state.country === "CA" ? <StateInput /> : null}
-          </div>
-        ) : null}
-        {showVatIdInput ? (
-          <fieldset className={cx({ danger: errors.has("vatId") })}>
-            <legend>
-              <label htmlFor={`${uid}vatId`}>{vatLabel}</label>
-            </legend>
-            <input
-              id={`${uid}vatId`}
-              type="text"
-              placeholder={vatLabel}
-              value={state.vatId}
-              onChange={(e) => dispatch({ type: "set-value", vatId: e.target.value })}
-              disabled={isProcessing(state)}
-            />
-          </fieldset>
-        ) : null}
+          {showFullNameInput ? (
+            <fieldset className={cx({ danger: errors.has("fullName") })}>
+              <legend>
+                <label htmlFor={`${uid}fullName`}>Full name</label>
+              </legend>
+              <input
+                id={`${uid}fullName`}
+                type="text"
+                aria-invalid={errors.has("fullName")}
+                placeholder="Full name"
+                value={state.fullName}
+                onChange={(e) => dispatch({ type: "set-value", fullName: e.target.value })}
+                disabled={isProcessing(state)}
+              />
+            </fieldset>
+          ) : null}
+          {showCountryInput ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min((20rem - 100%) * 1000, 100%), 1fr))",
+                gap: "var(--spacer-4)",
+              }}
+            >
+              <CountryInput />
+              {state.country === "US" ? <ZipCodeInput /> : null}
+              {state.country === "CA" ? <StateInput /> : null}
+            </div>
+          ) : null}
+          {showVatIdInput ? (
+            <fieldset className={cx({ danger: errors.has("vatId") })}>
+              <legend>
+                <label htmlFor={`${uid}vatId`}>{vatLabel}</label>
+              </legend>
+              <input
+                id={`${uid}vatId`}
+                type="text"
+                placeholder={vatLabel}
+                value={state.vatId}
+                onChange={(e) => dispatch({ type: "set-value", vatId: e.target.value })}
+                disabled={isProcessing(state)}
+              />
+            </fieldset>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
@@ -496,116 +479,123 @@ const CustomerDetails = ({ className }: { className?: string }) => {
     <>
       <SharedInputs className={className} />
       {hasShipping(state) ? (
-        <div className={className}>
-          <div className="flex grow flex-col gap-4">
-            <h4 className="flex justify-between text-base sm:text-lg">
-              Shipping information
-              {isLoggedIn ? (
-                <label>
-                  <input
-                    type="checkbox"
-                    title="Save shipping address to account"
-                    checked={state.saveAddress}
-                    onChange={(e) => dispatch({ type: "set-value", saveAddress: e.target.checked })}
-                    disabled={isProcessing(state)}
-                  />
-                  Keep on file
-                </label>
-              ) : null}
-            </h4>
-            <fieldset className={cx({ danger: errors.has("fullName") })}>
-              <legend>
-                <label htmlFor={`${uid}fullName`}>Full name</label>
-              </legend>
-              <input
-                id={`${uid}fullName`}
-                type="text"
-                aria-invalid={errors.has("fullName")}
-                placeholder="Full name"
-                disabled={isProcessing(state)}
-                value={state.fullName}
-                onChange={(e) => dispatch({ type: "set-value", fullName: e.target.value })}
-              />
-            </fieldset>
-            <fieldset className={cx({ danger: errors.has("address") })}>
-              <legend>
-                <label htmlFor={`${uid}address`}>Street address</label>
-              </legend>
-              <input
-                id={`${uid}address`}
-                type="text"
-                aria-invalid={errors.has("address")}
-                placeholder="Street address"
-                disabled={isProcessing(state)}
-                value={state.address}
-                onChange={(e) => dispatch({ type: "set-value", address: e.target.value })}
-              />
-            </fieldset>
-            <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "1fr", gap: "var(--spacer-2)" }}>
-              <fieldset className={cx({ danger: errors.has("city") })}>
+        <Card>
+          <div className={className}>
+            <div className="flex grow flex-col gap-4">
+              <h4 className="flex justify-between text-base sm:text-lg">
+                Shipping information
+                {isLoggedIn ? (
+                  <label>
+                    <input
+                      type="checkbox"
+                      title="Save shipping address to account"
+                      checked={state.saveAddress}
+                      onChange={(e) => dispatch({ type: "set-value", saveAddress: e.target.checked })}
+                      disabled={isProcessing(state)}
+                    />
+                    Keep on file
+                  </label>
+                ) : null}
+              </h4>
+              <fieldset className={cx({ danger: errors.has("fullName") })}>
                 <legend>
-                  <label htmlFor={`${uid}city`}>City</label>
+                  <label htmlFor={`${uid}fullName`}>Full name</label>
                 </legend>
                 <input
-                  id={`${uid}city`}
+                  id={`${uid}fullName`}
                   type="text"
-                  aria-invalid={errors.has("city")}
-                  placeholder="City"
+                  aria-invalid={errors.has("fullName")}
+                  placeholder="Full name"
                   disabled={isProcessing(state)}
-                  value={state.city}
-                  onChange={(e) => dispatch({ type: "set-value", city: e.target.value })}
+                  value={state.fullName}
+                  onChange={(e) => dispatch({ type: "set-value", fullName: e.target.value })}
                 />
               </fieldset>
-              <StateInput />
-              <ZipCodeInput />
+              <fieldset className={cx({ danger: errors.has("address") })}>
+                <legend>
+                  <label htmlFor={`${uid}address`}>Street address</label>
+                </legend>
+                <input
+                  id={`${uid}address`}
+                  type="text"
+                  aria-invalid={errors.has("address")}
+                  placeholder="Street address"
+                  disabled={isProcessing(state)}
+                  value={state.address}
+                  onChange={(e) => dispatch({ type: "set-value", address: e.target.value })}
+                />
+              </fieldset>
+              <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "1fr", gap: "var(--spacer-2)" }}>
+                <fieldset className={cx({ danger: errors.has("city") })}>
+                  <legend>
+                    <label htmlFor={`${uid}city`}>City</label>
+                  </legend>
+                  <input
+                    id={`${uid}city`}
+                    type="text"
+                    aria-invalid={errors.has("city")}
+                    placeholder="City"
+                    disabled={isProcessing(state)}
+                    value={state.city}
+                    onChange={(e) => dispatch({ type: "set-value", city: e.target.value })}
+                  />
+                </fieldset>
+                <StateInput />
+                <ZipCodeInput />
+              </div>
+              <CountryInput />
             </div>
-            <CountryInput />
+            {addressVerification && addressVerification.type !== "done" ? (
+              <div className="dropdown flex flex-col gap-4">
+                {addressVerification.type === "verification-required" ? (
+                  <>
+                    <div>
+                      <strong>You entered this address:</strong>
+                      <br />
+                      {addressVerification.formattedOriginalAddress}
+                    </div>
+                    <div>
+                      <strong>We recommend using this format:</strong>
+                      <br />
+                      {addressVerification.formattedSuggestedAddress}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={verifyAddress}>No, continue</Button>
+                      <Button
+                        color="primary"
+                        onClick={() =>
+                          setAddressVerification({
+                            type: "done",
+                            verifiedAddress: addressVerification.suggestedAddress,
+                          })
+                        }
+                      >
+                        Yes, update
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {addressVerification.type === "invalid"
+                      ? addressVerification.message
+                      : "We are unable to verify your shipping address. Is your address correct?"}
+                    <Button onClick={() => dispatch({ type: "cancel" })}>No</Button>
+                    <Button onClick={verifyAddress}>Yes, it is</Button>
+                  </>
+                )}
+              </div>
+            ) : null}
           </div>
-          {addressVerification && addressVerification.type !== "done" ? (
-            <div className="dropdown flex flex-col gap-4">
-              {addressVerification.type === "verification-required" ? (
-                <>
-                  <div>
-                    <strong>You entered this address:</strong>
-                    <br />
-                    {addressVerification.formattedOriginalAddress}
-                  </div>
-                  <div>
-                    <strong>We recommend using this format:</strong>
-                    <br />
-                    {addressVerification.formattedSuggestedAddress}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={verifyAddress}>No, continue</Button>
-                    <Button
-                      color="primary"
-                      onClick={() =>
-                        setAddressVerification({ type: "done", verifiedAddress: addressVerification.suggestedAddress })
-                      }
-                    >
-                      Yes, update
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {addressVerification.type === "invalid"
-                    ? addressVerification.message
-                    : "We are unable to verify your shipping address. Is your address correct?"}
-                  <Button onClick={() => dispatch({ type: "cancel" })}>No</Button>
-                  <Button onClick={verifyAddress}>Yes, it is</Button>
-                </>
-              )}
-            </div>
-          ) : null}
-        </div>
+        </Card>
       ) : null}
       {state.warning ? (
-        <div className={className}>
-          <Alert role="status" variant="warning" className="grow">
-            {state.warning}
-          </Alert>
-        </div>
+        <Card>
+          <div className={className}>
+            <Alert role="status" variant="warning" className="grow">
+              {state.warning}
+            </Alert>
+          </div>
+        </Card>
       ) : null}
     </>
   );
@@ -618,16 +608,18 @@ const PayButton = ({ className }: { className?: string }) => {
   if (state.paymentMethod === "paypal" || state.paymentMethod === "stripePaymentRequest") return null;
 
   return (
-    <div className={cx(className, "border-b-0")}>
-      <Button
-        color="primary"
-        onClick={() => dispatch({ type: "offer" })}
-        disabled={isSubmitDisabled(state)}
-        className="grow basis-0"
-      >
-        {payLabel}
-      </Button>
-    </div>
+    <Card>
+      <div className={className}>
+        <Button
+          color="primary"
+          onClick={() => dispatch({ type: "offer" })}
+          disabled={isSubmitDisabled(state)}
+          className="grow basis-0"
+        >
+          {payLabel}
+        </Button>
+      </div>
+    </Card>
   );
 };
 
@@ -1137,50 +1129,49 @@ export const PaymentForm = ({
   }, [state.status.type]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div ref={paymentFormRef} className={`flex flex-col gap-6 ${className}`} aria-label="Payment form">
       {showCustomFields ? <CustomFields className="p-4 sm:p-5" /> : null}
-      <Card ref={paymentFormRef} className={className} aria-label="Payment form">
-        {isTestPurchase ? (
+      {isTestPurchase ? (
+        <Card>
           <CardContent className="p-4 sm:p-5">
             <Alert variant="info" className="grow">
               This will be a test purchase as you are the creator of at least one of the products. Your payment method
               will not be charged.
             </Alert>
           </CardContent>
-        ) : null}
-        <EmailAddress card />
-        <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
-        {!isFreePurchase ? (
-          <>
-            <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
-              <div className="flex grow flex-col gap-4">
-                <h4 className="text-base sm:text-lg">Pay with</h4>
-                {state.availablePaymentMethods.length > 1 ? (
-                  <Tabs variant="buttons" className="auto-cols-fr grid-flow-col">
-                    {state.availablePaymentMethods.map((method) => (
-                      <React.Fragment key={method.type}>{method.button}</React.Fragment>
-                    ))}
-                  </Tabs>
-                ) : null}
-              </div>
+        </Card>
+      ) : null}
+      <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
+      {!isFreePurchase ? (
+        <Card>
+          <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
+            <div className="flex grow flex-col gap-4">
+              <h4 className="text-base sm:text-lg">Pay with</h4>
+              {state.availablePaymentMethods.length > 1 ? (
+                <Tabs variant="buttons" className="auto-cols-fr grid-flow-col">
+                  {state.availablePaymentMethods.map((method) => (
+                    <React.Fragment key={method.type}>{method.button}</React.Fragment>
+                  ))}
+                </Tabs>
+              ) : null}
+            </div>
+          </CardContent>
+          {notice ? (
+            <CardContent>
+              <Alert variant="info" className="grow">
+                {notice}
+              </Alert>
             </CardContent>
-            {notice ? (
-              <CardContent>
-                <Alert variant="info" className="grow">
-                  {notice}
-                </Alert>
-              </CardContent>
-            ) : null}
-            <CreditCard card />
-            <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
-            <StripeElementsProvider>
-              <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
-            </StripeElementsProvider>
-          </>
-        ) : null}
-        <PayButton className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
-        {recaptcha.container}
-      </Card>
+          ) : null}
+          <CreditCard card />
+          <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
+          <StripeElementsProvider>
+            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
+          </StripeElementsProvider>
+        </Card>
+      ) : null}
+      <PayButton className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
+      {recaptcha.container}
     </div>
   );
 };
