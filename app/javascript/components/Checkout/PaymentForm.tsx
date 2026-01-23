@@ -417,7 +417,7 @@ const PaymentMethodRadioRow = ({
     <label
       className={cx(
         "flex cursor-pointer items-center gap-3 border-b-0 p-4",
-        selected ? "bg-gray" : "",
+        selected ? "bg-body" : "",
         disabled && "cursor-not-allowed opacity-50",
       )}
       htmlFor={`${uid}-${paymentMethod}`}
@@ -1174,13 +1174,13 @@ const PaymentMethodsSection = ({
         {hasMultiplePaymentMethods ? (
           <PaymentMethodRadioRow paymentMethod="card" label="Card" icon={<Icon name="card" />} />
         ) : (
-          <div className="flex items-center gap-3 bg-gray p-4">
+          <div className="flex items-center gap-3 bg-body p-4">
             <Icon name="card" />
             <span className="font-medium">Card</span>
           </div>
         )}
         {state.paymentMethod === "card" ? (
-          <div className={hasMultiplePaymentMethods ? "bg-gray p-4 pt-0" : "bg-gray px-4 pb-4"}>
+          <div className={hasMultiplePaymentMethods ? "bg-body p-4 pt-0" : "bg-body px-4 pb-4"}>
             <CreditCardContent />
           </div>
         ) : null}
