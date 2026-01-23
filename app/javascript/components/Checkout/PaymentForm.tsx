@@ -360,13 +360,30 @@ const SharedInputs = ({ className }: { className?: string | undefined }) => {
   }
 
   const showCountryInput = !(hasShipping(state) || !requiresPayment(state));
+  const showFullNameInput = requiresPayment(state) && !hasShipping(state);
 
-  if (!(showCountryInput || showVatIdInput)) return null;
+  if (!(showFullNameInput || showCountryInput || showVatIdInput)) return null;
 
   return (
     <div className={className}>
       <div className="flex grow flex-col gap-4">
         <h4 className="text-base sm:text-lg">Contact information</h4>
+        {showFullNameInput ? (
+          <fieldset className={cx({ danger: errors.has("fullName") })}>
+            <legend>
+              <label htmlFor={`${uid}fullName`}>Full name</label>
+            </legend>
+            <input
+              id={`${uid}fullName`}
+              type="text"
+              aria-invalid={errors.has("fullName")}
+              placeholder="Full name"
+              value={state.fullName}
+              onChange={(e) => dispatch({ type: "set-value", fullName: e.target.value })}
+              disabled={isProcessing(state)}
+            />
+          </fieldset>
+        ) : null}
         {showCountryInput ? (
           <div
             style={{
@@ -435,7 +452,6 @@ const CustomerDetails = ({ className }: { className?: string }) => {
   const isLoggedIn = !!useLoggedInUser();
   const [state, dispatch] = useState();
   const uid = React.useId();
-  const payLabel = usePayLabel();
   const fail = useFail();
 
   const [addressVerification, setAddressVerification] = React.useState<VerificationResult | null>(null);
@@ -591,19 +607,27 @@ const CustomerDetails = ({ className }: { className?: string }) => {
           </Alert>
         </div>
       ) : null}
-      {state.paymentMethod !== "paypal" && state.paymentMethod !== "stripePaymentRequest" ? (
-        <div className={cx(className, "border-b-0")}>
-          <Button
-            color="primary"
-            onClick={() => dispatch({ type: "offer" })}
-            disabled={isSubmitDisabled(state)}
-            className="grow basis-0"
-          >
-            {payLabel}
-          </Button>
-        </div>
-      ) : null}
     </>
+  );
+};
+
+const PayButton = ({ className }: { className?: string }) => {
+  const [state, dispatch] = useState();
+  const payLabel = usePayLabel();
+
+  if (state.paymentMethod === "paypal" || state.paymentMethod === "stripePaymentRequest") return null;
+
+  return (
+    <div className={cx(className, "border-b-0")}>
+      <Button
+        color="primary"
+        onClick={() => dispatch({ type: "offer" })}
+        disabled={isSubmitDisabled(state)}
+        className="grow basis-0"
+      >
+        {payLabel}
+      </Button>
+    </div>
   );
 };
 
@@ -612,10 +636,8 @@ const CreditCard = ({ card }: { card?: boolean }) => {
   const fail = useFail();
   const isLoggedIn = !!useLoggedInUser();
 
-  const uid = React.useId();
   const cardElementRef = React.useRef<StripeCardElement | null>(null);
   const [useSavedCard, setUseSavedCard] = React.useState(!!state.savedCreditCard);
-  const [nameOnCard, setNameOnCard] = React.useState("");
   const [keepOnFile, setKeepOnFile] = React.useState(isLoggedIn);
 
   const [cardError, setCardError] = React.useState(false);
@@ -656,7 +678,7 @@ const CreditCard = ({ card }: { card?: boolean }) => {
             ),
             zipCode: state.zipCode,
             keepOnFile,
-            fullName: nameOnCard,
+            fullName: state.fullName,
             email: state.email,
           };
 
@@ -681,32 +703,6 @@ const CreditCard = ({ card }: { card?: boolean }) => {
   return (
     <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-6" : ""}>
       <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
-        {!useSavedCard ? (
-          <fieldset>
-            <legend>
-              <label htmlFor={`${uid}nameOnCard`}>Name on card</label>
-              {isLoggedIn ? (
-                <label>
-                  <input
-                    type="checkbox"
-                    disabled={isProcessing(state)}
-                    checked={keepOnFile}
-                    onChange={(evt) => setKeepOnFile(evt.target.checked)}
-                  />
-                  Save card
-                </label>
-              ) : null}
-            </legend>
-            <input
-              type="text"
-              placeholder="John Doe"
-              id={`${uid}nameOnCard`}
-              value={nameOnCard}
-              disabled={isProcessing(state)}
-              onChange={(evt) => setNameOnCard(evt.target.value)}
-            />
-          </fieldset>
-        ) : null}
         <CreditCardInput
           savedCreditCard={state.savedCreditCard}
           disabled={isProcessing(state)}
@@ -716,6 +712,17 @@ const CreditCard = ({ card }: { card?: boolean }) => {
           setUseSavedCard={setUseSavedCard}
           onChange={(evt) => setCardError(!!evt.error)}
         />
+        {!useSavedCard && isLoggedIn ? (
+          <label>
+            <input
+              type="checkbox"
+              disabled={isProcessing(state)}
+              checked={keepOnFile}
+              onChange={(evt) => setKeepOnFile(evt.target.checked)}
+            />
+            Save card for future purchases
+          </label>
+        ) : null}
       </div>
     </div>
   );
@@ -1142,6 +1149,7 @@ export const PaymentForm = ({
           </CardContent>
         ) : null}
         <EmailAddress card />
+        <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" />
         {!isFreePurchase ? (
           <>
             <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
@@ -1164,17 +1172,13 @@ export const PaymentForm = ({
               </CardContent>
             ) : null}
             <CreditCard card />
-          </>
-        ) : null}
-        <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" />
-        {!isFreePurchase ? (
-          <>
             <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
             <StripeElementsProvider>
               <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
             </StripeElementsProvider>
           </>
         ) : null}
+        <PayButton className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" />
         {recaptcha.container}
       </Card>
     </div>
