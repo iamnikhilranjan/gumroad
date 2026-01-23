@@ -52,7 +52,6 @@ import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Alert } from "$app/components/ui/Alert";
 import { Card, CardContent } from "$app/components/ui/Card";
-import { Tab, Tabs } from "$app/components/ui/Tabs";
 import { useIsDarkTheme } from "$app/components/useIsDarkTheme";
 import { useOnChangeSync } from "$app/components/useOnChange";
 import { RecaptchaCancelledError, useRecaptcha } from "$app/components/useRecaptcha";
@@ -400,26 +399,45 @@ const SharedInputs = ({ className }: { className?: string | undefined }) => {
   );
 };
 
-const PaymentMethodRadio = ({
+const PaymentMethodRadioRow = ({
   paymentMethod,
-  children,
+  label,
+  icon,
 }: {
   paymentMethod: PaymentMethodType;
-  children: React.ReactNode;
+  label: string;
+  icon: React.ReactNode;
 }) => {
+  const uid = React.useId();
   const [state, dispatch] = useState();
   const selected = state.paymentMethod === paymentMethod;
+  const disabled = !selected && isProcessing(state);
+
   return (
-    <Tab
-      isSelected={selected}
-      onClick={() => {
-        if (paymentMethod !== state.paymentMethod) dispatch({ type: "set-value", paymentMethod });
-      }}
-      disabled={!selected && isProcessing(state)}
-      className="px-1"
+    <label
+      className={cx(
+        "flex cursor-pointer items-center gap-3 border-b-0 p-4",
+        selected ? "bg-gray" : "",
+        disabled && "cursor-not-allowed opacity-50",
+      )}
+      htmlFor={`${uid}-${paymentMethod}`}
     >
-      {children}
-    </Tab>
+      <input
+        type="radio"
+        id={`${uid}-${paymentMethod}`}
+        name={`${uid}-payment-method`}
+        checked={selected}
+        onChange={() => {
+          if (paymentMethod !== state.paymentMethod) {
+            dispatch({ type: "set-value", paymentMethod });
+          }
+        }}
+        disabled={disabled}
+        className="accent-pink"
+      />
+      {icon}
+      <span className="font-medium">{label}</span>
+    </label>
   );
 };
 
@@ -639,11 +657,10 @@ const PayButton = ({
   return content;
 };
 
-const CreditCard = ({ card, isTestPurchase }: { card?: boolean; isTestPurchase?: boolean }) => {
+const CreditCardContent = () => {
   const [state, dispatch] = useState();
   const fail = useFail();
   const isLoggedIn = !!useLoggedInUser();
-  const payLabel = usePayLabel();
 
   const cardElementRef = React.useRef<StripeCardElement | null>(null);
   const [useSavedCard, setUseSavedCard] = React.useState(!!state.savedCreditCard);
@@ -651,24 +668,15 @@ const CreditCard = ({ card, isTestPurchase }: { card?: boolean; isTestPurchase?:
 
   const [cardError, setCardError] = React.useState(false);
 
-  React.useEffect(
-    () =>
-      dispatch({
-        type: "add-payment-method",
-        paymentMethod: {
-          type: "card",
-          button: (
-            <PaymentMethodRadio paymentMethod="card">
-              <div className="flex w-full flex-col items-center justify-center gap-2 self-center">
-                <Icon name="outline-credit-card" />
-                <h4 className="text-center">Card</h4>
-              </div>
-            </PaymentMethodRadio>
-          ),
-        },
-      }),
-    [],
-  );
+  React.useEffect(() => {
+    dispatch({
+      type: "add-payment-method",
+      paymentMethod: {
+        type: "card",
+        button: null,
+      },
+    });
+  }, []);
 
   React.useEffect(() => {
     if (state.status.type !== "starting" || state.paymentMethod !== "card") return;
@@ -707,41 +715,47 @@ const CreditCard = ({ card, isTestPurchase }: { card?: boolean; isTestPurchase?:
     })().catch(fail);
   }, [state.status.type]);
 
-  if (state.paymentMethod !== "card") return null;
+  return (
+    <div className="flex flex-col gap-4">
+      <CreditCardInput
+        savedCreditCard={state.savedCreditCard}
+        disabled={isProcessing(state)}
+        onReady={(element) => (cardElementRef.current = element)}
+        invalid={cardError}
+        useSavedCard={useSavedCard}
+        setUseSavedCard={setUseSavedCard}
+        onChange={(evt) => setCardError(!!evt.error)}
+      />
+      {!useSavedCard && isLoggedIn ? (
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            disabled={isProcessing(state)}
+            checked={keepOnFile}
+            onChange={(evt) => setKeepOnFile(evt.target.checked)}
+          />
+          Save card for future purchases
+        </label>
+      ) : null}
+    </div>
+  );
+};
+
+const CreditCardPayButtonContent = ({ isTestPurchase }: { isTestPurchase?: boolean }) => {
+  const [state, dispatch] = useState();
+  const payLabel = usePayLabel();
 
   return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-5 sm:pt-0!" : ""}>
-      <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
-        <CreditCardInput
-          savedCreditCard={state.savedCreditCard}
-          disabled={isProcessing(state)}
-          onReady={(element) => (cardElementRef.current = element)}
-          invalid={cardError}
-          useSavedCard={useSavedCard}
-          setUseSavedCard={setUseSavedCard}
-          onChange={(evt) => setCardError(!!evt.error)}
-        />
-        {!useSavedCard && isLoggedIn ? (
-          <label>
-            <input
-              type="checkbox"
-              disabled={isProcessing(state)}
-              checked={keepOnFile}
-              onChange={(evt) => setKeepOnFile(evt.target.checked)}
-            />
-            Save card for future purchases
-          </label>
-        ) : null}
-        <Button color="primary" onClick={() => dispatch({ type: "offer" })} disabled={isSubmitDisabled(state)}>
-          {payLabel}
-        </Button>
-        {isTestPurchase ? (
-          <Alert variant="info">
-            This will be a test purchase as you are the creator of at least one of the products. Your payment method
-            will not be charged.
-          </Alert>
-        ) : null}
-      </div>
+    <div className="flex flex-col gap-4">
+      <Button color="primary" onClick={() => dispatch({ type: "offer" })} disabled={isSubmitDisabled(state)}>
+        {payLabel}
+      </Button>
+      {isTestPurchase ? (
+        <Alert variant="info">
+          This will be a test purchase as you are the creator of at least one of the products. Your payment method will
+          not be charged.
+        </Alert>
+      ) : null}
     </div>
   );
 };
@@ -906,9 +920,8 @@ const NativePayPal = ({ implementation }: { implementation: PayPalNamespace }) =
   );
 };
 
-const PayPal = ({ className }: { className?: string | undefined }) => {
-  const [state, dispatch] = useState();
-
+const usePayPalImplementation = () => {
+  const [state] = useState();
   const [nativePaypal, setNativePaypal] = React.useState<PayPalNamespace | null>(null);
   useRunOnce(
     asyncVoid(async () => {
@@ -922,20 +935,21 @@ const PayPal = ({ className }: { className?: string | undefined }) => {
     if (impl !== null && item.supportsPaypal !== null && braintreeToken.type === "available") return "braintree";
     return null;
   }, "native");
+
+  return { implementation, nativePaypal, braintreeToken };
+};
+
+const PayPalContent = () => {
+  const [state, dispatch] = useState();
+  const { implementation, nativePaypal, braintreeToken } = usePayPalImplementation();
+
   React.useEffect(() => {
     if (!implementation) return;
     dispatch({
       type: "add-payment-method",
       paymentMethod: {
         type: "paypal",
-        button: (
-          <PaymentMethodRadio paymentMethod="paypal">
-            <div className="flex w-full flex-col items-center justify-center gap-2 self-center">
-              <span className="brand-icon brand-icon-paypal" />
-              <h4 className="text-center">PayPal</h4>
-            </div>
-          </PaymentMethodRadio>
-        ),
+        button: null,
       },
     });
   }, [implementation]);
@@ -956,9 +970,10 @@ const PayPal = ({ className }: { className?: string | undefined }) => {
     if (error) showAlert(error, "error");
   }, [state.status.type]);
 
-  if (state.paymentMethod !== "paypal" || !implementation) return null;
+  if (!implementation) return null;
+
   return (
-    <div className={className}>
+    <div className="flex flex-col items-center gap-4">
       {nativePaypal && implementation === "native" ? (
         <NativePayPal implementation={nativePaypal} />
       ) : braintreeToken.type === "available" ? (
@@ -968,11 +983,15 @@ const PayPal = ({ className }: { className?: string | undefined }) => {
   );
 };
 
-const StripePaymentRequest = ({ className }: { className?: string | undefined }) => {
+const useIsPayPalAvailable = () => {
+  const { implementation } = usePayPalImplementation();
+  return !!implementation;
+};
+
+const useStripePaymentRequest = () => {
   const [state, dispatch] = useState();
   const stripe = useStripe();
   const fail = useFail();
-  const payLabel = usePayLabel();
 
   const [shippingAddressChangeEvent, setShippingAddressChangeEvent] =
     React.useState<PaymentRequestShippingAddressEvent | null>(null);
@@ -1027,8 +1046,9 @@ const StripePaymentRequest = ({ className }: { className?: string | undefined })
     );
     return paymentRequest;
   }, [stripe]);
+
+  // Use a layout effect because `paymentRequest.show` needs to be called synchronously
   useOnChangeSync(() => {
-    // use a layout effect because `paymentRequest.show` needs to be called synchronously
     if (state.paymentMethod !== "stripePaymentRequest") return;
     if (state.status.type === "validating") dispatch({ type: "start-payment" });
     else if (state.status.type === "starting") paymentRequest?.show();
@@ -1045,6 +1065,7 @@ const StripePaymentRequest = ({ className }: { className?: string | undefined })
       setPaymentMethodEvent(null);
     }
   }, [state.status.type]);
+
   React.useEffect(() => {
     if (!paymentRequest) return;
     if (shippingAddressChangeEvent) {
@@ -1075,42 +1096,109 @@ const StripePaymentRequest = ({ className }: { className?: string | undefined })
     )
       paymentRequest.update({ total: getTotalItem() });
   }, [state.surcharges, shippingAddressChangeEvent]);
+
   const canPay = paymentMethods && (paymentMethods.googlePay || paymentMethods.applePay);
+  const isGooglePay = paymentMethods?.googlePay ?? false;
+  const isApplePay = paymentMethods?.applePay ?? false;
+
   React.useEffect(() => {
     if (!canPay) return;
     dispatch({
       type: "add-payment-method",
       paymentMethod: {
         type: "stripePaymentRequest",
-        button: (
-          <PaymentMethodRadio paymentMethod="stripePaymentRequest">
-            <div className="flex w-full flex-col items-center justify-center gap-2 self-center">
-              <span
-                className={cx("brand-icon", {
-                  "brand-icon-google": paymentMethods.googlePay,
-                  "brand-icon-apple": paymentMethods.applePay,
-                })}
-              />
-              <h4 className="text-center">{paymentMethods.googlePay ? "Google Pay" : "Apple Pay"}</h4>
-            </div>
-          </PaymentMethodRadio>
-        ),
+        button: null,
       },
     });
   }, [canPay]);
-  if (!canPay || state.paymentMethod !== "stripePaymentRequest") return null;
+
+  return { canPay, isGooglePay, isApplePay };
+};
+
+const StripePaymentRequestContent = () => {
+  const [state, dispatch] = useState();
+  const payLabel = usePayLabel();
 
   return (
-    <div className={className}>
-      <Button
-        color="primary"
-        onClick={() => dispatch({ type: "offer" })}
-        disabled={isSubmitDisabled(state)}
-        className="grow basis-0"
-      >
+    <div className="flex flex-col gap-4">
+      <Button color="primary" onClick={() => dispatch({ type: "offer" })} disabled={isSubmitDisabled(state)}>
         {payLabel}
       </Button>
     </div>
+  );
+};
+
+const StripePaymentRequestRadioOption = () => {
+  const { canPay, isGooglePay } = useStripePaymentRequest();
+
+  if (!canPay) return null;
+
+  const label = isGooglePay ? "Google Pay" : "Apple Pay";
+  const iconClass = isGooglePay ? "brand-icon-google" : "brand-icon-apple";
+
+  return (
+    <div className="border-t border-border">
+      <PaymentMethodRadioRow
+        paymentMethod="stripePaymentRequest"
+        label={label}
+        icon={<span className={cx("brand-icon", iconClass)} />}
+      />
+    </div>
+  );
+};
+
+const StripePaymentRequestPayButton = () => {
+  const [state] = useState();
+  const { canPay } = useStripePaymentRequest();
+
+  if (!canPay || state.paymentMethod !== "stripePaymentRequest") return null;
+
+  return <StripePaymentRequestContent />;
+};
+
+const PaymentMethodsSection = ({
+  isPayPalAvailable,
+  isTestPurchase,
+}: {
+  isPayPalAvailable: boolean;
+  isTestPurchase: boolean;
+}) => {
+  const [state] = useState();
+  const { canPay: isStripePaymentRequestAvailable } = useStripePaymentRequest();
+
+  const hasMultiplePaymentMethods = isPayPalAvailable || isStripePaymentRequestAvailable;
+
+  return (
+    <>
+      <div className="overflow-hidden rounded border border-border">
+        {hasMultiplePaymentMethods ? (
+          <PaymentMethodRadioRow paymentMethod="card" label="Card" icon={<Icon name="card" />} />
+        ) : (
+          <div className="flex items-center gap-3 bg-gray p-4">
+            <Icon name="card" />
+            <span className="font-medium">Card</span>
+          </div>
+        )}
+        {state.paymentMethod === "card" ? (
+          <div className={hasMultiplePaymentMethods ? "bg-gray p-4 pt-0" : "bg-gray px-4 pb-4"}>
+            <CreditCardContent />
+          </div>
+        ) : null}
+        {isPayPalAvailable ? (
+          <div className="border-t border-border">
+            <PaymentMethodRadioRow
+              paymentMethod="paypal"
+              label="Paypal"
+              icon={<span className="brand-icon brand-icon-paypal" />}
+            />
+          </div>
+        ) : null}
+        <StripePaymentRequestRadioOption />
+      </div>
+      {state.paymentMethod === "paypal" ? <PayPalContent /> : null}
+      {state.paymentMethod === "card" ? <CreditCardPayButtonContent isTestPurchase={isTestPurchase} /> : null}
+      <StripePaymentRequestPayButton />
+    </>
   );
 };
 
@@ -1154,36 +1242,29 @@ export const PaymentForm = ({
     }
   }, [state.status.type]);
 
+  const isPayPalAvailable = useIsPayPalAvailable();
+
   return (
     <div ref={paymentFormRef} className={`flex flex-col gap-6 ${className}`} aria-label="Payment form">
       {showCustomFields ? <CustomFields className="p-4 sm:p-5" /> : null}
       <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
       {!isFreePurchase ? (
         <Card>
-          <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
+          <CardContent className="sm:p-5">
             <div className="flex grow flex-col gap-4">
               <h4 className="text-base sm:text-lg">Pay with</h4>
-              {state.availablePaymentMethods.length > 1 ? (
-                <Tabs variant="buttons" className="auto-cols-fr grid-flow-col">
-                  {state.availablePaymentMethods.map((method) => (
-                    <React.Fragment key={method.type}>{method.button}</React.Fragment>
-                  ))}
-                </Tabs>
-              ) : null}
+              <StripeElementsProvider>
+                <PaymentMethodsSection isPayPalAvailable={isPayPalAvailable} isTestPurchase={!!isTestPurchase} />
+              </StripeElementsProvider>
             </div>
           </CardContent>
           {notice ? (
-            <CardContent>
+            <CardContent className="sm:p-5">
               <Alert variant="info" className="grow">
                 {notice}
               </Alert>
             </CardContent>
           ) : null}
-          <CreditCard card isTestPurchase={!!isTestPurchase} />
-          <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
-          <StripeElementsProvider>
-            <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
-          </StripeElementsProvider>
         </Card>
       ) : (
         <PayButton
