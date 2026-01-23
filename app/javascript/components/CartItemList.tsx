@@ -27,8 +27,8 @@ export const CartItem = ({
   ...props
 }: BaseProps & { asChild?: boolean; extra?: React.ReactNode; isBundleItem?: boolean }) => {
   const Comp = asChild ? Slot : "div";
-  const paddingClasses = isBundleItem ? "p-0" : "p-4 sm:p-6";
-  const rowGapClasses = isBundleItem ? "gap-0" : "gap-4 sm:gap-6";
+  const paddingClasses = isBundleItem ? "p-0" : "p-4 sm:p-5";
+  const rowGapClasses = isBundleItem ? "gap-0" : "gap-4 sm:gap-5";
   const contextValue = React.useMemo(() => ({ isBundleItem }), [isBundleItem]);
 
   return (

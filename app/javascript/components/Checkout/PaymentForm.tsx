@@ -213,7 +213,7 @@ const EmailAddress = ({ card }: { card: boolean }) => {
   };
 
   return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" : ""}>
+    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" : ""}>
       <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
         <fieldset className={cx({ danger: errors.has("email") })}>
           <legend>
@@ -701,7 +701,7 @@ const CreditCard = ({ card }: { card?: boolean }) => {
   if (state.paymentMethod !== "card") return null;
 
   return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-6" : ""}>
+    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-5" : ""}>
       <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
         <CreditCardInput
           savedCreditCard={state.savedCreditCard}
@@ -1138,10 +1138,10 @@ export const PaymentForm = ({
 
   return (
     <div className="flex flex-col gap-6">
-      {showCustomFields ? <CustomFields className="p-4 sm:p-6" /> : null}
+      {showCustomFields ? <CustomFields className="p-4 sm:p-5" /> : null}
       <Card ref={paymentFormRef} className={className} aria-label="Payment form">
         {isTestPurchase ? (
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 sm:p-5">
             <Alert variant="info" className="grow">
               This will be a test purchase as you are the creator of at least one of the products. Your payment method
               will not be charged.
@@ -1149,7 +1149,7 @@ export const PaymentForm = ({
           </CardContent>
         ) : null}
         <EmailAddress card />
-        <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" />
+        <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
         {!isFreePurchase ? (
           <>
             <CardContent className={state.paymentMethod === "card" ? "border-b-0" : ""}>
@@ -1172,13 +1172,13 @@ export const PaymentForm = ({
               </CardContent>
             ) : null}
             <CreditCard card />
-            <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
+            <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
             <StripeElementsProvider>
-              <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-6" />
+              <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
             </StripeElementsProvider>
           </>
         ) : null}
-        <PayButton className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6" />
+        <PayButton className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
         {recaptcha.container}
       </Card>
     </div>
