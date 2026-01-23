@@ -1188,7 +1188,7 @@ const PaymentMethodsSection = ({
           <div className="border-t border-border">
             <PaymentMethodRadioRow
               paymentMethod="paypal"
-              label="Paypal"
+              label="PayPal"
               icon={<span className="brand-icon brand-icon-paypal" />}
             />
           </div>
