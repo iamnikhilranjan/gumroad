@@ -601,32 +601,51 @@ const CustomerDetails = ({ className }: { className?: string }) => {
   );
 };
 
-const PayButton = ({ className }: { className?: string }) => {
+const PayButton = ({
+  className,
+  isTestPurchase,
+  card = true,
+}: {
+  className?: string;
+  isTestPurchase?: boolean;
+  card?: boolean;
+}) => {
   const [state, dispatch] = useState();
   const payLabel = usePayLabel();
 
   if (state.paymentMethod === "paypal" || state.paymentMethod === "stripePaymentRequest") return null;
 
-  return (
-    <Card>
-      <div className={className}>
-        <Button
-          color="primary"
-          onClick={() => dispatch({ type: "offer" })}
-          disabled={isSubmitDisabled(state)}
-          className="grow basis-0"
-        >
-          {payLabel}
-        </Button>
-      </div>
-    </Card>
+  const content = (
+    <div className={`${className} flex-col !items-stretch gap-4`}>
+      <Button
+        color="primary"
+        onClick={() => dispatch({ type: "offer" })}
+        disabled={isSubmitDisabled(state)}
+        className="w-full"
+      >
+        {payLabel}
+      </Button>
+      {isTestPurchase ? (
+        <Alert variant="info">
+          This will be a test purchase as you are the creator of at least one of the products. Your payment method will
+          not be charged.
+        </Alert>
+      ) : null}
+    </div>
   );
+
+  if (card) {
+    return <Card>{content}</Card>;
+  }
+
+  return content;
 };
 
-const CreditCard = ({ card }: { card?: boolean }) => {
+const CreditCard = ({ card, isTestPurchase }: { card?: boolean; isTestPurchase?: boolean }) => {
   const [state, dispatch] = useState();
   const fail = useFail();
   const isLoggedIn = !!useLoggedInUser();
+  const payLabel = usePayLabel();
 
   const cardElementRef = React.useRef<StripeCardElement | null>(null);
   const [useSavedCard, setUseSavedCard] = React.useState(!!state.savedCreditCard);
@@ -693,7 +712,7 @@ const CreditCard = ({ card }: { card?: boolean }) => {
   if (state.paymentMethod !== "card") return null;
 
   return (
-    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-5" : ""}>
+    <div className={card ? "flex flex-wrap items-center justify-between gap-4 p-4 pt-0! sm:p-5 sm:pt-0!" : ""}>
       <div className={`flex flex-col gap-4 ${card ? "grow" : ""}`}>
         <CreditCardInput
           savedCreditCard={state.savedCreditCard}
@@ -714,6 +733,15 @@ const CreditCard = ({ card }: { card?: boolean }) => {
             />
             Save card for future purchases
           </label>
+        ) : null}
+        <Button color="primary" onClick={() => dispatch({ type: "offer" })} disabled={isSubmitDisabled(state)}>
+          {payLabel}
+        </Button>
+        {isTestPurchase ? (
+          <Alert variant="info">
+            This will be a test purchase as you are the creator of at least one of the products. Your payment method
+            will not be charged.
+          </Alert>
         ) : null}
       </div>
     </div>
@@ -1131,16 +1159,6 @@ export const PaymentForm = ({
   return (
     <div ref={paymentFormRef} className={`flex flex-col gap-6 ${className}`} aria-label="Payment form">
       {showCustomFields ? <CustomFields className="p-4 sm:p-5" /> : null}
-      {isTestPurchase ? (
-        <Card>
-          <CardContent className="p-4 sm:p-5">
-            <Alert variant="info" className="grow">
-              This will be a test purchase as you are the creator of at least one of the products. Your payment method
-              will not be charged.
-            </Alert>
-          </CardContent>
-        </Card>
-      ) : null}
       <CustomerDetails className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
       {!isFreePurchase ? (
         <Card>
@@ -1163,14 +1181,18 @@ export const PaymentForm = ({
               </Alert>
             </CardContent>
           ) : null}
-          <CreditCard card />
+          <CreditCard card isTestPurchase={!!isTestPurchase} />
           <PayPal className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
           <StripeElementsProvider>
             <StripePaymentRequest className="flex flex-wrap items-center justify-between gap-4 border-b-0 p-4 sm:p-5" />
           </StripeElementsProvider>
         </Card>
-      ) : null}
-      <PayButton className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" />
+      ) : (
+        <PayButton
+          className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5"
+          isTestPurchase={!!isTestPurchase}
+        />
+      )}
       {recaptcha.container}
     </div>
   );
