@@ -2,8 +2,9 @@
 
 class PostsController < ApplicationController
   include CustomDomainConfig
-  include SetPostPageMeta
-  include SetFaviconPageMeta
+
+  include PageMeta::Favicon
+  include PageMeta::Post
 
   before_action :authenticate_user!, only: %i[send_for_purchase]
   after_action :verify_authorized, only: %i[send_for_purchase]

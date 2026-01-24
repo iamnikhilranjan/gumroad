@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module SetUserPageMeta
+module PageMeta::User
   extend ActiveSupport::Concern
 
-  include SetPageMeta
+  include PageMeta::Base
 
   private
     def set_user_page_meta(user)

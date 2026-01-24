@@ -4,7 +4,7 @@ class FollowersController < ApplicationController
   layout "inertia"
   include CustomDomainConfig
   include Pagy::Backend
-  include SetPostPageMeta
+  include PageMeta::Post
 
   PUBLIC_ACTIONS = %i[new create from_embed_form confirm cancel].freeze
   before_action :authenticate_user!, except: PUBLIC_ACTIONS

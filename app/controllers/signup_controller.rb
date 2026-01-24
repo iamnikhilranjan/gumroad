@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class SignupController < Devise::RegistrationsController
-  include OauthApplicationConfig, ValidateRecaptcha, InertiaRendering, SetPageMeta
+  include OauthApplicationConfig, ValidateRecaptcha, InertiaRendering
+
+  include PageMeta::Base
 
   before_action :verify_captcha_and_handle_existing_users, only: :create
   before_action :set_noindex_header, only: :new, if: -> { params[:next]&.start_with?("/oauth/authorize") }

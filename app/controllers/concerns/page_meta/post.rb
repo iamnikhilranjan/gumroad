@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module SetPostPageMeta
+module PageMeta::Post
   extend ActiveSupport::Concern
 
-  include SetPageMeta
+  include PageMeta::Base
 
   private
     def set_post_page_meta(post, presenter)

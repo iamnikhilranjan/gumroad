@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module SetPageMeta
+module PageMeta::Base
   extend ActiveSupport::Concern
   include ActionView::Helpers::AssetUrlHelper
   include ActionView::Helpers::OutputSafetyHelper
@@ -9,6 +9,12 @@ module SetPageMeta
   private
     def set_default_page_title
       set_meta_tag(title: default_page_title)
+    end
+
+    def page_title
+      return default_page_title if (tag = title_meta_tag).blank?
+
+      tag[:inner_content].presence || tag[:content].presence || default_page_title
     end
 
     def default_page_title
@@ -20,12 +26,6 @@ module SetPageMeta
       else
         "Local Gumroad"
       end
-    end
-
-    def page_title
-      return default_page_title if (tag = title_meta_tag).blank?
-
-      tag[:inner_content].presence || tag[:content].presence || default_page_title
     end
 
     def title_meta_tag

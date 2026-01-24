@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class User::PasswordsController < Devise::PasswordsController
-  include InertiaRendering, SetPageMeta
+  include InertiaRendering, PageMeta::Base
 
   before_action :set_default_page_title
   before_action :set_csrf_meta_tags

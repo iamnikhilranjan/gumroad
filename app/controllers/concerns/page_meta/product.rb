@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module SetProductPageMeta
+module PageMeta::Product
   extend ActiveSupport::Concern
 
-  include SetPageMeta
+  include PageMeta::Base
 
   private
     def set_product_page_meta(product)

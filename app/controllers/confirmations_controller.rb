@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ConfirmationsController < Devise::ConfirmationsController
-  include SetPageMeta
+  include PageMeta::Base
 
   before_action :set_default_page_title
   before_action :set_csrf_meta_tags

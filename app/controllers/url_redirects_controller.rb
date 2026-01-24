@@ -3,7 +3,7 @@
 class UrlRedirectsController < ApplicationController
   include SignedUrlHelper
   include ProductsHelper
-  include SetFaviconPageMeta
+  include PageMeta::Favicon
 
   before_action :fetch_url_redirect, except: %i[
     show stream download_subtitle_file read download_archive latest_media_locations download_product_files

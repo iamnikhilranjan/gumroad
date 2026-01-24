@@ -2,7 +2,9 @@
 
 class UsersController < ApplicationController
   include ProductsHelper, SearchProducts, CustomDomainConfig, SocialShareUrlHelper, ActionView::Helpers::SanitizeHelper,
-          AffiliateCookie, SetUserPageMeta, SetFaviconPageMeta
+          AffiliateCookie
+
+  include PageMeta::Favicon, PageMeta::User
 
   before_action :authenticate_user!, except: %i[show coffee subscribe subscribe_preview email_unsubscribe add_purchase_to_library session_info current_user_data]
 

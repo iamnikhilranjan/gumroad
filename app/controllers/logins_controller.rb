@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class LoginsController < Devise::SessionsController
-  include OauthApplicationConfig, ValidateRecaptcha, InertiaRendering, SetPageMeta
+  include OauthApplicationConfig, ValidateRecaptcha, InertiaRendering
+
+  include PageMeta::Base
 
   skip_before_action :check_suspended, only: %i[create destroy]
   before_action :block_json_request, only: :new

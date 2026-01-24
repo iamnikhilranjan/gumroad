@@ -3,8 +3,9 @@
 class LinksController < ApplicationController
   include ProductsHelper, SearchProducts, PreorderHelper, ActionView::Helpers::TextHelper,
           ActionView::Helpers::AssetUrlHelper, CustomDomainConfig, AffiliateCookie,
-          CreateDiscoverSearch, DiscoverCuratedProducts, FetchProductByUniquePermalink, SetProductPageMeta,
-          SetFaviconPageMeta
+          CreateDiscoverSearch, DiscoverCuratedProducts, FetchProductByUniquePermalink
+
+  include PageMeta::Favicon, PageMeta::Product
 
   DEFAULT_PRICE = 500
 

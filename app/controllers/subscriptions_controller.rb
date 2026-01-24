@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SubscriptionsController < ApplicationController
-  include SetProductPageMeta
+  include PageMeta::Product
 
   PUBLIC_ACTIONS = %i[manage unsubscribe_by_user magic_link send_magic_link].freeze
   before_action :authenticate_user!, except: PUBLIC_ACTIONS

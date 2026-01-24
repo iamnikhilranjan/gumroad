@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
-module SetAnalyticsPageMeta
+module PageMeta::Analytics
   extend ActiveSupport::Concern
 
-  include SetPageMeta
-
-  included do
-    before_action :set_analytics_meta_tags
-
-    helper_method :analytics_enabled?
-  end
+  include PageMeta::Base
 
   private
     def set_analytics_meta_tags

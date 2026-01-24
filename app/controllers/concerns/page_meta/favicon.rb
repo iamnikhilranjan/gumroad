@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module SetFaviconPageMeta
+module FaviconPageMeta
   extend ActiveSupport::Concern
 
-  include SetPageMeta
+  include PageMeta::Base
 
   private
     def set_favicon_meta_tags(user)

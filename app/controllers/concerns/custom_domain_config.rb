@@ -3,7 +3,7 @@
 module CustomDomainConfig
   extend ActiveSupport::Concern
 
-  include SetPageMeta
+  include PageMeta::Base
 
   def user_by_domain(host)
     user_by_subdomain(host) || user_by_custom_domain(host)
