@@ -11,10 +11,9 @@ class Admin::SuspendUsersController < Admin::BaseController
   ].freeze
 
   def show
-    @title = "Mass-suspend users"
+    set_page_title("Mass-suspend users")
     render inertia: "Admin/SuspendUsers/Show",
-           props: { suspend_reasons: SUSPEND_REASONS },
-           meta: { title: "Mass-suspend users" }
+           props: { suspend_reasons: SUSPEND_REASONS }
   end
 
   def update
