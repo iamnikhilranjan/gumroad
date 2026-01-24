@@ -6,7 +6,7 @@ class Checkout::FormController < Sellers::BaseController
   def show
     authorize [:checkout, :form]
 
-    set_page_title("Checkout form")
+    set_meta_tag(title: "Checkout form")
     form_props = Checkout::FormPresenter.new(pundit_user:).form_props
 
     render inertia: "Checkout/Form/Show",

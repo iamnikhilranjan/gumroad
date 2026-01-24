@@ -11,7 +11,7 @@ class Admin::AffiliatesController < Admin::BaseController
   helper Pagy::UrlHelpers
 
   def index
-    set_page_title("Affiliate results")
+    set_meta_tag(title: "Affiliate results")
     @users = @users.joins(:direct_affiliate_accounts).distinct
     @users = @users.with_blocked_attributes_for(:form_email, :form_email_domain)
 
@@ -19,7 +19,7 @@ class Admin::AffiliatesController < Admin::BaseController
   end
 
   def show
-    set_page_title("#{@affiliate_user.display_name} affiliate on Gumroad")
+    set_meta_tag(title: "#{@affiliate_user.display_name} affiliate on Gumroad")
     respond_to do |format|
       format.html do
         render inertia: "Admin/Affiliates/Show",

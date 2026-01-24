@@ -69,6 +69,6 @@ class AnalyticsController < Sellers::BaseController
     end
 
     def set_default_page_title
-      set_page_title("Analytics")
+      set_meta_tag(title: "Analytics")
     end
 end

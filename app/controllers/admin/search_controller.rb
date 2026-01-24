@@ -7,7 +7,7 @@ class Admin::SearchController < Admin::BaseController
   private_constant :RECORDS_PER_PAGE
 
   def users
-    set_page_title("User results")
+    set_meta_tag(title: "User results")
 
     @users = User.where(email: @raw_query).order(created_at: :desc).limit(25) if EmailFormatValidator.valid?(@raw_query)
     @users ||= User.where("external_id = ? or email like ? or name like ?",
@@ -18,7 +18,7 @@ class Admin::SearchController < Admin::BaseController
   end
 
   def purchases
-    set_page_title("Purchase results")
+    set_meta_tag(title: "Purchase results")
 
     @purchases = AdminSearchService.new.search_purchases(
       query: @raw_query,

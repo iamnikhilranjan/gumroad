@@ -37,7 +37,7 @@ class LinksController < ApplicationController
   def index
     authorize Link
 
-    set_page_title("Products")
+    set_meta_tag(title: "Products")
 
     render inertia: "Products/Index", props: {
       archived_products_count: -> { products_page_presenter.page_props[:archived_products_count] },
@@ -62,7 +62,7 @@ class LinksController < ApplicationController
   def new
     authorize Link
 
-    set_page_title("What are you creating?")
+    set_meta_tag(title: "What are you creating?")
     render inertia: "Products/New", props: ProductPresenter.new_page_props(current_seller:)
   end
 
@@ -278,7 +278,7 @@ class LinksController < ApplicationController
 
     redirect_to bundle_path(@product.external_id) if @product.is_bundle?
 
-    set_page_title(@product.name)
+    set_meta_tag(title: @product.name)
 
     ai_generated = params[:ai_generated] == "true"
     @presenter = ProductPresenter.new(product: @product, pundit_user:, ai_generated:)
@@ -558,7 +558,7 @@ class LinksController < ApplicationController
 
     def prepare_product_page
       @user                  = @product.user
-      set_page_title(@product.name)
+      set_meta_tag(title: @product.name)
       set_product_page_meta(@product)
       @body_id               = "product_page"
       @is_on_product_page    = true

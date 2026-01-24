@@ -35,7 +35,7 @@ class SupportController < ApplicationController
 
   private
     def set_default_page_title
-      set_page_title("Support")
+      set_meta_tag(title: "Support")
     end
 
     def validate_request_params

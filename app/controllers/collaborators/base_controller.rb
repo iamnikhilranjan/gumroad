@@ -35,6 +35,6 @@ class Collaborators::BaseController < Sellers::BaseController
     end
 
     def set_default_page_title
-      set_page_title("Collaborators")
+      set_meta_tag(title: "Collaborators")
     end
 end

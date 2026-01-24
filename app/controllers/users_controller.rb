@@ -39,12 +39,12 @@ class UsersController < ApplicationController
     @product = @user.products.visible_and_not_archived.find_by(native_type: Link::NATIVE_TYPE_COFFEE)
     e404 if @product.nil?
 
-    set_page_title(@product.name)
+    set_meta_tag(title: @product.name)
     @product_props = ProductPresenter.new(pundit_user:, product: @product, request:).product_props(seller_custom_domain_url:, recommended_by: params[:recommended_by])
   end
 
   def subscribe
-    set_page_title("Subscribe to #{@user.name.presence || @user.username}")
+    set_meta_tag(title: "Subscribe to #{@user.name.presence || @user.username}")
     @profile_presenter = ProfilePresenter.new(
       pundit_user:,
       seller: @user
@@ -148,7 +148,7 @@ class UsersController < ApplicationController
     end
 
     def set_page_attributes
-      @title ||= @user.name_or_username
+      set_meta_tag(title: @user.name_or_username)
       @body_id = "user_page"
     end
 

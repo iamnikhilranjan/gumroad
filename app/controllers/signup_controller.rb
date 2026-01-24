@@ -14,7 +14,7 @@ class SignupController < Devise::RegistrationsController
   layout "inertia", only: [:new]
 
   def new
-    set_page_title("Sign Up")
+    set_meta_tag(title: "Sign Up")
     auth_presenter = AuthPresenter.new(params:, application: @application)
     render inertia: "Signup/New", props: auth_presenter.signup_props
   end

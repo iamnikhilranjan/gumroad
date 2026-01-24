@@ -20,7 +20,7 @@ class FollowersController < ApplicationController
 
     create_user_event("followers_view")
 
-    set_page_title("Subscribers")
+    set_meta_tag(title: "Subscribers")
     set_meta_tag(property: "og:title", content: "Posts")
 
     email = params[:email].to_s.strip

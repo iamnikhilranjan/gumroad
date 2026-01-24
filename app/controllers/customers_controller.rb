@@ -181,7 +181,7 @@ class CustomersController < Sellers::BaseController
     end
 
     def set_default_page_title
-      set_page_title("Sales")
+      set_meta_tag(title: "Sales")
     end
 
     def set_on_page_type

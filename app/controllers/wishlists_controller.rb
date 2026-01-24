@@ -14,7 +14,7 @@ class WishlistsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        set_page_title(Feature.active?(:follow_wishlists, current_seller) ? "Saved" : "Wishlists")
+        set_meta_tag(title: Feature.active?(:follow_wishlists, current_seller) ? "Saved" : "Wishlists")
         wishlists_props = WishlistPresenter.library_props(wishlists: current_seller.wishlists.alive)
 
         render inertia: "Wishlists/Index", props: {
@@ -51,7 +51,7 @@ class WishlistsController < ApplicationController
     e404 if wishlist.blank?
 
     @user = wishlist.user
-    set_page_title(wishlist.name)
+    set_meta_tag(title: wishlist.name)
     set_favicon_meta_tags(@user)
 
     layout = params[:layout]

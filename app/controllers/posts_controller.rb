@@ -32,7 +32,7 @@ class PostsController < ApplicationController
       purchase_id_param: params[:purchase_id]
     )
 
-    set_page_title("#{@post.name} - #{@post.user.name_or_username}")
+    set_meta_tag(title: "#{@post.name} - #{@post.user.name_or_username}")
     set_post_page_meta(@post, @post_presenter)
     set_favicon_meta_tags(@user)
 

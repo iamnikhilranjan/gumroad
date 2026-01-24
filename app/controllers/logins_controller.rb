@@ -18,7 +18,7 @@ class LoginsController < Devise::SessionsController
   def new
     return redirect_to login_path(next: request.referrer) if params[:next].blank? && request_referrer_is_a_valid_after_login_path?
 
-    set_page_title("Log In")
+    set_meta_tag(title: "Log In")
     auth_presenter = AuthPresenter.new(params:, application: @application)
     render inertia: "Logins/New", props: auth_presenter.login_props
   end

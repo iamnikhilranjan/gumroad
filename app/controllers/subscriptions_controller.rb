@@ -35,7 +35,7 @@ class SubscriptionsController < ApplicationController
 
     @body_id = "product_page"
 
-    set_page_title(@subscription.is_installment_plan ? "Manage installment plan" : "Manage membership")
+    set_meta_tag(title: @subscription.is_installment_plan ? "Manage installment plan" : "Manage membership")
     set_product_page_meta(@product)
 
     set_subscription_confirmed_redirect_cookie

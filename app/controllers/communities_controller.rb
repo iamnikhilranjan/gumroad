@@ -13,6 +13,6 @@ class CommunitiesController < ApplicationController
 
   private
     def set_default_page_title
-      set_page_title("Communities")
+      set_meta_tag(title: "Communities")
     end
 end

@@ -136,7 +136,7 @@ class DiscoverController < ApplicationController
 
       if !params[:taxonomy].present? && !params[:query].present? && params[:tags].present?
         presenter = Discover::TagPageMetaPresenter.new(params[:tags], @search_results[:total])
-        set_page_title("#{presenter.title} | Gumroad")
+        set_meta_tag(title: "#{presenter.title} | Gumroad")
         set_meta_tag(name: "description", content: presenter.meta_description)
         set_meta_tag(property: "og:description", content: presenter.meta_description)
       else

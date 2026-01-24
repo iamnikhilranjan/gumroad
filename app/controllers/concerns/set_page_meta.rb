@@ -8,19 +8,28 @@ module SetPageMeta
 
   private
     def set_default_page_title
+      set_meta_tag(title: default_page_title)
+    end
+
+    def default_page_title
       case Rails.env
       when "production"
-        set_page_title("Gumroad")
+        "Gumroad"
       when "staging"
-        set_page_title("Staging Gumroad")
-      when "development", "test"
-        set_page_title("Local Gumroad")
+        "Staging Gumroad"
+      else
+        "Local Gumroad"
       end
     end
 
-    def set_page_title(title)
-      @title = title
-      set_meta_tag(title:)
+    def page_title
+      return default_page_title if (tag = title_meta_tag).blank?
+
+      tag[:inner_content].presence || tag[:content].presence || default_page_title
+    end
+
+    def title_meta_tag
+      inertia_meta.meta_tags.find { |tag| tag["head_key"] == "title" } || meta_tags["title"]
     end
 
     def set_csrf_meta_tags

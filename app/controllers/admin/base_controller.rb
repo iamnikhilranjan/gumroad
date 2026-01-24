@@ -20,7 +20,7 @@ class Admin::BaseController < ApplicationController
 
   before_action do
     @body_id = "admin"
-    set_page_title("Admin")
+    set_meta_tag(title: "Admin")
   end
 
   def index
