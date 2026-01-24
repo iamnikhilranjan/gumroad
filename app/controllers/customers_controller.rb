@@ -180,7 +180,7 @@ class CustomersController < Sellers::BaseController
         .load
     end
 
-    def set_title
+    def set_default_page_title
       set_page_title("Sales")
     end
 

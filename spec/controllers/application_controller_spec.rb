@@ -166,9 +166,9 @@ describe ApplicationController do
     end
   end
 
-  describe "#set_title" do
+  describe "#set_default_page_title" do
     controller(ApplicationController) do
-      before_action :set_title
+      before_action :set_default_page_title
 
       def index
         head :ok

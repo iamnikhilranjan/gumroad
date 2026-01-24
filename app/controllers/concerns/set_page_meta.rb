@@ -7,7 +7,7 @@ module SetPageMeta
   include ActionView::Helpers::TagHelper
 
   private
-    def set_title
+    def set_default_page_title
       case Rails.env
       when "production"
         set_page_title("Gumroad")

@@ -3,7 +3,7 @@
 class ConfirmationsController < Devise::ConfirmationsController
   include SetPageMeta
 
-  before_action :set_title
+  before_action :set_default_page_title
   before_action :set_csrf_meta_tags
   before_action :set_default_meta_tags
   helper_method :erb_meta_tags

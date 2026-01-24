@@ -107,7 +107,7 @@ class EmailsController < Sellers::BaseController
   end
 
   private
-    def set_title
+    def set_default_page_title
       set_page_title("Emails")
     end
 
