@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FaviconPageMeta
+module PageMeta::Favicon
   extend ActiveSupport::Concern
 
   include PageMeta::Base
