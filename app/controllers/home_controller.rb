@@ -6,16 +6,6 @@ class HomeController < ApplicationController
   before_action :set_meta_data
   before_action :set_layout_and_title
 
-  def careers
-    @jobs = JOBS
-  end
-
-  def job
-    @job = JOBS.find { |j| j[:slug] == params[:slug] }
-    raise ActionController::RoutingError, "Not Found" unless @job
-    @title = "#{@job[:title]} - Gumroad Careers"
-  end
-
   private
     def set_layout_and_title
       @hide_layouts = true
@@ -28,11 +18,6 @@ class HomeController < ApplicationController
           url: :about_url,
           title: "Earn your first dollar online with Gumroad",
           description: "Start selling what you know, see what sticks, and get paid. Simple and effective."
-        },
-        "careers" => {
-          url: :careers_url,
-          title: "Careers at Gumroad - Build the road with us",
-          description: "Join us to build the #1 tool for creators. Explore open roles and help shape the future of digital commerce."
         },
         "features" => {
           url: :features_url,

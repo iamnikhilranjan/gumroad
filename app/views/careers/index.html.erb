@@ -71,7 +71,7 @@
   </div>
 
   <%= render "home/shared/job_listings",
-    jobs: @jobs.map { |job| job.merge(url: job_path(job[:slug])) }
+    jobs: @jobs.map { |job| job.merge(url: career_path(job[:slug])) }
   %>
 
   <div class="px-8 pb-16 lg:px-[4vw] lg:pb-24">
