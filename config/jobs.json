@@ -9,9 +9,18 @@
       "category": "Engineering",
       "responsibilities": [
         { "title": "Velocity", "description": "Optimize global checkout latency (aiming for <100ms)." },
-        { "title": "Infrastructure", "description": "Scale our payout rails across Stripe, PayPal, and local bank networks." },
-        { "title": "Complexity", "description": "Solve the \"hard math\" of global sales tax, VAT, and fraud prevention." },
-        { "title": "Independence", "description": "Build the generative AI tools that help creators automate their commerce." }
+        {
+          "title": "Infrastructure",
+          "description": "Scale our payout rails across Stripe, PayPal, and local bank networks."
+        },
+        {
+          "title": "Complexity",
+          "description": "Solve the \"hard math\" of global sales tax, VAT, and fraud prevention."
+        },
+        {
+          "title": "Independence",
+          "description": "Build the generative AI tools that help creators automate their commerce."
+        }
       ],
       "stack": [
         { "name": "Backend", "tech": "Ruby on Rails." },
@@ -29,9 +38,18 @@
       "category": "Engineering",
       "responsibilities": [
         { "title": "Velocity", "description": "Optimize global checkout latency (aiming for <100ms)." },
-        { "title": "Infrastructure", "description": "Scale our payout rails across Stripe, PayPal, and local bank networks." },
-        { "title": "Complexity", "description": "Solve the \"hard math\" of global sales tax, VAT, and fraud prevention." },
-        { "title": "Independence", "description": "Build the generative AI tools that help creators automate their commerce." }
+        {
+          "title": "Infrastructure",
+          "description": "Scale our payout rails across Stripe, PayPal, and local bank networks."
+        },
+        {
+          "title": "Complexity",
+          "description": "Solve the \"hard math\" of global sales tax, VAT, and fraud prevention."
+        },
+        {
+          "title": "Independence",
+          "description": "Build the generative AI tools that help creators automate their commerce."
+        }
       ],
       "stack": [
         { "name": "Backend", "tech": "Ruby on Rails." },
@@ -49,9 +67,15 @@
       "category": "Design",
       "responsibilities": [
         { "title": "Product vision", "description": "Shape the future of creator tools through thoughtful design." },
-        { "title": "User research", "description": "Understand creator needs and translate them into intuitive interfaces." },
+        {
+          "title": "User research",
+          "description": "Understand creator needs and translate them into intuitive interfaces."
+        },
         { "title": "Design systems", "description": "Maintain and evolve our design system for consistency." },
-        { "title": "Collaboration", "description": "Work closely with engineers to ship beautiful, functional features." }
+        {
+          "title": "Collaboration",
+          "description": "Work closely with engineers to ship beautiful, functional features."
+        }
       ],
       "stack": [
         { "name": "Design", "tech": "Figma." },
