@@ -9,12 +9,12 @@ class Settings::BaseController < Sellers::BaseController
     }
   end
 
+  before_action do
+    set_meta_tag(title: "Settings")
+  end
+
   protected
     def settings_presenter
       @settings_presenter ||= SettingsPresenter.new(pundit_user:)
-    end
-
-    def set_default_page_title
-      set_meta_tag(title: "Settings")
     end
 end
